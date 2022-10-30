@@ -63,8 +63,8 @@ public class DriveActions {
         rightFront = hardwareMap.get(DcMotorEx.class, ConfigConstants.FRONT_RIGHT);
         rightRear = hardwareMap.get(DcMotorEx.class, ConfigConstants.BACK_RIGHT);
 
-        weirdWheels = hardwareMap.get(DcMotor.class, ConfigConstants.WEIRD_WHEELS);
-        weirdWheels.setDirection(DcMotorSimple.Direction.FORWARD);
+      //  weirdWheels = hardwareMap.get(DcMotor.class, ConfigConstants.WEIRD_WHEELS);
+      //  weirdWheels.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // 2. Set direction
         setMotorDirection_Forward();
@@ -136,16 +136,16 @@ public class DriveActions {
     //This methods is meant for AUTONOMOUS
     public void setMotorDirection_Forward() {
         leftFront.setDirection(MotorConstants.REVERSE);
-        leftRear.setDirection(MotorConstants.REVERSE);
+        leftRear.setDirection(MotorConstants.FORWARD);
 
-        rightFront.setDirection(MotorConstants.FORWARD);
+        rightFront.setDirection(MotorConstants.REVERSE);
         rightRear.setDirection(MotorConstants.FORWARD);
     }
 
     //This methods is meant for AUTONOMOUS
     public void setMotorDirection_Reverse() {
         leftFront.setDirection(MotorConstants.FORWARD);
-        leftRear.setDirection(MotorConstants.FORWARD);
+    leftRear.setDirection(MotorConstants.FORWARD);
 
         rightFront.setDirection(MotorConstants.REVERSE);
         rightRear.setDirection(MotorConstants.REVERSE);
@@ -160,6 +160,8 @@ public class DriveActions {
         rightRear.setDirection(MotorConstants.REVERSE);
 
     }
+
+
     //This methods is meant for AUTONOMOUS - Working
     public void setMotorDirection_StrafeRight() {
 
@@ -256,15 +258,6 @@ public class DriveActions {
         } else {
 
             setMotorDirection_Forward();
-        }
-    }
-    public void weirdWheelDrive(double forward, double reverse){
-        if (forward > 0.1) {
-            weirdWheels.setPower(forward);
-        } else if (reverse > 0.1) {
-            weirdWheels.setPower(-reverse);
-        } else {
-            weirdWheels.setPower(0.0);
         }
     }
 

@@ -45,47 +45,6 @@ public class AutonomousRightRed extends HelperActions{
             sleep(200);
         }
     }
-    private void placeBlock(EncoderActions encoderActions, AttachmentActions attachmentActions, int blockPlace){
-        double speed = 762.2;
-        if (blockPlace == 1){
-            attachmentActions.spinSlide(speed, -48);
-            attachmentActions.extendSlide(13);
-            encoderActions.encoderSpin(speed, 35, true);
-            sleep(1000);
-            attachmentActions.openGripper();
-            sleep(500);
-            attachmentActions.extendSlide(0);
-            encoderActions.encoderSpin(speed, 128, false);
-            attachmentActions.spinSlide(speed, 48);
-            encoderActions.encoderDrive(speed, 8.5);
-            encoderActions.encoderStrafe(speed, 6, true);
-        } else  if (blockPlace == 2){
-            attachmentActions.spinSlide(speed, -33);
-            attachmentActions.extendSlide(14);
-            encoderActions.encoderStrafe(speed, 8, true);
-            encoderActions.encoderSpin(speed, 33, true);
-            sleep(1000);
-            attachmentActions.openGripper();
-            sleep(500);
-            attachmentActions.extendSlide(0);
-            encoderActions.encoderSpin(speed, 128, false);
-            attachmentActions.spinSlide(speed, 35);
-            encoderActions.encoderDrive(speed, 8.5);
-            encoderActions.encoderStrafe(speed/2, 9, true);
-            encoderActions.encoderStrafe(speed, 3, false);
-        } else{
-            attachmentActions.spinSlide(speed, -15);
-            attachmentActions.extendSlide(18);
-            encoderActions.encoderStrafe(speed, 8, true);
-            encoderActions.encoderSpin(speed, 35, true);
-            sleep(1500);
-            attachmentActions.openGripper();
-            sleep(500);
-            attachmentActions.extendSlide(0);
-            encoderActions.encoderSpin(speed, 128, false);
-            attachmentActions.spinSlide(speed, 48);
-            encoderActions.encoderDrive(speed, 8.5);
-            encoderActions.encoderStrafe(speed, 6, true);
-        }
+    private void placeBlock(EncoderActions encoderActions, AttachmentActions attachmentActions, int blockPlace) {
     }
 }

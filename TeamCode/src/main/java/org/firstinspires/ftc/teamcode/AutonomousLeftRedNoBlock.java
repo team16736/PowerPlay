@@ -23,8 +23,6 @@ public class AutonomousLeftRedNoBlock extends HelperActions{
         if (opModeIsActive()) {
             drive_ForwardAndStop(driveActions, 0.5, 0.1);
             sleep(100);
-
-            spin_CarouselAndStop(attachmentActions, -0.4, 3);
             sleep(100);
 
             spin_RightAndStop(driveActions, 0.4, 1.4);

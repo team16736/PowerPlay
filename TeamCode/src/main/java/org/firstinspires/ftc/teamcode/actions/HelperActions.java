@@ -23,7 +23,7 @@ public abstract class HelperActions extends LinearOpMode {
     private int speedingArm = 0;
     private double speedArm = 0.6;
 
-    public void drive_ReverseAndStop(DriveActions driveActions, double speed, double drivingTime) {
+   public void drive_ReverseAndStop(DriveActions driveActions, double speed, double drivingTime) {
 
         driveActions.setMotorDirection_Reverse();
         driveActions.driveByTime(this, speed, drivingTime);
@@ -64,12 +64,7 @@ public abstract class HelperActions extends LinearOpMode {
         driveActions.driveByTime(this, speed, drivingTime);
         driveActions.stop();
     }
-
-    public void spin_CarouselAndStop(AttachmentActions attachmentActions, double speed, double time){
-        attachmentActions.spinCarousel(speed);
-        sleep((long)(time*1000));
-        attachmentActions.stopCarousel();
-    }
+    
     public void setWheelSpeed(DriveActions driveActions, double speed){
         driveActions.leftRear.setPower(speed);
         driveActions.rightRear.setPower(speed);

@@ -41,7 +41,6 @@ public class AutonomousRightBlueNoBlock extends HelperActions{
             telemetry.addData("reached", 1);
             telemetry.update();
 
-            spin_CarouselAndStop(attachmentActions, 0.4, 3);
             sleep(100);
             telemetry.addData("reached", 2);
             telemetry.update();
