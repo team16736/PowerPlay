@@ -45,13 +45,12 @@ public class AutonomousRightBlueNoBlock extends HelperActions{
             telemetry.addData("reached", 2);
             telemetry.update();
 
-            spin_LeftAndStop(driveActions, 0.4, 1.4);
             sleep(100);
 
             drive_ForwardAndStop(driveActions, 0.5, 1);
             sleep(100);
 
-            strafe_RightAndStop(driveActions, 0.3, 1.3);
+
         }
     }
 }

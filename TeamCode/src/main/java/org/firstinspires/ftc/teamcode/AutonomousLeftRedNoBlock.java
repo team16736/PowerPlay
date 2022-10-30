@@ -25,13 +25,10 @@ public class AutonomousLeftRedNoBlock extends HelperActions{
             sleep(100);
             sleep(100);
 
-            spin_RightAndStop(driveActions, 0.4, 1.4);
             sleep(100);
 
             drive_ForwardAndStop(driveActions, 0.5, 1);
             sleep(100);
-
-            strafe_LeftAndStop(driveActions, 0.3, 1.3);
         }
     }
 }

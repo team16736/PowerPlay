@@ -29,16 +29,11 @@ public class AutonomousRightRed extends HelperActions{
             encoderActions.encoderStrafe(speed, 2, false);
             placeBlock(encoderActions, attachmentActions, elementDetection(encoderActions, attachmentActions, false));
 
-            weirdWheelsSpeed(driveActions, 1.0);
-
             encoderActions.encoderDriveUntilTape(3000, attachmentActions);
 
             encoderActions.resetEncoder();
-            weirdWheelsSpeed(driveActions, 0.0);
 //            encoderActions.encoderDriveUntilTape(-speed, attachmentActions);
             sleep(100);
-
-            drive_ReverseAndStop(driveActions, 0.5, 0.2);
             attachmentActions.closeGripper();
             sleep(200);
             attachmentActions.openGripper();

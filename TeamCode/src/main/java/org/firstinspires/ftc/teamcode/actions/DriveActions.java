@@ -142,54 +142,6 @@ public class DriveActions {
         rightRear.setDirection(MotorConstants.FORWARD);
     }
 
-    //This methods is meant for AUTONOMOUS
-    public void setMotorDirection_Reverse() {
-        leftFront.setDirection(MotorConstants.FORWARD);
-    leftRear.setDirection(MotorConstants.FORWARD);
-
-        rightFront.setDirection(MotorConstants.REVERSE);
-        rightRear.setDirection(MotorConstants.REVERSE);
-    }
-
-    //This methods is meant for AUTONOMOUS
-    public void setMotorDirection_StrafeLeft() {
-        leftFront.setDirection(MotorConstants.FORWARD);
-        leftRear.setDirection(MotorConstants.REVERSE);
-
-        rightFront.setDirection(MotorConstants.FORWARD);
-        rightRear.setDirection(MotorConstants.REVERSE);
-
-    }
-
-
-    //This methods is meant for AUTONOMOUS - Working
-    public void setMotorDirection_StrafeRight() {
-
-        leftFront.setDirection(MotorConstants.REVERSE);
-        leftRear.setDirection(MotorConstants.FORWARD);
-
-        rightFront.setDirection(MotorConstants.REVERSE);
-        rightRear.setDirection(MotorConstants.FORWARD);
-    }
-
-    //This methods is meant for AUTONOMOUS
-    public void setMotorDirection_SpinLeft() {
-        leftFront.setDirection(MotorConstants.FORWARD);
-        leftRear.setDirection(MotorConstants.FORWARD);
-
-        rightFront.setDirection(MotorConstants.FORWARD);
-        rightRear.setDirection(MotorConstants.FORWARD);
-    }
-
-    //This methods is meant for AUTONOMOUS
-    public void setMotorDirection_SpinRight() {
-        leftRear.setDirection(MotorConstants.REVERSE);
-        leftFront.setDirection(MotorConstants.REVERSE);
-
-        rightRear.setDirection(MotorConstants.REVERSE);
-        rightFront.setDirection(MotorConstants.REVERSE);
-    }
-
     public void stop() {
         leftFront.setPower(0);
         rightFront.setPower(0);
@@ -240,27 +192,5 @@ public class DriveActions {
     /**
      * Returns true if the robot is moving
      */
-    //NOT TESTED
-    private void setMotorDirection(int direction){
-
-        if (direction == MotorConstants.DIRECTION_REVERSE){
-
-            setMotorDirection_Reverse();
-
-        } else if (direction == MotorConstants.DIRECTION_STRAFE_LEFT){
-
-            setMotorDirection_StrafeLeft();
-
-        } else if (direction == MotorConstants.DIRECTION_STRAFE_RIGHT){
-
-            setMotorDirection_StrafeRight();
-
-        } else {
-
-            setMotorDirection_Forward();
-        }
-    }
-
-
 
 }
