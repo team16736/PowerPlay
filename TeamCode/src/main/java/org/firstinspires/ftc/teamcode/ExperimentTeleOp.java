@@ -14,6 +14,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
+import org.firstinspires.ftc.teamcode.actions.EncoderActions;
+import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
 
 @TeleOp(name = "Experiment Tele Op", group = "Linear Opmode")
@@ -22,6 +24,8 @@ public class ExperimentTeleOp extends HelperActions {
 
     private DriveActions driveActions = null;
     private AttachmentActions attachmentActions = null;
+    private EncoderActions encoderActions = null;
+    private GyroActions gyroActions = null;
     DcMotorEx slideExtendMotor;
     boolean memoryBit;
     boolean memBitArmSpin;
@@ -31,6 +35,8 @@ public class ExperimentTeleOp extends HelperActions {
 
         driveActions = new DriveActions(telemetry, hardwareMap);
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
+        encoderActions = new EncoderActions(this, telemetry, hardwareMap);
+
 
         //Set Speed for teleOp. Mecannum wheel speed.
         //driveActions.setSpeed(1.0);
@@ -59,6 +65,7 @@ public class ExperimentTeleOp extends HelperActions {
 
         while (opModeIsActive()) {
             //TODO: add functionality for red side carousel
+            telemetry.addData("heading", gyroActions.getRawHeading());
 
             /** Gamepad 1 **/
             driveActions.drive(

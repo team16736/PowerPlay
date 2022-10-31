@@ -31,4 +31,5 @@ public class ConfigConstants {
     //Sensors
     public static final String ELEMENT_DETECTOR ="elementDetector";
     public static final String BOUNDARY_DETECTOR = "boundaryDetector";
+    public static final String IMU = "IMU";
 }

@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
 import org.firstinspires.ftc.teamcode.actions.EncoderActions;
+import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
 
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
@@ -15,11 +16,13 @@ public class AutonomousTest extends HelperActions{
     private DriveActions driveActions = null;
     private AttachmentActions attachmentActions = null;
     private EncoderActions encoderActions = null;
+    private GyroActions gyroActions = null;
     public void runOpMode() {
 
         driveActions = new DriveActions(telemetry, hardwareMap);
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
         encoderActions = new EncoderActions(this, telemetry, hardwareMap);
+        gyroActions = new GyroActions(this, telemetry, hardwareMap);
 
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
@@ -27,8 +30,15 @@ public class AutonomousTest extends HelperActions{
 
         if (opModeIsActive()) {
             double speed = 762.2;
-            encoderActions.encoderDriveUntilTape(3000, attachmentActions);
-            encoderActions.encoderDriveUntilTape(-speed, attachmentActions);
+            //encoderActions.encoderDriveSpeedRamp(speed, 60, 3);
+//            gyroActions.runUsingEncoders();
+
+            for (int i = 0; i < 5; i++) {
+                encoderActions.encoderDrive(speed, 36);
+                encoderActions.encoderDrive(speed, -36);
+            }
+            sleep(1000);
+//            gyroActions.gyroSpin(0.2, 90.0);
         }
     }
     private void placeBlock(EncoderActions encoderActions, AttachmentActions attachmentActions, int blockPlace){
