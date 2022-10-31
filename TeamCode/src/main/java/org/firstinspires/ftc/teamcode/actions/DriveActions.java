@@ -63,8 +63,8 @@ public class DriveActions {
         rightFront = hardwareMap.get(DcMotorEx.class, ConfigConstants.FRONT_RIGHT);
         rightRear = hardwareMap.get(DcMotorEx.class, ConfigConstants.BACK_RIGHT);
 
-        weirdWheels = hardwareMap.get(DcMotor.class, ConfigConstants.WEIRD_WHEELS);
-        weirdWheels.setDirection(DcMotorSimple.Direction.FORWARD);
+      //  weirdWheels = hardwareMap.get(DcMotor.class, ConfigConstants.WEIRD_WHEELS);
+      //  weirdWheels.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // 2. Set direction
         setMotorDirection_Forward();
@@ -136,56 +136,10 @@ public class DriveActions {
     //This methods is meant for AUTONOMOUS
     public void setMotorDirection_Forward() {
         leftFront.setDirection(MotorConstants.REVERSE);
-        leftRear.setDirection(MotorConstants.REVERSE);
-
-        rightFront.setDirection(MotorConstants.FORWARD);
-        rightRear.setDirection(MotorConstants.FORWARD);
-    }
-
-    //This methods is meant for AUTONOMOUS
-    public void setMotorDirection_Reverse() {
-        leftFront.setDirection(MotorConstants.FORWARD);
-        leftRear.setDirection(MotorConstants.FORWARD);
-
-        rightFront.setDirection(MotorConstants.REVERSE);
-        rightRear.setDirection(MotorConstants.REVERSE);
-    }
-
-    //This methods is meant for AUTONOMOUS
-    public void setMotorDirection_StrafeLeft() {
-        leftFront.setDirection(MotorConstants.FORWARD);
-        leftRear.setDirection(MotorConstants.REVERSE);
-
-        rightFront.setDirection(MotorConstants.FORWARD);
-        rightRear.setDirection(MotorConstants.REVERSE);
-
-    }
-    //This methods is meant for AUTONOMOUS - Working
-    public void setMotorDirection_StrafeRight() {
-
-        leftFront.setDirection(MotorConstants.REVERSE);
         leftRear.setDirection(MotorConstants.FORWARD);
 
         rightFront.setDirection(MotorConstants.REVERSE);
         rightRear.setDirection(MotorConstants.FORWARD);
-    }
-
-    //This methods is meant for AUTONOMOUS
-    public void setMotorDirection_SpinLeft() {
-        leftFront.setDirection(MotorConstants.FORWARD);
-        leftRear.setDirection(MotorConstants.FORWARD);
-
-        rightFront.setDirection(MotorConstants.FORWARD);
-        rightRear.setDirection(MotorConstants.FORWARD);
-    }
-
-    //This methods is meant for AUTONOMOUS
-    public void setMotorDirection_SpinRight() {
-        leftRear.setDirection(MotorConstants.REVERSE);
-        leftFront.setDirection(MotorConstants.REVERSE);
-
-        rightRear.setDirection(MotorConstants.REVERSE);
-        rightFront.setDirection(MotorConstants.REVERSE);
     }
 
     public void stop() {
@@ -238,36 +192,5 @@ public class DriveActions {
     /**
      * Returns true if the robot is moving
      */
-    //NOT TESTED
-    private void setMotorDirection(int direction){
-
-        if (direction == MotorConstants.DIRECTION_REVERSE){
-
-            setMotorDirection_Reverse();
-
-        } else if (direction == MotorConstants.DIRECTION_STRAFE_LEFT){
-
-            setMotorDirection_StrafeLeft();
-
-        } else if (direction == MotorConstants.DIRECTION_STRAFE_RIGHT){
-
-            setMotorDirection_StrafeRight();
-
-        } else {
-
-            setMotorDirection_Forward();
-        }
-    }
-    public void weirdWheelDrive(double forward, double reverse){
-        if (forward > 0.1) {
-            weirdWheels.setPower(forward);
-        } else if (reverse > 0.1) {
-            weirdWheels.setPower(-reverse);
-        } else {
-            weirdWheels.setPower(0.0);
-        }
-    }
-
-
 
 }

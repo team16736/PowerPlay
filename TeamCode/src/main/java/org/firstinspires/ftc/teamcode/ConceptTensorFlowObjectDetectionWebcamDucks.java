@@ -151,7 +151,6 @@ public class ConceptTensorFlowObjectDetectionWebcamDucks extends LinearOpMode {
                 sleep(1000);
 
                 double power = 0.5;
-                helperActions.strafe_RightAndStop(driveActions, 0.6, 2);
                 boolean result2 = isDuck();
                 telemetry.addData("quack",result2);
                 telemetry.update();
@@ -159,11 +158,10 @@ public class ConceptTensorFlowObjectDetectionWebcamDucks extends LinearOpMode {
 
                 int duckPlace = whereDuck(result1, result2);
                 sleep(1000);
-                helperActions.spin_RightAndStop(driveActions, 0.4, 3);
+
                 sleep(1000);
                 helperActions.drive_ForwardAndStop(driveActions, 0.6, 8);
                 sleep(1000);
-                helperActions.spin_CarouselAndStop(attachmentActions, 0.6, 5);
                 break;
             }
         }

@@ -41,47 +41,6 @@ public class AutonomousTest extends HelperActions{
 //            gyroActions.gyroSpin(0.2, 90.0);
         }
     }
-    private void placeBlock(EncoderActions encoderActions, AttachmentActions attachmentActions, int blockPlace){
-        double speed = 762.2;
-        if(blockPlace == 1){
-            attachmentActions.spinSlide(speed, -15);
-            attachmentActions.extendSlide(17);
-            encoderActions.encoderSpin(speed, 32, false);
-            sleep(1500);
-            attachmentActions.openGripper();
-            sleep(500);
-            attachmentActions.extendSlide(0);
-            encoderActions.encoderSpin(speed, 125, true);
-            attachmentActions.spinSlide(speed, 15);
-            encoderActions.encoderDrive(speed, 8.5);
-            encoderActions.encoderStrafe(speed, 6, false);
-        } else if(blockPlace == 2){
-            attachmentActions.spinSlide(speed, -33);
-            attachmentActions.extendSlide(15);
-            encoderActions.encoderStrafe(speed, 8, false);
-            encoderActions.encoderSpin(speed, 33, false);
-            sleep(2000);
-            attachmentActions.openGripper();
-            sleep(500);
-            attachmentActions.extendSlide(0);
-            encoderActions.encoderSpin(speed, 128, true);
-            attachmentActions.spinSlide(speed, 33);
-            encoderActions.encoderDrive(speed, 8.5);
-            encoderActions.encoderStrafe(speed/2, 9, false);
-            encoderActions.encoderStrafe(speed, 3, true);
-        } else{
-            attachmentActions.spinSlide(speed, -46);
-            attachmentActions.extendSlide(12);
-            encoderActions.encoderStrafe(speed, 8, false);
-            encoderActions.encoderSpin(speed, 35, false);
-            sleep(1000);
-            attachmentActions.openGripper();
-            sleep(500);
-            attachmentActions.extendSlide(0);
-            encoderActions.encoderSpin(speed, 128, true);
-            attachmentActions.spinSlide(speed, 48);
-            encoderActions.encoderDrive(speed, 8.5);
-            encoderActions.encoderStrafe(speed, 6, false);
-        }
+    private void placeBlock(EncoderActions encoderActions, AttachmentActions attachmentActions, int blockPlace) {
     }
 }

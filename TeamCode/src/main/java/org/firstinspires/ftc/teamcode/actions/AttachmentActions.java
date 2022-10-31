@@ -27,13 +27,10 @@ import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
  */
 public class AttachmentActions {
 
-    public DcMotor carouselSpinner;
 //    public Servo elbowServo;
     public Servo gripperServo;
     public DistanceSensor elementDetector;
     public ColorSensor boundaryDetector;
-    public DcMotorEx slideTurnMotor;
-    public DcMotorEx slideExtendMotor;
 
 
     private Telemetry telemetry;
@@ -53,24 +50,14 @@ public class AttachmentActions {
         this.hardwareMap = opModeHardware;
 
         // 1. Hardware config
-        carouselSpinner = hardwareMap.get(DcMotor.class, ConfigConstants.CAROUSEL_SPINNER);
 //        elbowServo = hardwareMap.get(Servo.class, ConfigConstants.ELBOW_SERVO);
         gripperServo = hardwareMap.get(Servo.class, ConfigConstants.GRIPPER_SERVO);
         elementDetector = hardwareMap.get(DistanceSensor.class, ConfigConstants.ELEMENT_DETECTOR);
         boundaryDetector = hardwareMap.get(ColorSensor.class, ConfigConstants.BOUNDARY_DETECTOR);
-        slideTurnMotor = hardwareMap.get(DcMotorEx.class, ConfigConstants.SLIDE_TURN_MOTOR);
-        slideExtendMotor = hardwareMap.get(DcMotorEx.class, ConfigConstants.SLIDE_EXTEND_MOTOR);
-        slideExtendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 //        elbowServo.setPosition(0.87);
         gripperServo.setPosition(0.45);
     }
 
-    public void spinCarousel(double speed){
-        carouselSpinner.setPower(speed);
-    }
-    public void stopCarousel(){
-        carouselSpinner.setPower(0.0);
-    }
     public void contractElbow(){ } //delete 72-74
     public void elbowLevel1(){}
     public void elbowLevel2(){}
@@ -83,51 +70,51 @@ public class AttachmentActions {
             return false;
         }
     }
-    public void spinSlide(double speed, double degrees){
-        slideTurnMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-
-        double ticksPerRevolution = 5281.1;
-        double ticksPerDegree = (ticksPerRevolution)/360;
-        int totalTicks = (int) (ticksPerDegree * degrees);
-
-        slideTurnMotor.setTargetPosition(totalTicks);
-
-        slideTurnMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-
-        slideTurnMotor.setVelocity(speed);
-    }
-
-    public void extendSlide(double distance){
-        double maxPosition = -3610;
-        double minPosition = 0;
-        double maxLength = 24;
-        double ticksPerInch = (maxPosition-minPosition)/maxLength;
-        int totalTicks = (int) (ticksPerInch * distance);
-
-        slideExtendMotor.setTargetPosition(totalTicks);
-
-        slideExtendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-
-        slideExtendMotor.setPower(0.5);
-    }
-    public boolean isSlideExtendMotorBusy(){
-        return slideExtendMotor.isBusy();
-    }
-    public boolean isSlideRotateMotorBusy(){
-        return  slideTurnMotor.isBusy();
-    }
-    public void adjustSlide(double speed){}
-    public void teleOpSlideRotate(double speed, int distance){
-        int currentTicks = slideTurnMotor.getCurrentPosition();
-        int totalTicks = (int) currentTicks + distance;
-        slideTurnMotor.setTargetPosition(totalTicks);
-
-        //Switch to RUN_TO_POSITION mode
-        slideTurnMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-
-        //Start the motor moving by setting the max velocity to 1 revolution per second
-        slideTurnMotor.setVelocity(speed);
-    }
+//    public void spinSlide(double speed, double degrees){
+//        slideTurnMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+//
+//        double ticksPerRevolution = 5281.1;
+//        double ticksPerDegree = (ticksPerRevolution)/360;
+//        int totalTicks = (int) (ticksPerDegree * degrees);
+//
+//        slideTurnMotor.setTargetPosition(totalTicks);
+//
+//        slideTurnMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+//
+//        slideTurnMotor.setVelocity(speed);
+//    }
+//
+//    public void extendSlide(double distance){
+//        double maxPosition = -3610;
+//        double minPosition = 0;
+//        double maxLength = 24;
+//        double ticksPerInch = (maxPosition-minPosition)/maxLength;
+//        int totalTicks = (int) (ticksPerInch * distance);
+//
+//        slideExtendMotor.setTargetPosition(totalTicks);
+//
+//        slideExtendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+//
+//        slideExtendMotor.setPower(0.5);
+//    }
+//    public boolean isSlideExtendMotorBusy(){
+//        return slideExtendMotor.isBusy();
+//    }
+//    public boolean isSlideRotateMotorBusy(){
+//        return  slideTurnMotor.isBusy();
+//    }
+//    public void adjustSlide(double speed){}
+//    public void teleOpSlideRotate(double speed, int distance){
+//        int currentTicks = slideTurnMotor.getCurrentPosition();
+//        int totalTicks = (int) currentTicks + distance;
+//        slideTurnMotor.setTargetPosition(totalTicks);
+//
+//        //Switch to RUN_TO_POSITION mode
+//        slideTurnMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+//
+//        //Start the motor moving by setting the max velocity to 1 revolution per second
+//        slideTurnMotor.setVelocity(speed);
+//    }
     public boolean detectBarrier(){
         /* Use telemetry to display feedback on the driver station. We show the red, green, and blue
          * normalized values from the sensor (in the range of 0 to 1), as well as the equivalent

@@ -34,7 +34,7 @@ public class MotorConstants {
     // 5202 Series Yellow Jacket Planetary Gear Motor (13.7:1 Ratio, 435 RPM, 3.3 - 5V Encoder)
     // Encoder Countable Events Per Revolution (Output Shaft)	383.6 (Rises & Falls of Ch A & B)
     public static final double COUNTS_PER_MOTOR_REVOLUTION = 386.3;    // eg: GOBILDA Motor Encoder, 435 RPM
-    public static final double WHEEL_CIRCUMFERENCE_INCHES = 12.37;     // C = 2 * 2.14 * r
+    public static final double WHEEL_CIRCUMFERENCE_INCHES = 12.37;     // C = 2 * 3.14 * r
     public static final double DISTANCE_PER_REVOLUTION_INCHES = 12.37;     // For figuring circumference
     public static final double COUNTS_PER_INCH = COUNTS_PER_MOTOR_REVOLUTION / DISTANCE_PER_REVOLUTION_INCHES;   //31.22f
 

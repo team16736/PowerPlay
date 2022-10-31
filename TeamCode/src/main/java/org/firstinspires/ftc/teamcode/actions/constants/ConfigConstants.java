@@ -9,15 +9,11 @@ public class ConfigConstants {
     public static final String BACK_RIGHT = "rightRear";
     public static final String BACK_LEFT = "leftRear";
 
-    public static final String WEIRD_WHEELS = "weirdWheels";
-
     //Hooks
     public static final String SERVO_LEFT = "left_hook";
     public static final String SERVO_RIGHT = "right_hook";
 
     //slide
-    public static final String SLIDE_TURN_MOTOR = "slideMotor";
-    public static final String SLIDE_EXTEND_MOTOR = "slideExtender";
 
     //Elbow
     public static final String ELBOW_SERVO = "elbow_servo";

@@ -26,9 +26,6 @@ public class BasicDrive extends HelperActions {
 
         if (opModeIsActive()) {
             Double speed = 762.2;
-
-            attachmentActions.spinSlide(speed, 23);
-            attachmentActions.extendSlide(15);
             sleep(100000);
         }
     }

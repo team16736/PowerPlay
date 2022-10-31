@@ -23,82 +23,12 @@ public abstract class HelperActions extends LinearOpMode {
     private int speedingArm = 0;
     private double speedArm = 0.6;
 
-    public void drive_ReverseAndStop(DriveActions driveActions, double speed, double drivingTime) {
-
-        driveActions.setMotorDirection_Reverse();
-        driveActions.driveByTime(this, speed, drivingTime);
-        driveActions.stop();
-    }
-
     public void drive_ForwardAndStop(DriveActions driveActions, double speed, double drivingTime) {
         driveActions.setMotorDirection_Forward();
         driveActions.driveByTime(this, speed, drivingTime);
         driveActions.stop();
     }
 
-    public void strafe_RightAndStop(DriveActions driveActions, double speed, double drivingTime) {
-
-        driveActions.setMotorDirection_StrafeRight();
-        driveActions.driveByTime(this, speed, drivingTime);
-        driveActions.stop();
-    }
-
-    public void strafe_LeftAndStop(DriveActions driveActions, double speed, double drivingTime) {
-
-        driveActions.setMotorDirection_StrafeLeft();
-        driveActions.driveByTime(this, speed, drivingTime);
-        driveActions.stop();
-
-        telemetry.addData("strafe_LeftAndStop: ", "-->strafe_LeftAndStop");
-        telemetry.update();
-
-    }
-    public void spin_LeftAndStop(DriveActions driveActions, double speed, double drivingTime) {
-        driveActions.setMotorDirection_SpinLeft();
-        driveActions.driveByTime(this, speed, drivingTime);
-        driveActions.stop();
-    }
-
-    public void spin_RightAndStop(DriveActions driveActions, double speed, double drivingTime) {
-        driveActions.setMotorDirection_SpinRight();
-        driveActions.driveByTime(this, speed, drivingTime);
-        driveActions.stop();
-    }
-
-    public void spin_CarouselAndStop(AttachmentActions attachmentActions, double speed, double time){
-        attachmentActions.spinCarousel(speed);
-        sleep((long)(time*1000));
-        attachmentActions.stopCarousel();
-    }
-    public void setWheelSpeed(DriveActions driveActions, double speed){
-        driveActions.leftRear.setPower(speed);
-        driveActions.rightRear.setPower(speed);
-        driveActions.rightFront.setPower(speed);
-        driveActions.leftFront.setPower(speed);
-    }
-    public void setWheelSpeedLinear(DriveActions driveActions, double speed, double direction){
-        if (direction == LEFT){
-            driveActions.setMotorDirection_StrafeLeft();
-        } else if (direction == RIGHT){
-            driveActions.setMotorDirection_StrafeRight();
-        } else if (direction == FORWARDS){
-            driveActions.setMotorDirection_Forward();
-        } else if (direction == BACKWARDS){
-            driveActions.setMotorDirection_Reverse();
-        }
-        setWheelSpeed(driveActions, speed);
-    }
-    public void setWheelSpeedSpin(DriveActions driveActions, double speed){
-        if (speed == LEFT){
-            driveActions.setMotorDirection_SpinLeft();
-        } else if (speed == RIGHT){
-            driveActions.setMotorDirection_SpinRight();
-        }
-        setWheelSpeed(driveActions, speed);
-    }
-    public void weirdWheelsSpeed(DriveActions driveActions, double speed){
-        driveActions.weirdWheels.setPower(speed);
-    }
     public boolean strafeAndDetect(EncoderActions encoderActions, AttachmentActions attachmentActions, double speed, double distance, boolean strafeLeft){
         encoderActions.motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoderActions.motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

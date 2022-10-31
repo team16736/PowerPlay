@@ -62,9 +62,6 @@ public class NewDriveActions {
         rightFront = hardwareMap.get(DcMotorEx.class, ConfigConstants.FRONT_RIGHT);
         rightRear = hardwareMap.get(DcMotorEx.class, ConfigConstants.BACK_RIGHT);
 
-        weirdWheels = hardwareMap.get(DcMotor.class, ConfigConstants.WEIRD_WHEELS);
-        weirdWheels.setDirection(DcMotorSimple.Direction.FORWARD);
-
         // 2. Set direction
         setMotorDirection_Forward();
     }
