@@ -33,37 +33,32 @@ public class AutonomousLeftSideRedPowerPlay extends HelperActions {
 
         if (opModeIsActive()) {
 
+        int location = 1;
+            moveToLocation(encoderActions, location);
 
-//            location 1
-            //encoderActions.encoderDrive(speed, 2);
-            //encoderActions.encoderStrafe(speed, 21, true);
-            //encoderActions.encoderDrive(speed, 26);
+
+        }
+    }
+
+    private void moveToLocation(EncoderActions encoderActions, int location) {
+        if (location == 1) {
+            //            location 1
+            encoderActions.encoderDrive(speed, 2);
+            encoderActions.encoderStrafe(speed, 21, true);
+            encoderActions.encoderDrive(speed, 26);
             telemetry.addData(">", "We Can Drive!");
             telemetry.update();
+        } else if (location == 2) {
             //sleep(10000);
             //                 location 2
-            // encoderActions.encoderDrive(speed, 2);
-            // encoderActions.encoderStrafe(speed, 3, false);
-            // encoderActions.encoderDrive(speed, 26);
+            encoderActions.encoderDrive(speed, 2);
+            encoderActions.encoderStrafe(speed, 3, false);
+            encoderActions.encoderDrive(speed, 26);
+        } else {
             //              Location 3
             encoderActions.encoderDrive(speed, 2);
             encoderActions.encoderStrafe(speed, 28, false);
             encoderActions.encoderDrive(speed, 26);
-
-            /*
-            spin_CarouselAndStop(attachmentActions, -0.4, 3);
-
-            sleep(100);
-
-            spin_RightAndStop(driveActions, 0.4, 1.4);
-            sleep(100);
-
-            drive_ForwardAndStop(driveActions, 0.5, 1);
-            sleep(100);
-
-            strafe_LeftAndStop(driveActions, 0.3, 1.3);
-
-             */
         }
     }
 }
