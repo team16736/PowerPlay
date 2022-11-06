@@ -14,15 +14,15 @@ public class ConfigConstants {
     public static final String SERVO_RIGHT = "right_hook";
 
     //slide
-
-    //Elbow
-    public static final String ELBOW_SERVO = "elbow_servo";
+    public static final String SCISSOR_ONE = "scissorLift1";
+    public static final String SCISSOR_TWO = "scissorLift2";
 
     //Gripper
     public static final String GRIPPER_SERVO = "gripper";
 
-    //Carousel Spinner
-    public static final String CAROUSEL_SPINNER = "carouselSpinner";
+    //Turntable
+    public static final String TURN_TABLE = "turnTable";
+    public static final String TURN_TABLE_ENCODER = "tableEncoder";
 
     //Sensors
     public static final String ELEMENT_DETECTOR ="elementDetector";

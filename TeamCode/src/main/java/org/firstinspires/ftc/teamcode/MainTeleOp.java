@@ -29,6 +29,8 @@ public class MainTeleOp extends HelperActions {
         int currentTicks = 0;
         int speeding = 0;
         double speed = 0.8;
+        double y = 0;
+        double x = 0;
         double speedY; //Create new double for the speed.
         int currentPos; //Create an integer for the current position (IMPORTANT THAT ITS AN INTEGER, WILL NOT WORK OTHERWISE)
 
@@ -43,17 +45,30 @@ public class MainTeleOp extends HelperActions {
 
             /** Gamepad 1 **/
             driveActions.drive(
-                    (gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x)),      //joystick controlling strafe
-                    (-gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y)),     //joystick controlling forward/backward
-                    (gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x)));    //joystick controlling rotation
+                    (gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x) * 0.5),      //joystick controlling strafe
+                    (-gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y) * 0.5),     //joystick controlling forward/backward
+                    (gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * 0.5));    //joystick controlling rotation
 //            telemetry.addData("Left stick x", gamepad1.left_stick_x);
 //            telemetry.addData("left stick y", gamepad1.left_stick_y);
 //            telemetry.addData("right stick x", gamepad1.right_stick_x);
 //            telemetry.update();
-            if (gamepad2.x){
+            y = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
+            attachmentActions.scissorLift1.setPower(y);
+            attachmentActions.scissorLift2.setPower(y);
+
+            if (gamepad2.right_stick_x > 0.01 && attachmentActions.tableencodercount() < 4000) {
+                x = ((Math.abs(Math.pow(gamepad2.right_stick_x, 2)) * 0.93) + 0.07);
+            } else if (gamepad2.right_stick_x < -0.01 && attachmentActions.tableencodercount() > -4000) {
+                x = -((Math.abs(Math.pow(gamepad2.right_stick_x, 2)) * 0.93) + 0.07);
+            } else {
+                x = 0;
+            }
+            attachmentActions.turnTable.setPower(x);
+
+            if (gamepad2.x) {
                 attachmentActions.closeGripper();
             }
-            if (gamepad2.y){
+            if (gamepad2.y) {
                 attachmentActions.openGripper();
             }
 
@@ -91,7 +106,7 @@ public class MainTeleOp extends HelperActions {
 //                attachmentActions.slideTurnMotor.setPower((attachmentActions.slideTurnMotor.getCurrentPosition()-currentTicks)*-.001);
 //            }
 //
-//            changeSpeed(driveActions, gamepad1.dpad_up, gamepad1.dpad_down, gamepad1.a, gamepad1.x, gamepad1.y, gamepad1.b);
+            changeSpeed(driveActions, gamepad1.dpad_up || gamepad1.x, gamepad1.dpad_down || gamepad1.b, gamepad1.a, gamepad1.y);
 //
 //            telemetry.addData("Current Position ", attachmentActions.slideTurnMotor.getCurrentPosition());
 //            telemetry.addData("Target Position", currentTicks);

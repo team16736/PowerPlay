@@ -92,14 +92,14 @@ public abstract class HelperActions extends LinearOpMode {
             return 3;
         }
     }
-    public void changeSpeed(DriveActions driveActions, boolean upOne1, boolean downOne1, boolean upTwo, boolean upOne2, boolean downTwo, boolean downOne2){
-        if(upOne1){
+    public void changeSpeed(DriveActions driveActions, boolean upOne, boolean downOne, boolean upTwo, boolean downTwo){
+        if(upOne){
             speeding++;
             if(speeding == 1){
                 speed = speed + 0.1;
             }
         }
-        if(downOne1){
+        if(downOne){
             speeding++;
             if(speeding == 1){
                 speed = speed - 0.1;
@@ -111,25 +111,13 @@ public abstract class HelperActions extends LinearOpMode {
                 speed = speed + 0.2;
             }
         }
-        if(upOne2){
-            speeding++;
-            if(speeding == 1){
-                speed = speed + 0.1;
-            }
-        }
         if(downTwo){
             speeding++;
             if(speeding == 1){
                 speed = speed - 0.2;
             }
         }
-        if(downOne2){
-            speeding++;
-            if(speeding == 1){
-                speed = speed - 0.1;
-            }
-        }
-        if(!upOne1 && !downOne1 && !upTwo && !upOne2 && !downTwo && !downOne2){
+        if(!upOne && !downOne && !upTwo && !downTwo){
             speeding = 0;
         }
         if (speed < 0){

@@ -50,7 +50,7 @@ public class NewChassisTeleOp extends HelperActions {
                 attachmentActions.openGripper();
             }
 
-            changeSpeed(driveActions, gamepad1.dpad_up, gamepad1.dpad_down, gamepad1.a, gamepad1.x, gamepad1.y, gamepad1.b);
+            changeSpeed(driveActions, gamepad1.dpad_up || gamepad1.x, gamepad1.dpad_down || gamepad1.b, gamepad1.a, gamepad1.y);
 
             telemetry.addData("Target Position", currentTicks);
             telemetry.update();

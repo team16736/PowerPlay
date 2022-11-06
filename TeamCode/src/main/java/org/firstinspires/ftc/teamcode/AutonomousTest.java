@@ -33,11 +33,8 @@ public class AutonomousTest extends HelperActions{
             //encoderActions.encoderDriveSpeedRamp(speed, 60, 3);
 //            gyroActions.runUsingEncoders();
 
-            for (int i = 0; i < 5; i++) {
-                encoderActions.encoderDrive(speed, 36);
-                encoderActions.encoderDrive(speed, -36);
-            }
-            sleep(1000);
+            attachmentActions.turnTableEncoders(60, 0.2);
+            sleep(10000);
 //            gyroActions.gyroSpin(0.2, 90.0);
         }
     }
