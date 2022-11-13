@@ -53,15 +53,32 @@ public class FindImageOnCone {
 
         }
     }
-    public void findObject() {
+    public String findObject() {
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
+            boolean size = false;
+            double startTime = System.currentTimeMillis();
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+            if(updatedRecognitions != null){
+                if(updatedRecognitions.size() < 1){
+                    size = false;
+                } else {size = true;}
+            }
+            while(size == false && (System.currentTimeMillis() - startTime) < 10000){
+                updatedRecognitions = tfod.getUpdatedRecognitions();
+                if(updatedRecognitions != null){
+                    telemetry.addData("# Objects Detected", updatedRecognitions.size());
+                    telemetry.update();
+                    if(updatedRecognitions.size() < 1){
+                        size = false;
+                    } else {size = true;}
+                }
+            }
             if (updatedRecognitions != null) {
                 telemetry.addData("# Objects Detected", updatedRecognitions.size());
 
-                // step through the list of recognitions and display image position/size information for each one
+                    // step through the list of recognitions and display image position/size information for each one
                 // Note: "Image number" refers to the randomized image orientation/number
                 for (Recognition recognition : updatedRecognitions) {
                     double col = (recognition.getLeft() + recognition.getRight()) / 2 ;
@@ -73,10 +90,12 @@ public class FindImageOnCone {
                     telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100 );
                     telemetry.addData("- Position (Row/Col)","%.0f / %.0f", row, col);
                     telemetry.addData("- Size (Width/Height)","%.0f / %.0f", width, height);
+                    return recognition.getLabel();
                 }
                 telemetry.update();
             }
         }
+        return null;
     }
     
     /**

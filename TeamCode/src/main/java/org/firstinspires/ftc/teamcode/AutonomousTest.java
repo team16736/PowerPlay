@@ -23,6 +23,7 @@ public class AutonomousTest extends HelperActions{
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
         encoderActions = new EncoderActions(this, telemetry, hardwareMap);
         gyroActions = new GyroActions(this, telemetry, hardwareMap);
+        driveActions.setMotorDirection_Forward();
 
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
@@ -33,7 +34,7 @@ public class AutonomousTest extends HelperActions{
             //encoderActions.encoderDriveSpeedRamp(speed, 60, 3);
 //            gyroActions.runUsingEncoders();
 
-            attachmentActions.turnTableEncoders(60, 0.2);
+            attachmentActions.turnTableEncoders(20, 0.2, this);
             sleep(10000);
 //            gyroActions.gyroSpin(0.2, 90.0);
         }

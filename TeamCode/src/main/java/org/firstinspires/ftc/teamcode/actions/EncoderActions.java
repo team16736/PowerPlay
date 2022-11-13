@@ -303,5 +303,8 @@ final public class EncoderActions{
         motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorBackR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
+    public int getPosition(){
+        return motorFrontL.getCurrentPosition();
+    }
 }
 

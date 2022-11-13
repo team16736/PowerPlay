@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
+import org.firstinspires.ftc.teamcode.actions.EncoderActions;
 import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
 
 @TeleOp(name = "Experiment Tele Op", group = "Linear Opmode")
@@ -24,6 +25,7 @@ public class ExperimentTeleOp extends HelperActions {
 
     private DriveActions driveActions = null;
     private AttachmentActions attachmentActions = null;
+    private EncoderActions encoderActions = null;
     boolean memoryBit;
     boolean memBitArmSpin;
 
@@ -32,6 +34,7 @@ public class ExperimentTeleOp extends HelperActions {
 
         driveActions = new DriveActions(telemetry, hardwareMap);
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
+        encoderActions = new EncoderActions(this, telemetry, hardwareMap);
 
         //Set Speed for teleOp. Mecannum wheel speed.
         //driveActions.setSpeed(1.0);
@@ -40,7 +43,7 @@ public class ExperimentTeleOp extends HelperActions {
         int targetArmSpin = 0;
         int speeding = 0;
         double speed = 0.8;
-        double x; //Create new double for the speed.
+        double y; //Create new double for the speed.
         int currentPos; //Create an integer for the current position (IMPORTANT THAT ITS AN INTEGER, WILL NOT WORK OTHERWISE)
         int armUpPosition1 = 0;
         int armUpPosition2 = 0;
@@ -65,10 +68,16 @@ public class ExperimentTeleOp extends HelperActions {
             if (gamepad1.a) { }
             if (gamepad1.b) { }
 
+            y = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
+            attachmentActions.scissorLift1.setPower(y);
+            attachmentActions.scissorLift2.setPower(y);
+
+
             double armSpeed = changeSpeedArm(gamepad2.dpad_up, gamepad2.dpad_down);
 
             changeSpeed(driveActions, gamepad1.dpad_up || gamepad1.x, gamepad1.dpad_down || gamepad1.b, gamepad1.a, gamepad1.y);
-
+            telemetry.addData("lift ticks", attachmentActions.scissorLift1.getCurrentPosition());
+            telemetry.addData("lift position", attachmentActions.getLiftHeight());
             telemetry.addData("Table Position", attachmentActions.tableencodercount());
             telemetry.addData("Joystick Position", gamepad2.right_stick_x);
             telemetry.addData("Target Position", targetArmSpin);

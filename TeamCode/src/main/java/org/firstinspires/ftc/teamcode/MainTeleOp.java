@@ -56,9 +56,9 @@ public class MainTeleOp extends HelperActions {
             attachmentActions.scissorLift1.setPower(y);
             attachmentActions.scissorLift2.setPower(y);
 
-            if (gamepad2.right_stick_x > 0.01 && attachmentActions.tableencodercount() < 4000) {
+            if (gamepad2.right_stick_x > 0.01 && attachmentActions.tableencodercount() < 3932) {
                 x = ((Math.abs(Math.pow(gamepad2.right_stick_x, 2)) * 0.93) + 0.07);
-            } else if (gamepad2.right_stick_x < -0.01 && attachmentActions.tableencodercount() > -4000) {
+            } else if (gamepad2.right_stick_x < -0.01 && attachmentActions.tableencodercount() > -3932) {
                 x = -((Math.abs(Math.pow(gamepad2.right_stick_x, 2)) * 0.93) + 0.07);
             } else {
                 x = 0;

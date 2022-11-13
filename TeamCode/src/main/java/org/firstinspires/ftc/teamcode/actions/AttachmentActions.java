@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.actions;
 
 import android.graphics.Color;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -108,50 +110,51 @@ public class AttachmentActions {
     }
 
     // need to tune encoder values
-    public void turnTableEncoders(double degrees, double speed){
-        turnTableEncoders(degrees, speed, 0.0015, 0.00001);
+    public void turnTableEncoders(double degrees, double speed, LinearOpMode opMode) {
+        turnTableEncoders(degrees, speed, 0.0024, 0.000001, opMode);
     }
-    public void turnTableEncoders(double degrees, double speed, double Kp, double Ki) {
-        double ticksPerRevolution = 8192;
+
+    public void turnTableEncoders(double degrees, double speed, double Kp, double Ki, LinearOpMode opMode) {
+        double ticksPerRevolution = 8192 * 96 / 100; // 7864
         double ticksPerDegree = ticksPerRevolution / 360;
         int totalTicks = (int) (ticksPerDegree * degrees);
 
         double P_Gain = 0;
         double I_Gain = 0;
         double power = 0;
-        double prevTime = System.currentTimeMillis();
+        double intervalVelocity = 0;
+        double prevTimeVelocity = System.currentTimeMillis();
+        double intervalI = 0;
+        double prevTimeI = System.currentTimeMillis();
         int prevTicks = tableEncoder.getCurrentPosition();
         int velocity = 0;
         int velocityRange = 10;
         int acceptableError = (int) ticksPerDegree * 1;
         int error = tableEncoder.getCurrentPosition() - totalTicks;
-        int sum = error;
+        int sum = 0;
         int startingTicks = prevTicks;
-        int distance = tableEncoder.getCurrentPosition()-startingTicks;
+        int distance = tableEncoder.getCurrentPosition() - startingTicks;
         int maxDistance = distance;
         boolean isDone = false;
 
-        while (!isDone){
+        while (!isDone && opMode.opModeIsActive()) {
             error = tableEncoder.getCurrentPosition() - totalTicks;
 
-            if((System.currentTimeMillis()-prevTime)>9){
-                telemetry.addData("interval", System.currentTimeMillis()-prevTime);
+            if ((System.currentTimeMillis() - prevTimeVelocity) > 9) {
+                intervalVelocity = System.currentTimeMillis() - prevTimeVelocity;
+                telemetry.addData("interval", intervalVelocity);
                 velocity = (tableEncoder.getCurrentPosition() - prevTicks);
                 prevTicks = tableEncoder.getCurrentPosition();
-                prevTime = System.currentTimeMillis();
+                prevTimeVelocity = System.currentTimeMillis();
             }
 
-            if(Math.abs(error) < acceptableError && velocity < velocityRange){
+            if (Math.abs(error) < acceptableError && Math.abs(velocity) < velocityRange) {
                 isDone = true;
             }
 
-            // for tuning purposes
-            distance = tableEncoder.getCurrentPosition() - startingTicks;
-            if (distance > maxDistance){
-                maxDistance = distance;
-            }
-
-            sum += error;
+            intervalI = System.currentTimeMillis() - prevTimeI;
+            prevTimeI = System.currentTimeMillis();
+            sum += (error * intervalI);
 
             P_Gain = error * Kp;
             I_Gain = sum * Ki;
@@ -169,6 +172,30 @@ public class AttachmentActions {
             telemetry.update();
         }
         turnTable.setPower(0);
+    }
+
+    public void liftScissor(double speed, double distance) {
+        double horizontalDistance = 12.6 - Math.sqrt(2 * (39.69 - Math.pow(distance / 6, 2)));
+        int totalTicks = (int) (-horizontalDistance / 0.314961 * 145.1);
+        scissorLift1.setTargetPosition(totalTicks);
+//        scissorLift2.setTargetPosition(totalTicks);
+
+        scissorLift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        scissorLift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        scissorLift1.setVelocity(speed);
+        scissorLift2.setPower(scissorLift1.getPower());
+
+        while (scissorLift1.isBusy()) {
+            telemetry.addData("SL is at target", !scissorLift1.isBusy());
+//            telemetry.addData("2 is at target", !scissorLift2.isBusy());
+            telemetry.update();
+        }
+    }
+
+    public double getLiftHeight(){
+        double horizontalDistance = scissorLift1.getCurrentPosition() / 145.1 * 0.314961;
+        return 6 * Math.sqrt(39.69 - ((12.6 - horizontalDistance)/2));
     }
 
     //    public void spinSlide(double speed, double degrees){
