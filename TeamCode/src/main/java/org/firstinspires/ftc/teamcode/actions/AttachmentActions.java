@@ -72,7 +72,7 @@ public class AttachmentActions {
         scissorLift1 = hardwareMap.get(DcMotorEx.class, ConfigConstants.SCISSOR_ONE);
         scissorLift2 = hardwareMap.get(DcMotorEx.class, ConfigConstants.SCISSOR_TWO);
 //        elbowServo.setPosition(0.87);
-        gripperServo.setPosition(0.65);
+        gripperServo.setPosition(0.8);
         turnTable.setDirection(DcMotorSimple.Direction.REVERSE);
         turnTable.setPower(0.0);
         scissorLift1.setDirection(DcMotorEx.Direction.REVERSE);
@@ -174,28 +174,49 @@ public class AttachmentActions {
         turnTable.setPower(0);
     }
 
-    public void liftScissor(double speed, double distance) {
-        double horizontalDistance = 12.6 - Math.sqrt(2 * (39.69 - Math.pow(distance / 6, 2)));
-        int totalTicks = (int) (-horizontalDistance / 0.314961 * 145.1);
-        scissorLift1.setTargetPosition(totalTicks);
-//        scissorLift2.setTargetPosition(totalTicks);
-
-        scissorLift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        scissorLift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        scissorLift1.setVelocity(speed);
-        scissorLift2.setPower(scissorLift1.getPower());
-
-        while (scissorLift1.isBusy()) {
-            telemetry.addData("SL is at target", !scissorLift1.isBusy());
-//            telemetry.addData("2 is at target", !scissorLift2.isBusy());
-            telemetry.update();
+    public void setLiftLevel(boolean low, boolean mid, boolean high){
+        if(!scissorLift1.isBusy()) {
+            if (low) {
+                liftScissor(6000, 624, true);
+            } else if (mid) {
+                liftScissor(6000, 1654, true);
+            } else if (high) {
+                liftScissor(6000, 3800, true);
+            } else {
+                scissorLift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                scissorLift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
         }
     }
 
+    public void liftScissor(double speed, double verticalDistance, boolean hardCode) {
+        double horizontalDistance = 12.6 - (2 * Math.sqrt(39.69 - Math.pow(verticalDistance / 6, 2)));
+        int totalTicks = (int) (-68 + (-horizontalDistance / 0.314961 * 145.1));
+        if (hardCode){
+            totalTicks = (int) -verticalDistance;
+        }
+        telemetry.addData("totalTicks", totalTicks);
+        telemetry.addData("horizontal distance", horizontalDistance);
+        telemetry.update();
+        scissorLift1.setTargetPosition(totalTicks);
+        scissorLift2.setTargetPosition(totalTicks);
+
+        scissorLift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        scissorLift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        scissorLift1.setVelocity(speed);
+        scissorLift2.setVelocity(speed);
+    }
+
     public double getLiftHeight(){
-        double horizontalDistance = scissorLift1.getCurrentPosition() / 145.1 * 0.314961;
-        return 6 * Math.sqrt(39.69 - ((12.6 - horizontalDistance)/2));
+
+        double horizontalDistance = -((scissorLift1.getCurrentPosition() + 68) / 145.1 * 0.314961);
+        return 6 * Math.sqrt(39.69 - Math.pow(((12.6 - horizontalDistance)/2), 2));
+    }
+
+    public void liftWithoutEncoders(){
+        scissorLift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        scissorLift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     //    public void spinSlide(double speed, double degrees){

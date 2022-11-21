@@ -41,8 +41,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.actions.constants.MotorConstants;
 
-/**
+ /**
  *  This file illustrates the concept of driving an autonomous path based on Gyro heading and encoder counts.
  *  The code is structured as a LinearOpMode
  *
@@ -124,13 +125,13 @@ public class GyroTest extends LinearOpMode {
     static final double     COUNTS_PER_MOTOR_REV    = 537.7 ;   // eg: GoBILDA 312 RPM Yellow Jacket
     static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
     static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
-    static final double     COUNTS_PER_INCH         = 62;
+    static final double     COUNTS_PER_INCH         = 32.2;
     //(COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
                                                       //(WHEEL_DIAMETER_INCHES * 3.1415);
 
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
-    static final double     DRIVE_SPEED             = 0.4;     // Max driving speed for better distance accuracy.
+    static final double     DRIVE_SPEED             = 0.2;     // Max driving speed for better distance accuracy.
     static final double     TURN_SPEED              = 0.2;     // Max Turn speed to limit turn rate
     static final double     HEADING_THRESHOLD       = 1.0 ;    // How close must the heading get to the target before moving to next step.
                                                                // Requiring more accuracy (a smaller number) will often make the turn take longer to get into the final position.
@@ -154,10 +155,11 @@ public class GyroTest extends LinearOpMode {
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        leftFront.setDirection(DcMotor.Direction.REVERSE);
-        leftBack.setDirection(DcMotor.Direction.REVERSE);
-        rightFront.setDirection(DcMotor.Direction.FORWARD);
-        rightBack.setDirection(DcMotor.Direction.FORWARD);
+        leftFront.setDirection(MotorConstants.REVERSE);
+        leftBack.setDirection(MotorConstants.FORWARD);
+
+        rightFront.setDirection(MotorConstants.REVERSE);
+        rightBack.setDirection(MotorConstants.FORWARD);
 
         // define initialization values for IMU, and then initialize it.
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -196,7 +198,9 @@ public class GyroTest extends LinearOpMode {
 
         for (int i = 0; i < 5; i++) {
             driveStraight(DRIVE_SPEED, 36, 0.0);    // Drive Forward 24"
+            sleep(500);
             driveStraight(DRIVE_SPEED, -36, 0.0);    // Drive Forward 24"
+            sleep(500);
         }
         sleep(1000);
 //        turnToHeading(TURN_SPEED, 90.0);

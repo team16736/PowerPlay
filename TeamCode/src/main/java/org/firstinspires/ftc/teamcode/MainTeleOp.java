@@ -30,10 +30,15 @@ public class MainTeleOp extends HelperActions {
         int speeding = 0;
         double speed = 0.8;
         double y = 0;
-        double x = 0;
+        double turnTableRotation = 0;
+        double encoderAdjustment;
         double speedY; //Create new double for the speed.
         int currentPos; //Create an integer for the current position (IMPORTANT THAT ITS AN INTEGER, WILL NOT WORK OTHERWISE)
+//        boolean memBitLift = true;
+//        int gravityThresholdLift = -250;
 
+        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        attachmentActions.scissorLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -52,18 +57,35 @@ public class MainTeleOp extends HelperActions {
 //            telemetry.addData("left stick y", gamepad1.left_stick_y);
 //            telemetry.addData("right stick x", gamepad1.right_stick_x);
 //            telemetry.update();
-            y = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
-            attachmentActions.scissorLift1.setPower(y);
-            attachmentActions.scissorLift2.setPower(y);
 
-            if (gamepad2.right_stick_x > 0.01 && attachmentActions.tableencodercount() < 3932) {
-                x = ((Math.abs(Math.pow(gamepad2.right_stick_x, 2)) * 0.93) + 0.07);
-            } else if (gamepad2.right_stick_x < -0.01 && attachmentActions.tableencodercount() > -3932) {
-                x = -((Math.abs(Math.pow(gamepad2.right_stick_x, 2)) * 0.93) + 0.07);
-            } else {
-                x = 0;
+            attachmentActions.setLiftLevel(gamepad2.dpad_down, gamepad2.dpad_left || gamepad2.dpad_right, gamepad2.dpad_up);
+
+            if(Math.abs(gamepad2.left_stick_y) > 0.01) {
+                attachmentActions.liftWithoutEncoders();
+                y = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
+                attachmentActions.scissorLift1.setPower(y);
+                attachmentActions.scissorLift2.setPower(y);
+//                memBitLift = false;
+            } else if (!attachmentActions.scissorLift1.isBusy()) {
+                attachmentActions.scissorLift1.setPower(0);
+                attachmentActions.scissorLift2.setPower(0);
             }
-            attachmentActions.turnTable.setPower(x);
+
+            /* if((Math.abs(gamepad2.left_stick_y) < 0.01) && (attachmentActions.scissorLift1.getCurrentPosition() > gravityThresholdLift) && !memBitLift){
+                attachmentActions.liftScissor(3000, -attachmentActions.scissorLift1.getCurrentPosition(), true);
+                memBitLift = true;
+            } */
+
+            //gamepad 2 right joystick is giving wonky values when negative. Need to switch gamepads or joysticks to adjust
+            encoderAdjustment = ((Math.pow(gamepad2.right_stick_x, 2) * 0.93) + 0.07);
+            if (gamepad2.right_stick_x > 0.01 && attachmentActions.tableencodercount() < 3932) {
+                turnTableRotation = encoderAdjustment;
+            } else if (gamepad2.right_stick_x < -0.01 && attachmentActions.tableencodercount() > -3932) {
+                turnTableRotation = -1.0 * encoderAdjustment;
+            } else {
+                turnTableRotation = 0;
+            }
+            attachmentActions.turnTable.setPower(turnTableRotation);
 
             if (gamepad2.x) {
                 attachmentActions.closeGripper();

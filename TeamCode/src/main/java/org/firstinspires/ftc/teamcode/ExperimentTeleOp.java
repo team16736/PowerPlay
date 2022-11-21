@@ -45,9 +45,10 @@ public class ExperimentTeleOp extends HelperActions {
         double speed = 0.8;
         double y; //Create new double for the speed.
         int currentPos; //Create an integer for the current position (IMPORTANT THAT ITS AN INTEGER, WILL NOT WORK OTHERWISE)
-        int armUpPosition1 = 0;
-        int armUpPosition2 = 0;
         final float[] hsvValues = new float[3];
+
+        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        attachmentActions.scissorLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -67,6 +68,7 @@ public class ExperimentTeleOp extends HelperActions {
             if (gamepad1.y) { }
             if (gamepad1.a) { }
             if (gamepad1.b) { }
+            attachmentActions.setLiftLevel(gamepad2.dpad_down, gamepad2.dpad_left || gamepad2.dpad_right, gamepad2.dpad_up);
 
             y = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
             attachmentActions.scissorLift1.setPower(y);
@@ -80,10 +82,7 @@ public class ExperimentTeleOp extends HelperActions {
             telemetry.addData("lift position", attachmentActions.getLiftHeight());
             telemetry.addData("Table Position", attachmentActions.tableencodercount());
             telemetry.addData("Joystick Position", gamepad2.right_stick_x);
-            telemetry.addData("Target Position", targetArmSpin);
-            telemetry.addData("Memory Bit", memBitArmSpin);
-            telemetry.addData("Position 1", armUpPosition1);
-            telemetry.addData("Position 2", armUpPosition2);
+            telemetry.addData("Table Power", attachmentActions.turnTable.getPower());
             telemetry.update();
         }
         telemetry.addData("[ROBOTNAME] ", "Going");

@@ -24,6 +24,7 @@ public class AutonomousTest extends HelperActions{
         encoderActions = new EncoderActions(this, telemetry, hardwareMap);
         gyroActions = new GyroActions(this, telemetry, hardwareMap);
         driveActions.setMotorDirection_Forward();
+        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
@@ -33,12 +34,17 @@ public class AutonomousTest extends HelperActions{
             double speed = 762.2;
             //encoderActions.encoderDriveSpeedRamp(speed, 60, 3);
 //            gyroActions.runUsingEncoders();
+            attachmentActions.liftScissor(2000, 10, false);
 
-            attachmentActions.turnTableEncoders(20, 0.2, this);
+           // attachmentActions.turnTableEncoders(20, 0.2, this);
+//            for (int i = 0; i < 5; i++) {
+//                encoderActions.encoderDrive(330,36);
+//                sleep(500);
+//                encoderActions.encoderDrive(330,-36);
+//                sleep(500);
+//            }
             sleep(10000);
 //            gyroActions.gyroSpin(0.2, 90.0);
         }
-    }
-    private void placeBlock(EncoderActions encoderActions, AttachmentActions attachmentActions, int blockPlace) {
     }
 }
