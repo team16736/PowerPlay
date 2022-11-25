@@ -108,6 +108,26 @@ public class GyroActions{
         // Stop all motion;
         moveRobot(0, 0);
     }
+    public boolean maintainHeading(double speed, double heading){
+        turnSpeed = getSteeringCorrection(heading, P_TURN_GAIN);
+        telemetry.addData("robotHeading Error 1", robotHeading);
+
+        // Clip the speed to the maximum permitted value.
+        turnSpeed = Range.clip(turnSpeed, -speed, speed);
+        telemetry.addData("robotHeading Error 2", robotHeading);
+
+        // Pivot in place by applying the turning correction
+        moveRobot(0, turnSpeed);
+        telemetry.addData("robotHeading Error 3", robotHeading);
+
+        // Display drive status for the driver.
+        telemetry.addData("Angle Target:Current", "%5.2f:%5.0f", targetHeading, robotHeading);
+        telemetry.addData("robotHeading Error 4", robotHeading);
+        telemetry.addData("Error:Steer",  "%5.1f:%5.1f", headingError, turnSpeed);
+        telemetry.update();
+
+        return (Math.abs(headingError) > HEADING_THRESHOLD);
+    }
     public double getSteeringCorrection(double desiredHeading, double proportionalGain) {
         targetHeading = desiredHeading;  // Save for telemetry
 

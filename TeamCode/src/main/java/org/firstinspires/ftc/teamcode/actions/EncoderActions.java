@@ -80,36 +80,6 @@ final public class EncoderActions{
         // Start the motor moving by setting the max velocity to 1 revolution per second
         velocity(encoderSpeed, encoderSpeed, encoderSpeed, encoderSpeed);
     }
-    public void encoderDriveUntilTape(double encoderSpeed, AttachmentActions attachmentActions){
-        resetEncoder();
-        // Set the motor's target position to 6.4 rotations
-        double ticksPerInch = 32.2;
-        if(encoderSpeed<0){ticksPerInch = -62;}
-        int totalTicks = (int) (ticksPerInch * 90);
-        motorFrontL.setTargetPosition(totalTicks);
-        motorFrontR.setTargetPosition(totalTicks);
-        motorBackL.setTargetPosition(totalTicks);
-        motorBackR.setTargetPosition(totalTicks);
-
-
-        // Switch to RUN_TO_POSITION mode
-        motorFrontL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorFrontR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        // Start the motor moving by setting the max velocity to 1 revolution per second
-        velocity(encoderSpeed, encoderSpeed, encoderSpeed, encoderSpeed);
-
-        // While the Op Mode is running, show the motor's status via telemetry
-        while (motorFrontL.isBusy() && motorFrontR.isBusy() && motorBackL.isBusy() && motorBackR.isBusy() && !attachmentActions.detectBarrier()) {
-            telemetry.addData("FL is at target", !motorFrontL.isBusy());
-            telemetry.addData("FR is at target", !motorFrontR.isBusy());
-            telemetry.addData("BL is at target", !motorBackL.isBusy());
-            telemetry.addData("BR is at target", !motorBackR.isBusy());
-            telemetry.update();
-        }
-    }
     public void encoderStrafe(double encoderSpeed,
                               double encoderDistance,
                               boolean encoderMoveLeft) {
@@ -199,6 +169,38 @@ final public class EncoderActions{
         }
     }
 
+    public void encoderSpinNoWhile(double encoderSpeed,
+                            double encoderDegrees,
+                            boolean encoderSpinLeft) {
+        motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // Set the motor's target position to 6.4 rotations
+        double ticksPerDegree = 8.089;
+        int totalTicks = (int) (ticksPerDegree * encoderDegrees);
+        if (encoderSpinLeft){
+            motorFrontL.setTargetPosition(-totalTicks);
+            motorFrontR.setTargetPosition(totalTicks);
+            motorBackL.setTargetPosition(-totalTicks);
+            motorBackR.setTargetPosition(totalTicks);
+        }else{
+            motorFrontL.setTargetPosition(totalTicks);
+            motorFrontR.setTargetPosition(-totalTicks);
+            motorBackL.setTargetPosition(totalTicks);
+            motorBackR.setTargetPosition(-totalTicks);
+        }
+
+
+        // Switch to RUN_TO_POSITION mode
+        motorFrontL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorFrontR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBackL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        velocity(-encoderSpeed, -encoderSpeed, -encoderSpeed, -encoderSpeed);
+    }
+
 //    public void fancySpin(double speed, double distance, boolean moveLeft){
 //        motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -249,39 +251,6 @@ final public class EncoderActions{
 //        }
 //    }
 
-    public void encoderStrafeOld(double speed, double distance, boolean moveLeft) {
-        resetEncoder();
-        // Set the motor's target position to 6.4 rotations
-        double ticksPerInch = 64.75;
-        int totalTicks = (int) (ticksPerInch * distance);
-        if (moveLeft){
-            motorFrontL.setTargetPosition(-totalTicks);
-            motorFrontR.setTargetPosition(totalTicks);
-            motorBackL.setTargetPosition(totalTicks);
-            motorBackR.setTargetPosition(-totalTicks);
-            velocity(speed, speed, -speed, -speed);
-        }else{
-            motorFrontL.setTargetPosition(totalTicks);
-            motorFrontR.setTargetPosition(-totalTicks);
-            motorBackL.setTargetPosition(-totalTicks);
-            motorBackR.setTargetPosition(totalTicks);
-            velocity(speed, -speed, speed, -speed);
-        }
-
-
-        // Switch to RUN_TO_POSITION mode
-        motorFrontL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorFrontR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        // Start the motor moving by setting the max velocity to 1 revolution per second
-
-
-        isMotorBusy();
-        // While the Op Mode is running, show the motor's status via telemetry
-
-    }
     public void isMotorBusy(){
         while (motorFrontL.isBusy() && motorFrontR.isBusy() && motorBackL.isBusy() && motorBackR.isBusy()) {
             telemetry.addData("FL is at target", !motorFrontL.isBusy());
@@ -302,6 +271,12 @@ final public class EncoderActions{
         motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorBackR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+    public void runWithoutEncoder(){
+        motorFrontL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorFrontR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBackL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBackR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
     public int getPosition(){
         return motorFrontL.getCurrentPosition();

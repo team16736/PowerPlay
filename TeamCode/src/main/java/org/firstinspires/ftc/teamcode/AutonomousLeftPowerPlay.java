@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
@@ -38,7 +39,9 @@ public class AutonomousLeftPowerPlay extends HelperActions{
             sleep(500);
 
             //Turn table forward
-            attachmentActions.turnTableEncoders(-90, 200, this);
+            attachmentActions.turnTableEncoders(-90, 200);
+            attachmentActions.tableEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
 
             //Move to position for dropping cone
             encoderActions.encoderStrafe(speed, 29, false);
@@ -48,15 +51,15 @@ public class AutonomousLeftPowerPlay extends HelperActions{
 
             //Drop cone
             attachmentActions.setLiftLevel(false, true, false);
-            attachmentActions.turnTableEncoders(-120, 200, this);
+            attachmentActions.turnTableEncoders(-120, 200);
             while (attachmentActions.scissorLift1.isBusy()){}
-            attachmentActions.turnTableEncoders(-10, 200, this);
+            attachmentActions.turnTableEncoders(-10, 200);
             attachmentActions.openGripper();
 
             //Return grabber to front
-            attachmentActions.turnTableEncoders(10, 200, this);
+            attachmentActions.turnTableEncoders(10, 200);
             attachmentActions.liftScissor(1000, 5, false);
-            attachmentActions.turnTableEncoders(120, 200, this);
+            attachmentActions.turnTableEncoders(120, 200);
 
             sleep(10000);
 
@@ -84,9 +87,9 @@ public class AutonomousLeftPowerPlay extends HelperActions{
             }
 
             //Return grabber to front
-            attachmentActions.turnTableEncoders(10, 200, this);
+            attachmentActions.turnTableEncoders(10, 200);
             attachmentActions.liftScissor(1000, 4, false);
-            attachmentActions.turnTableEncoders(120, 200, this);
+            attachmentActions.turnTableEncoders(120, 200);
 
             //Get new cone
             encoderActions.encoderDrive(speed, 2);
@@ -102,9 +105,9 @@ public class AutonomousLeftPowerPlay extends HelperActions{
     private void placeCone(EncoderActions encoderActions, AttachmentActions attachmentActions){
         encoderActions.encoderDrive(speed, -2);
         attachmentActions.setLiftLevel(true, false, false);
-        attachmentActions.turnTableEncoders(-120, 200, this);
+        attachmentActions.turnTableEncoders(-120, 200);
         while (attachmentActions.scissorLift1.isBusy()) {}
-        attachmentActions.turnTableEncoders(-10, 200, this);
+        attachmentActions.turnTableEncoders(-10, 200);
         attachmentActions.openGripper();
     }
 

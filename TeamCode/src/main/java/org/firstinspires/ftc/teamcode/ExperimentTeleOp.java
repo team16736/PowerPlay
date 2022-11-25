@@ -59,31 +59,31 @@ public class ExperimentTeleOp extends HelperActions {
             //TODO: add functionality for red side carousel
 
             /** Gamepad 1 **/
-//            driveActions.drive(
-//                    gamepad1.left_stick_x,      //joystick controlling strafe
-//                    -gamepad1.left_stick_y,     //joystick controlling forward/backward
-//                    gamepad1.right_stick_x);    //joystick controlling rotation
+            driveActions.drive(
+                    gamepad1.left_stick_x,      //joystick controlling strafe
+                    -gamepad1.left_stick_y,     //joystick controlling forward/backward
+                    gamepad1.right_stick_x);    //joystick controlling rotation
 
-            if (gamepad1.x) { }
-            if (gamepad1.y) { }
-            if (gamepad1.a) { }
-            if (gamepad1.b) { }
-            attachmentActions.setLiftLevel(gamepad2.dpad_down, gamepad2.dpad_left || gamepad2.dpad_right, gamepad2.dpad_up);
-
-            y = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
-            attachmentActions.scissorLift1.setPower(y);
-            attachmentActions.scissorLift2.setPower(y);
-
-
-            double armSpeed = changeSpeedArm(gamepad2.dpad_up, gamepad2.dpad_down);
-
-            changeSpeed(driveActions, gamepad1.dpad_up || gamepad1.x, gamepad1.dpad_down || gamepad1.b, gamepad1.a, gamepad1.y);
-            telemetry.addData("lift ticks", attachmentActions.scissorLift1.getCurrentPosition());
-            telemetry.addData("lift position", attachmentActions.getLiftHeight());
-            telemetry.addData("Table Position", attachmentActions.tableencodercount());
-            telemetry.addData("Joystick Position", gamepad2.right_stick_x);
-            telemetry.addData("Table Power", attachmentActions.turnTable.getPower());
-            telemetry.update();
+//            if (gamepad1.x) { }
+//            if (gamepad1.y) { }
+//            if (gamepad1.a) { }
+//            if (gamepad1.b) { }
+//            attachmentActions.setLiftLevel(gamepad2.dpad_down, gamepad2.dpad_left || gamepad2.dpad_right, gamepad2.dpad_up);
+//
+//            y = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
+//            attachmentActions.scissorLift1.setPower(y);
+//            attachmentActions.scissorLift2.setPower(y);
+//
+//
+//            double armSpeed = changeSpeedArm(gamepad2.dpad_up, gamepad2.dpad_down);
+//
+//            changeSpeed(driveActions, gamepad1.dpad_up || gamepad1.x, gamepad1.dpad_down || gamepad1.b, gamepad1.a, gamepad1.y);
+//            telemetry.addData("lift ticks", attachmentActions.scissorLift1.getCurrentPosition());
+//            telemetry.addData("lift position", attachmentActions.getLiftHeight());
+//            telemetry.addData("Table Position", attachmentActions.tableencodercount());
+//            telemetry.addData("Joystick Position", gamepad2.right_stick_x);
+//            telemetry.addData("Table Power", attachmentActions.turnTable.getPower());
+//            telemetry.update();
         }
         telemetry.addData("[ROBOTNAME] ", "Going");
         telemetry.update();

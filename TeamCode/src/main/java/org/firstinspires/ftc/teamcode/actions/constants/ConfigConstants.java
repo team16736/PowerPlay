@@ -17,6 +17,9 @@ public class ConfigConstants {
     public static final String SCISSOR_ONE = "scissorLift1";
     public static final String SCISSOR_TWO = "scissorLift2";
 
+    //Grabber Extender
+    public static final String EXTENDER = "extender";
+
     //Gripper
     public static final String GRIPPER_SERVO = "gripper";
 
@@ -25,7 +28,7 @@ public class ConfigConstants {
     public static final String TURN_TABLE_ENCODER = "tableEncoder";
 
     //Sensors
-    public static final String ELEMENT_DETECTOR ="elementDetector";
+    public static final String JUNCTION_DETECTOR ="distanceSensor0";
     public static final String BOUNDARY_DETECTOR = "boundaryDetector";
     public static final String IMU = "IMU";
 }
