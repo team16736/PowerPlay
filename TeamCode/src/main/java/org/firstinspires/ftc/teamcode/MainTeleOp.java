@@ -3,30 +3,28 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
 import org.firstinspires.ftc.teamcode.actions.EncoderActions;
-//import org.firstinspires.ftc.teamcode.actions.GyroActions;
+import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
 
 @TeleOp(name = "Main Tele Op", group = "Linear Opmode")
 public class MainTeleOp extends HelperActions {
 
+    private GyroActions gyroActions = null;
     private DriveActions driveActions = null;
     private AttachmentActions attachmentActions = null;
-//    private GyroActions gyroActions = null;
     private EncoderActions encoderActions = null;
-    boolean memoryBit;
-    boolean spinLeft;
-    boolean placeBit;
 
     @Override
     public void runOpMode() {
 
+        gyroActions = new GyroActions(this, telemetry, hardwareMap);
         driveActions = new DriveActions(telemetry, hardwareMap);
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
-//        gyroActions = new GyroActions(this, telemetry, hardwareMap);
         encoderActions = new EncoderActions(this, telemetry, hardwareMap);
 
         //Set Speed for teleOp. Mecannum wheel speed.
@@ -42,6 +40,12 @@ public class MainTeleOp extends HelperActions {
         int currentPos; //Create an integer for the current position (IMPORTANT THAT ITS AN INTEGER, WILL NOT WORK OTHERWISE)
         boolean memBitLift = true;
         int gravityThresholdLift = -250;
+        boolean memoryBit;
+        boolean spinLeft;
+        boolean placeBit;
+        double prevTime = 0;
+        double extendLength = 1.0;
+        int extendTime = 2000; //Time to fully extend the extender in milliseconds. Needs to be changed
 
         attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         attachmentActions.scissorLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -51,6 +55,7 @@ public class MainTeleOp extends HelperActions {
 
         driveActions.setSpeed(0.4);
 
+        gyroActions.getRawHeading();
 
         while (opModeIsActive()) {
 
@@ -92,6 +97,10 @@ public class MainTeleOp extends HelperActions {
                 turnTableRotation = 0;
             }
             attachmentActions.turnTable.setPower(turnTableRotation);
+
+            extendLength = Range.clip(extendLength - (gamepad2.right_stick_y * (System.currentTimeMillis() - prevTime) / extendTime), 1, 0);
+            prevTime = System.currentTimeMillis();
+            attachmentActions.extender.setPosition(extendLength);
 
             if (gamepad2.x) {
                 attachmentActions.closeGripper();

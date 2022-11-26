@@ -55,25 +55,15 @@ public abstract class HelperActions extends LinearOpMode {
         driveActions.stop();
     }
 
-    public boolean strafeAndDetect(EncoderActions encoderActions, AttachmentActions attachmentActions, double speed, double distance, boolean strafeLeft) {
-        encoderActions.motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encoderActions.motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encoderActions.motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encoderActions.motorBackR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    public double driveAndDetect(EncoderActions encoderActions, AttachmentActions attachmentActions, double speed, double distance) {
+        encoderActions.resetEncoder();
         // Set the motor's target position to 6.4 rotations
-        double ticksPerInch = 64.75;
+        double ticksPerInch = 32.2;
         int totalTicks = (int) (ticksPerInch * distance);
-        if (strafeLeft) {
-            encoderActions.motorFrontL.setTargetPosition(-totalTicks);
-            encoderActions.motorFrontR.setTargetPosition(totalTicks);
-            encoderActions.motorBackL.setTargetPosition(totalTicks);
-            encoderActions.motorBackR.setTargetPosition(-totalTicks);
-        } else {
-            encoderActions.motorFrontL.setTargetPosition(totalTicks);
-            encoderActions.motorFrontR.setTargetPosition(-totalTicks);
-            encoderActions.motorBackL.setTargetPosition(-totalTicks);
-            encoderActions.motorBackR.setTargetPosition(totalTicks);
-        }
+        encoderActions.motorFrontL.setTargetPosition(totalTicks);
+        encoderActions.motorFrontR.setTargetPosition(totalTicks);
+        encoderActions.motorBackL.setTargetPosition(totalTicks);
+        encoderActions.motorBackR.setTargetPosition(totalTicks);
 
 
         // Switch to RUN_TO_POSITION mode
@@ -83,25 +73,15 @@ public abstract class HelperActions extends LinearOpMode {
         encoderActions.motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Start the motor moving by setting the max velocity to 1 revolution per second
-        encoderActions.motorFrontL.setVelocity(-speed);
-        encoderActions.motorFrontR.setVelocity(-speed);
-        encoderActions.motorBackL.setVelocity(-speed);
-        encoderActions.motorBackR.setVelocity(-speed);
+        encoderActions.velocity(speed, speed, speed, speed);
 
-        //motorFrontL.isBusy()hile the Op Mode is running, show the motor's status via telemetry
-        while (encoderActions.motorFrontL.isBusy()) {
-            telemetry.addData("FL is at target", !encoderActions.motorFrontL.isBusy());
-            telemetry.addData("FR is at target", !encoderActions.motorFrontR.isBusy());
-            telemetry.addData("BL is at target", !encoderActions.motorBackL.isBusy());
-            telemetry.addData("BR is at target", !encoderActions.motorBackR.isBusy());
-            telemetry.update();
-            if (attachmentActions.detectElement()) {
-                if (attachmentActions.detectElement()) {
-                    return true;
-                }
+        // While the Op Mode is running, show the motor's status via telemetry
+        while (encoderActions.motorFrontL.isBusy() && encoderActions.motorFrontR.isBusy() && encoderActions.motorBackL.isBusy() && encoderActions.motorBackR.isBusy()) {
+            if (attachmentActions.getJunctionDistance() < 10) {
+                return attachmentActions.getJunctionDistance();
             }
         }
-        return false;
+        return 0;
     }
 
     //    public void fancySpinRight(EncoderActions encoderActions, double speed, double distance){
@@ -110,15 +90,6 @@ public abstract class HelperActions extends LinearOpMode {
 //    public void fancySpinLeft(EncoderActions encoderActions, double speed, double distance){
 //        encoderActions.fancySpin(speed, distance, true);
 //    }
-    public int elementDetection(EncoderActions encoderActions, AttachmentActions attachmentActions, boolean strafeLeft) {
-        if (attachmentActions.detectElement()) {
-            return 1;
-        } else if (strafeAndDetect(encoderActions, attachmentActions, 762.2, 11, strafeLeft)) {
-            return 2;
-        } else {
-            return 3;
-        }
-    }
 
     public void changeSpeed(DriveActions driveActions, boolean upOne, boolean downOne, boolean upTwo, boolean downTwo) {
         if (upOne) {

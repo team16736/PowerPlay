@@ -95,6 +95,8 @@ public class AttachmentActions {
         turnTable.setPower(0.0);
         scissorLift1.setDirection(DcMotorEx.Direction.REVERSE);
         scissorLift2.setDirection(DcMotorEx.Direction.REVERSE);
+        scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scissorLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         tableEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
@@ -103,7 +105,7 @@ public class AttachmentActions {
     }
 
     public void openGripper() {
-        gripperServo.setPosition(0.6);
+        gripperServo.setPosition(0.8);
     }
 
     public void closeGripper() {
@@ -217,7 +219,7 @@ public class AttachmentActions {
             if (low) {
                 liftScissor(6000, 624, true);
             } else if (mid) {
-                liftScissor(6000, 1654, true);
+                liftScissor(6000, 1750, true);
             } else if (high) {
                 liftScissor(6000, 3800, true);
             } else {
@@ -233,9 +235,6 @@ public class AttachmentActions {
         if (hardCode) {
             totalTicks = (int) -verticalDistance;
         }
-        telemetry.addData("totalTicks", totalTicks);
-        telemetry.addData("horizontal distance", horizontalDistance);
-        telemetry.update();
         scissorLift1.setTargetPosition(totalTicks);
         scissorLift2.setTargetPosition(totalTicks);
 

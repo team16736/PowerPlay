@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.actions;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -31,10 +32,13 @@ public class GyroActions{
     static final double     HEADING_THRESHOLD = 1.0 ;    // How close must the heading get to the target before moving to next step.
     static final double     P_TURN_GAIN       = 0.02;     // Larger is more responsive, but also less stable
     static final double     P_DRIVE_GAIN      = 0.03;     // Larger is more responsive, but also less stable
+    static final double     COUNTS_PER_INCH   = 32.2;
     private double          driveSpeed        = 0;
     private double          turnSpeed         = 0;
     private double          leftSpeed         = 0;
     private double          rightSpeed        = 0;
+    private int             leftTarget        = 0;
+    private int             rightTarget       = 0;
 
     private static LinearOpMode opModeObj;
 
@@ -128,6 +132,56 @@ public class GyroActions{
 
         return (Math.abs(headingError) > HEADING_THRESHOLD);
     }
+    //TODO
+    /*public void driveStraight(double maxDriveSpeed,
+                              double distance,
+                              double heading) {
+
+        // Ensure that the opmode is still active
+        if (opModeObj.opModeIsActive()) {
+
+            // Determine new target position, and pass to motor controller
+            int moveCounts = (int)(distance * COUNTS_PER_INCH);
+            leftTarget = motorFrontL.getCurrentPosition() + moveCounts;
+            rightTarget = motorFrontR.getCurrentPosition() + moveCounts;
+
+            // Set Target FIRST, then turn on RUN_TO_POSITION
+            leftDrive.setTargetPosition(leftTarget);
+            rightDrive.setTargetPosition(rightTarget);
+
+            leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            // Set the required driving speed  (must be positive for RUN_TO_POSITION)
+            // Start driving straight, and then enter the control loop
+            maxDriveSpeed = Math.abs(maxDriveSpeed);
+            moveRobot(maxDriveSpeed, 0);
+
+            // keep looping while we are still active, and BOTH motors are running.
+            while (opModeIsActive() &&
+                    (leftDrive.isBusy() && rightDrive.isBusy())) {
+                telemetry.addData(">", "Robot Heading = %4.0f", getRawHeading());
+                telemetry.update();
+                // Determine required steering to keep on heading
+                turnSpeed = getSteeringCorrection(heading, P_DRIVE_GAIN);
+
+                // if driving in reverse, the motor correction also needs to be reversed
+                if (distance < 0)
+                    turnSpeed *= -1.0;
+
+                // Apply the turning correction to the current driving speed.
+                moveRobot(driveSpeed, turnSpeed);
+
+                // Display drive status for the driver.
+                sendTelemetry(true);
+            }
+
+            // Stop all motion & Turn off RUN_TO_POSITION
+            moveRobot(0, 0);
+            leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+    }*/
     public double getSteeringCorrection(double desiredHeading, double proportionalGain) {
         targetHeading = desiredHeading;  // Save for telemetry
 

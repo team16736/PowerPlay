@@ -6,17 +6,20 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
 import org.firstinspires.ftc.teamcode.actions.EncoderActions;
+import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.FindImageOnCone;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
 
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
 
-@Autonomous(name = "Autonomous Blue Side Left")
-public class AutonomousLeftPowerPlay extends HelperActions{
+@Autonomous(name = "Autonomous Blue Side Right")
+public class AutonomousRightPowerPlay extends HelperActions{
 
     private DriveActions driveActions = null;
     private AttachmentActions attachmentActions = null;
     private EncoderActions encoderActions = null;
+    private GyroActions gyroActions = null;
+
     private FindImageOnCone findImageOnCone = null;
     private double speed = 200;
 
@@ -25,6 +28,7 @@ public class AutonomousLeftPowerPlay extends HelperActions{
         findImageOnCone = new FindImageOnCone(telemetry, hardwareMap);
         driveActions = new DriveActions(telemetry, hardwareMap);
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
+        gyroActions = new GyroActions(this, telemetry, hardwareMap);
         driveActions.setMotorDirection_Forward();
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
@@ -32,73 +36,27 @@ public class AutonomousLeftPowerPlay extends HelperActions{
 
         if (opModeIsActive()) {
             String location = findImageOnCone.findObject();
-
-            attachmentActions.closeGripper();
-            attachmentActions.liftScissor(1000, 1, false);
-
-            //Move forward for space to turn table
-            encoderActions.encoderDrive(speed, 2);
-            sleep(500);
-
-            //Turn table forward
-            attachmentActions.turnTableEncoders(-90, 200);
-            attachmentActions.tableEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-
-            //Move to position for dropping cone
-            encoderActions.encoderStrafe(speed, 29, false);
-            sleep(500);
-            encoderActions.encoderDrive(speed, 52);
-            sleep(500);
-
-            //Drop cone
-            attachmentActions.setLiftLevel(false, true, false);
-            attachmentActions.turnTableEncoders(-120, 200);
-            while (attachmentActions.scissorLift1.isBusy()){}
-            attachmentActions.turnTableEncoders(-10, 200);
-            attachmentActions.openGripper();
-
-            //Return grabber to front
-            attachmentActions.turnTableEncoders(10, 200);
-            attachmentActions.liftScissor(1000, 5, false);
-            attachmentActions.turnTableEncoders(120, 200);
-
             sleep(10000);
 
-            //Go to pickup for new cone
-            encoderActions.encoderSpin(speed, 90, true);
-            sleep(500);
-            encoderActions.encoderDrive(speed, 52);
+            attachmentActions.closeGripper();
             sleep(500);
 
-            //If time is low, finish
-            if(getRuntime() < 25) {
-                moveToLocation(encoderActions, location);
-            }
+            attachmentActions.setLiftLevel(false, true, false);
 
-            //Pickup cone
-            attachmentActions.closeGripper();
-            attachmentActions.setLiftLevel(true, false, false);
+            encoderActions.encoderStrafe(400, 21.5, true);
+            sleep(500);
 
-            //Place cone
-            placeCone(encoderActions, attachmentActions);
+            encoderActions.encoderDrive(300, 41);
+            sleep(500);
 
-            //If time is low, finish
-            if(getRuntime() < 25) {
-                moveToLocation(encoderActions, location);
-            }
+            attachmentActions.openGripper();
+            sleep(500);
 
-            //Return grabber to front
-            attachmentActions.turnTableEncoders(10, 200);
-            attachmentActions.liftScissor(1000, 4, false);
-            attachmentActions.turnTableEncoders(120, 200);
+            attachmentActions.liftScissor(1000, 0, true);
 
-            //Get new cone
-            encoderActions.encoderDrive(speed, 2);
-            attachmentActions.closeGripper();
+            encoderActions.encoderStrafe(400, 4, true);
 
-            //Place cone
-            placeCone(encoderActions, attachmentActions);
+            encoderActions.encoderDrive(400, 11);
 
             moveToLocation(encoderActions, location);
         }
@@ -120,13 +78,13 @@ public class AutonomousLeftPowerPlay extends HelperActions{
             telemetry.update();
         } else if (location == "Bus") {
             //                 location 2
-            encoderActions.encoderDrive(speed, -26);
+            encoderActions.encoderStrafe(400, 25, false);
             sleep(500);
             telemetry.addData(")", "<");
             telemetry.update();
         } else {
             //              Location 3
-            encoderActions.encoderDrive(speed, -52);
+            encoderActions.encoderStrafe(400, 52, false);
             sleep(500);
             telemetry.addData(")", "<");
             telemetry.update();
