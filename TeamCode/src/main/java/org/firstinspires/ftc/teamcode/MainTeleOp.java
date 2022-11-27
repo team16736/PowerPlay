@@ -43,9 +43,10 @@ public class MainTeleOp extends HelperActions {
         boolean memoryBit;
         boolean spinLeft;
         boolean placeBit;
+        double extenderInput;
         double prevTime = 0;
         double extendLength = 1.0;
-        int extendTime = 2000; //Time to fully extend the extender in milliseconds. Needs to be changed
+        int extendTime = 1200; //Time to fully extend the extender in milliseconds. Needs to be changed
 
         attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         attachmentActions.scissorLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -98,7 +99,10 @@ public class MainTeleOp extends HelperActions {
             }
             attachmentActions.turnTable.setPower(turnTableRotation);
 
-            extendLength = Range.clip(extendLength - (gamepad2.right_stick_y * (System.currentTimeMillis() - prevTime) / extendTime), 1, 0);
+            telemetry.addData("Joystick", gamepad2.right_stick_y);
+
+            extenderInput = gamepad2.right_trigger - gamepad2.left_trigger;
+            extendLength = Range.clip(extendLength - ((extenderInput * (System.currentTimeMillis() - prevTime) / extendTime)), 0.0, 1.0);
             prevTime = System.currentTimeMillis();
             attachmentActions.extender.setPosition(extendLength);
 

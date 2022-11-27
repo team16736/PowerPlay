@@ -35,14 +35,18 @@ public class AutonomousTest extends HelperActions{
         telemetry.update();
         waitForStart();
 
-        while (opModeIsActive()) {
-//        if (opModeIsActive()) {
+//        while (opModeIsActive()) {
+        if (opModeIsActive()) {
             double speed = 762.2;
             //encoderActions.encoderDriveSpeedRamp(speed, 60, 3);
 //            gyroActions.runUsingEncoders();
 //            attachmentActions.liftScissor(2000, 10, false);
 
-            attachmentActions.turnTableEncoders(90, 0.2);
+            for (int i = 0; i < 40; i++) {
+                attachmentActions.liftScissor(3000, 100 * i, true);
+                sleep(5000);
+            }
+//            attachmentActions.turnTableEncoders(7.5, 0.2);
 //            for (int i = 0; i < 5; i++) {
 //                encoderActions.encoderDrive(330,36);
 //                sleep(500);

@@ -42,7 +42,7 @@ public abstract class HelperActions extends LinearOpMode {
     private boolean atFinalAngle;
     private boolean extendingBit;
     private double extendingTime;
-    private double extendingSpeed; //Milliseconds per inch, needs to be timed
+    private double extendingSpeed = 200;
     private boolean isInPlace;
     private boolean releasingBit;
     private double releasingTime;

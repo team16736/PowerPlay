@@ -50,6 +50,7 @@ public class FindImageOnCone {
             // should be set to the value of the images used to create the TensorFlow Object Detection model
             // (typically 16/9).
             tfod.setZoom(1.0, 16.0/9.0);
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
         }
     }

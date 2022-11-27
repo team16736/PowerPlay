@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.actions.HelperActions;
 
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
 
-@Autonomous(name = "Autonomous Blue Side Right")
+@Autonomous(name = "Autonomous Right PowerPlay")
 public class AutonomousRightPowerPlay extends HelperActions{
 
     private DriveActions driveActions = null;
@@ -35,7 +35,7 @@ public class AutonomousRightPowerPlay extends HelperActions{
         waitForStart();
 
         if (opModeIsActive()) {
-            String location = findImageOnCone.findObject();
+            /*String location = findImageOnCone.findObject();
             sleep(10000);
 
             attachmentActions.closeGripper();
@@ -58,7 +58,11 @@ public class AutonomousRightPowerPlay extends HelperActions{
 
             encoderActions.encoderDrive(400, 11);
 
-            moveToLocation(encoderActions, location);
+            encoderActions.encoderStrafe(400, 52, false);*/
+            findCone(attachmentActions);
+
+
+//            moveToLocation(encoderActions, location);
         }
     }
 
@@ -89,5 +93,20 @@ public class AutonomousRightPowerPlay extends HelperActions{
             telemetry.addData(")", "<");
             telemetry.update();
         }
+    }
+    private void findCone(AttachmentActions attachmentActions) {
+        double angle = 45;
+        double turnTableSpeed = 0.2;
+        double minDistance = 1000;
+        double minDistanceAngle = 0;
+//        attachmentActions.turnTableEncoders(angle, turnTableSpeed);
+        while (!attachmentActions.isDone && opModeIsActive()) {
+            attachmentActions.turnTableEncoders(angle, turnTableSpeed);
+//            if (attachmentActions.getJunctionDistance() < minDistance) {
+//                minDistance = attachmentActions.getJunctionDistance();
+//                minDistanceAngle = attachmentActions.getTurntablePosition();
+//            }
+        }
+
     }
 }

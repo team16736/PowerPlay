@@ -45,6 +45,7 @@ public class AttachmentActions {
     public double grabberOffset = 4.1; //Front/back distance from sensor to center of grabber, needs to be changed
 
     //Encoder Turntable stuff
+    private boolean initBit = false;
     private double P_Gain = 0;
     private double I_Gain = 0;
     private double power = 0;
@@ -154,15 +155,23 @@ public class AttachmentActions {
 
     // need to tune encoder values
     public void turnTableEncoders(double degrees, double speed) {
-        turnTableEncoders(degrees, speed, 0.0012, 0.000001);
+//        20-90: 0.0022, 0.000000055
+//        10:    0.0022, 0.0000005
+//        5:	 0.0035, 0.00000052
+        turnTableEncoders(degrees, speed, 0.0022, 0.0000005);
     }
 
     public void turnTableEncoders(double degrees, double speed, double Kp, double Ki) {
         double ticksPerRevolution = 8192 * 96 / 100; // 7864
         double ticksPerDegree = ticksPerRevolution / 360;
         int totalTicks = (int) (ticksPerDegree * degrees);
-        int velocityRange = 0;
+        int velocityRange = -1;
         int acceptableError = (int) ticksPerDegree * 1;
+
+        if (!initBit) {
+            isDone = false;
+            initBit = true;
+        }
 
         error = tableEncoder.getCurrentPosition() - totalTicks;
 
@@ -204,7 +213,7 @@ public class AttachmentActions {
             error = 0;
             sum = 0;
             startingTicks = prevTicks;
-            isDone = false;
+            initBit = false;
         }
     }
 
@@ -217,11 +226,11 @@ public class AttachmentActions {
     public void setLiftLevel(boolean low, boolean mid, boolean high) {
         if (!scissorLift1.isBusy()) {
             if (low) {
-                liftScissor(6000, 624, true);
+                liftScissor(6000, 700, true);
             } else if (mid) {
                 liftScissor(6000, 1750, true);
             } else if (high) {
-                liftScissor(6000, 3800, true);
+                liftScissor(6000, 3900, true);
             } else {
                 scissorLift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 scissorLift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
