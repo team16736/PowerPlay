@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.unused;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -25,7 +26,13 @@ public class BasicDrive extends LinearOpMode {
     public DcMotorEx rightFront;
     public DcMotorEx rightRear;
 
+    public ColorSensor coneSensor;
+
     public double THROTTLE = 0.25;
+
+    public double red = 0;
+    public double green = 0;
+    public double blue = 0;
 
     public void runOpMode() {
 
@@ -35,17 +42,23 @@ public class BasicDrive extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotorEx.class, ConfigConstants.FRONT_RIGHT);
         rightRear = hardwareMap.get(DcMotorEx.class, ConfigConstants.BACK_RIGHT);
 
+        coneSensor = hardwareMap.get(ColorSensor.class, "coneSensor");
+
         setMotorDirection_Forward();
 
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
         waitForStart();
 
+        double startTime = System.currentTimeMillis();
+
         while (opModeIsActive()) {
             drive(
                     (gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x)),      //joystick controlling strafe
                     (-gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y)),     //joystick controlling forward/backward
                     (gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x)));    //joystick controlling rotation
+            telemetry.addData("Seeing Color", mostColor());
+            telemetry.update();
         }
     }
 
@@ -101,5 +114,21 @@ public class BasicDrive extends LinearOpMode {
 
         rightFront.setDirection(MotorConstants.FORWARD);
         rightRear.setDirection(MotorConstants.REVERSE);
+    }
+
+    public String mostColor() {
+        red = coneSensor.red() / 1.15;
+        green = coneSensor.green() / 1.83;
+        blue = coneSensor.blue() / 1.43;
+        telemetry.addData("Red", red);
+        telemetry.addData("Green", green);
+        telemetry.addData("Blue", blue);
+        if (red > green && red > blue) {
+            return "Red";
+        } else if (green > blue) {
+            return "Green";
+        } else {
+            return "Blue";
+        }
     }
 }

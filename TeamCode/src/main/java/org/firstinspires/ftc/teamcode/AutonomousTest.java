@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
 import org.firstinspires.ftc.teamcode.actions.EncoderActions;
+import org.firstinspires.ftc.teamcode.actions.FindImageOnCone;
 import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
 
@@ -17,12 +18,14 @@ public class AutonomousTest extends HelperActions{
     private AttachmentActions attachmentActions = null;
     private EncoderActions encoderActions = null;
     private GyroActions gyroActions = null;
+    private FindImageOnCone findImageOnCone = null;
     public void runOpMode() {
 
         driveActions = new DriveActions(telemetry, hardwareMap);
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
         encoderActions = new EncoderActions(this, telemetry, hardwareMap);
         gyroActions = new GyroActions(this, telemetry, hardwareMap);
+        findImageOnCone = new FindImageOnCone(telemetry, hardwareMap);
         driveActions.setMotorDirection_Forward();
         attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -35,17 +38,23 @@ public class AutonomousTest extends HelperActions{
         telemetry.update();
         waitForStart();
 
-//        while (opModeIsActive()) {
-        if (opModeIsActive()) {
+        while (opModeIsActive()) {
+//        if (opModeIsActive()) {
             double speed = 762.2;
+            double degrees = -20;
+            findImageOnCone.findObject();
             //encoderActions.encoderDriveSpeedRamp(speed, 60, 3);
 //            gyroActions.runUsingEncoders();
 //            attachmentActions.liftScissor(2000, 10, false);
-
-            for (int i = 0; i < 40; i++) {
-                attachmentActions.liftScissor(3000, 100 * i, true);
-                sleep(5000);
-            }
+//            attachmentActions.closeGripper();
+//            sleep(500);
+//            attachmentActions.liftScissor(3000, 5, false);
+//            while (attachmentActions.scissorLift1.isBusy()) {}
+//            attachmentActions.turnTableEncoders(degrees, 0.00044, 0.00000016, 0.5);
+//            while (!attachmentActions.isDone) {
+//                attachmentActions.turnTableEncoders(degrees, 0.00044, 0.00000016, 0.5);
+//            }
+//            sleep(10000);
 //            attachmentActions.turnTableEncoders(7.5, 0.2);
 //            for (int i = 0; i < 5; i++) {
 //                encoderActions.encoderDrive(330,36);

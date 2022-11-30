@@ -47,14 +47,14 @@ public class MainTeleOp extends HelperActions {
         double prevTime = 0;
         double extendLength = 1.0;
         int extendTime = 1200; //Time to fully extend the extender in milliseconds. Needs to be changed
+        boolean upBit = false;
+        boolean downBit = true;
 
         attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         attachmentActions.scissorLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-
-        driveActions.setSpeed(0.4);
 
         gyroActions.getRawHeading();
 
@@ -111,6 +111,16 @@ public class MainTeleOp extends HelperActions {
             }
             if (gamepad2.y) {
                 attachmentActions.openGripper();
+            }
+
+            if (attachmentActions.scissorLift1.getCurrentPosition() < gravityThresholdLift && upBit == false) {
+                changeSpeed(driveActions, false, false, false, true);
+                upBit = true;
+                downBit = false;
+            } else if (downBit = false) {
+                changeSpeed(driveActions, false, false, true, false);
+                downBit = true;
+                upBit = false;
             }
 
             changeSpeed(driveActions, gamepad1.dpad_up || gamepad1.x, gamepad1.dpad_down || gamepad1.b, gamepad1.a, gamepad1.y);

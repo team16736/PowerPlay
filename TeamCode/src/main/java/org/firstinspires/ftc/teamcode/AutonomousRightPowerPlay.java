@@ -35,43 +35,43 @@ public class AutonomousRightPowerPlay extends HelperActions{
         waitForStart();
 
         if (opModeIsActive()) {
-            /*String location = findImageOnCone.findObject();
-            sleep(10000);
+            encoderActions.encoderStrafe(400, 6, false);
+            String location = findImageOnCone.findObject();
 
             attachmentActions.closeGripper();
             sleep(500);
 
             attachmentActions.setLiftLevel(false, true, false);
 
-            encoderActions.encoderStrafe(400, 21.5, true);
+            encoderActions.encoderStrafe(400, 27.5, true);
             sleep(500);
 
-            encoderActions.encoderDrive(300, 41);
-            sleep(500);
-
-            attachmentActions.openGripper();
+            encoderActions.encoderDrive(300, 42);
             sleep(500);
 
             attachmentActions.liftScissor(1000, 0, true);
 
-            encoderActions.encoderStrafe(400, 4, true);
+            attachmentActions.openGripper();
+            sleep(500);
+
+            encoderActions.encoderStrafe(400, 2, true);
 
             encoderActions.encoderDrive(400, 11);
 
-            encoderActions.encoderStrafe(400, 52, false);*/
-            findCone(attachmentActions);
+//            encoderActions.encoderStrafe(400, 52, false);
+//            findCone(attachmentActions);
 
 
-//            moveToLocation(encoderActions, location);
+            moveToLocation(encoderActions, location);
         }
     }
 
     private void placeCone(EncoderActions encoderActions, AttachmentActions attachmentActions){
         encoderActions.encoderDrive(speed, -2);
         attachmentActions.setLiftLevel(true, false, false);
-        attachmentActions.turnTableEncoders(-120, 200);
+        attachmentActions.turnTableEncoders(-120, true);
         while (attachmentActions.scissorLift1.isBusy()) {}
-        attachmentActions.turnTableEncoders(-10, 200);
+        attachmentActions.turnTableEncoders(-10, true);
         attachmentActions.openGripper();
     }
 
@@ -101,7 +101,7 @@ public class AutonomousRightPowerPlay extends HelperActions{
         double minDistanceAngle = 0;
 //        attachmentActions.turnTableEncoders(angle, turnTableSpeed);
         while (!attachmentActions.isDone && opModeIsActive()) {
-            attachmentActions.turnTableEncoders(angle, turnTableSpeed);
+            attachmentActions.turnTableEncoders(angle, false);
 //            if (attachmentActions.getJunctionDistance() < minDistance) {
 //                minDistance = attachmentActions.getJunctionDistance();
 //                minDistanceAngle = attachmentActions.getTurntablePosition();

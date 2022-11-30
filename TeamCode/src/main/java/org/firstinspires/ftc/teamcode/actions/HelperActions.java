@@ -22,7 +22,7 @@ public abstract class HelperActions extends LinearOpMode {
     public static int HIGH = 7;
 
     private int speeding = 0;
-    private double speed = 0.8;
+    private double speed = 0.4;
     private int speedingArm = 0;
     private double speedArm = 0.6;
 
@@ -31,6 +31,7 @@ public abstract class HelperActions extends LinearOpMode {
     private boolean startCenteredBit = false;
     private boolean spinBit;
     private boolean inCone;
+    private double extenderRange = 0; //Range the extender can extend to. If it gets added back on, it's 6.25
     private double startingPosition;
     private boolean firstDetectedBit;
     private double startTime;
@@ -163,7 +164,7 @@ public abstract class HelperActions extends LinearOpMode {
         }
         //Center the turntable before starting
         if (!startCenteredBit) {
-            attachmentActions.turnTableEncoders(0, 200);
+            attachmentActions.turnTableEncoders(0, true);
             startCenteredBit = attachmentActions.isDone;
         }
         //Do this at the start of the function
@@ -198,7 +199,7 @@ public abstract class HelperActions extends LinearOpMode {
                 startTime = System.currentTimeMillis();
                 firstDetectedBit = true;
             }
-            attachmentActions.turnTableEncoders(startingPosition, 0.2);
+            attachmentActions.turnTableEncoders(startingPosition, true);
             //Gets the distance to the junction by averaging the distance over 1/2 second
             if (System.currentTimeMillis() - startTime < 500) {
                 totalDistance += attachmentActions.getJunctionDistance();
@@ -209,15 +210,14 @@ public abstract class HelperActions extends LinearOpMode {
             }
         }
         //If the junction is less than 6.25 inches away, it can use the turntable and extending the grabber, for more accuracy
-        //Wait until the turntable is working
-        if (attachmentActions.finalDistanceToJunction(distance) < 6.25 && averageBit && !atFinalAngle) {
+        if (attachmentActions.finalDistanceToJunction(distance) < extenderRange && averageBit && !atFinalAngle) {
             usingExtender = true;
-            attachmentActions.turnTableEncoders(attachmentActions.angleToJunction(distance) + startingPosition, 0.2);
+            attachmentActions.turnTableEncoders(attachmentActions.angleToJunction(distance) + startingPosition, true);
             if (attachmentActions.isDone){atFinalAngle = true;}
         }
         //After getting the distance to the junction, it turns towards it
         if (averageBit && !atFinalAngle && !usingExtender) {
-            attachmentActions.turnTableEncoders(0, 0.2);
+            attachmentActions.turnTableEncoders(0, true);
             atFinalAngle = gyroActions.maintainHeading(0.2, startingPosition + attachmentActions.angleToJunction(distance)) && attachmentActions.isDone;
         }
         //After turning towards the junction, it lifts the cone to the top of the junction

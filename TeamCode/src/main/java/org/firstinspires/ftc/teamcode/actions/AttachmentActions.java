@@ -54,10 +54,8 @@ public class AttachmentActions {
     private double intervalI = 0;
     private double prevTimeI = System.currentTimeMillis();
     private double velocity = 0;
-    private int prevTicks = 0;
     private int error = 0;
     private int sum = 0;
-    private int startingTicks = prevTicks;
     public boolean isDone = false;
     public double minVel = 10000;
 
@@ -154,26 +152,38 @@ public class AttachmentActions {
     }
 
     // need to tune encoder values
-    public void turnTableEncoders(double degrees, double speed) {
-//        20-90: 0.0022, 0.000000055
+    public void turnTableEncoders(double degrees, boolean hasCone) {
+//
+//        Speed cap 0.2:
+//        180:  ~0.0011,~0.0000000095 roughly
+//        90:    0.0006, 0.000000065
+//        20-45: 0.0022, 0.000000055
 //        10:    0.0022, 0.0000005
 //        5:	 0.0035, 0.00000052
-        turnTableEncoders(degrees, speed, 0.0022, 0.0000005);
+        double kI;
+        if (hasCone) {
+            kI = 0.00000016;
+        }
+        else {
+            kI = 0.0000002;
+        }
+        turnTableEncoders(degrees, 0.00044, kI, 0.5);
     }
 
-    public void turnTableEncoders(double degrees, double speed, double Kp, double Ki) {
+    public void turnTableEncoders(double degrees, double Kp, double Ki, double speedCap) {
         double ticksPerRevolution = 8192 * 96 / 100; // 7864
         double ticksPerDegree = ticksPerRevolution / 360;
         int totalTicks = (int) (ticksPerDegree * degrees);
-        int velocityRange = -1;
-        int acceptableError = (int) ticksPerDegree * 1;
+        int velocityRange = 1;
+        int acceptableError = (int) ticksPerDegree * 2;
 
         if (!initBit) {
             isDone = false;
+            prevTimeI = System.currentTimeMillis();
             initBit = true;
         }
 
-        error = tableEncoder.getCurrentPosition() - totalTicks;
+        error = totalTicks - tableEncoder.getCurrentPosition();
 
         velocity = tableEncoder.getVelocity();
 
@@ -181,16 +191,26 @@ public class AttachmentActions {
             isDone = true;
         }
 
-        intervalI = System.currentTimeMillis() - prevTimeI;
-        prevTimeI = System.currentTimeMillis();
-        sum += (error * intervalI);
+        if (Math.abs(error) < (ticksPerDegree * 20)) {
+            intervalI = System.currentTimeMillis() - prevTimeI;
+            prevTimeI = System.currentTimeMillis();
+            if (Math.abs(error) > acceptableError) {
+                sum += (error * intervalI);
+            }
+        }
 
         P_Gain = error * Kp;
         I_Gain = sum * Ki;
 
         power = Range.clip(P_Gain + I_Gain, -1, 1);
-        turnTable.setPower(-(power * speed));
+        if (Math.abs(error) > acceptableError) {
+            turnTable.setPower(power * speedCap);
+        } else {
+            turnTable.setPower(0);
+            sum = 0;
+        }
 
+        //Not necessary anymore, deletable
         if (Math.abs(error) < acceptableError) {
             if (velocity < minVel) {minVel = velocity;}
         }
@@ -203,16 +223,7 @@ public class AttachmentActions {
         telemetry.addData("Is Done", isDone);
         telemetry.update();
         if (isDone) {
-            P_Gain = 0;
-            I_Gain = 0;
-            power = 0;
-            intervalI = 0;
-            prevTimeI = System.currentTimeMillis();
-            velocity = 0;
-            prevTicks = tableEncoder.getCurrentPosition();
-            error = 0;
             sum = 0;
-            startingTicks = prevTicks;
             initBit = false;
         }
     }
@@ -239,8 +250,7 @@ public class AttachmentActions {
     }
 
     public void liftScissor(double speed, double verticalDistance, boolean hardCode) {
-        double horizontalDistance = 12.6 - (2 * Math.sqrt(39.69 - Math.pow(verticalDistance / 6, 2)));
-        int totalTicks = (int) (-68 + (-horizontalDistance / 0.314961 * 145.1));
+        int totalTicks = (int) -(0.1161 * Math.pow(verticalDistance, 3) - 2.2579 * Math.pow(verticalDistance, 2) + 56.226 * verticalDistance + 36.647);
         if (hardCode) {
             totalTicks = (int) -verticalDistance;
         }
@@ -255,7 +265,6 @@ public class AttachmentActions {
     }
 
     public double getLiftHeight() {
-
         double horizontalDistance = -((scissorLift1.getCurrentPosition() + 68) / 145.1 * 0.314961);
         return 6 * Math.sqrt(39.69 - Math.pow(((12.6 - horizontalDistance) / 2), 2));
     }
