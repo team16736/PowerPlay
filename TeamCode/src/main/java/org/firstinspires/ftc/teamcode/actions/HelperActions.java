@@ -22,14 +22,12 @@ public abstract class HelperActions extends LinearOpMode {
     public static int HIGH = 7;
 
     private int speeding = 0;
-    private double speed = 0.4;
+    private double speed = 0.6;
     private int speedingArm = 0;
     private double speedArm = 0.6;
 
     //stuff for placing cone
-    private boolean initConePlacementBit = false;
-    private boolean startCenteredBit = false;
-    private boolean spinBit;
+    private int conePlacementState = 0;
     private boolean inCone;
     private double extenderRange = 0; //Range the extender can extend to. If it gets added back on, it's 6.25
     private double startingPosition;
@@ -37,18 +35,19 @@ public abstract class HelperActions extends LinearOpMode {
     private double startTime;
     private double totalDistance;
     private int i;
-    private boolean averageBit;
     private double distance;
     private boolean usingExtender;
-    private boolean atFinalAngle;
     private boolean extendingBit;
     private double extendingTime;
     private double extendingSpeed = 200;
-    private boolean isInPlace;
     private boolean releasingBit;
     private double releasingTime;
-    private boolean isPlaced;
     public boolean isPlacingCone;
+
+    //Chill method variables
+    public int chillThreshold = 250;
+    boolean upBit = false;
+    boolean downBit = true;
 
     public void drive_ForwardAndStop(DriveActions driveActions, double speed, double drivingTime) {
         driveActions.setMotorDirection_Forward();
@@ -158,31 +157,33 @@ public abstract class HelperActions extends LinearOpMode {
     //Places the cone on the junction when the junction is within 100 degrees of the sensor.
     public void placeConeOnJunction(AttachmentActions attachmentActions, GyroActions gyroActions, EncoderActions encoderActions, boolean spinLeft, int level) {
         //Initializes the variables the first time the method is called
-        if (!initConePlacementBit) {
+        if (conePlacementState == 0) {
             initConePlacement();
-            initConePlacementBit = true;
+            conePlacementState = 1;
         }
         //Center the turntable before starting
-        if (!startCenteredBit) {
+        if (conePlacementState == 1) {
             attachmentActions.turnTableEncoders(0, true);
-            startCenteredBit = attachmentActions.isDone;
+            if (attachmentActions.isDone){
+                conePlacementState = 2;
+            }
         }
         //Do this at the start of the function
-        if (!spinBit && startCenteredBit) {
+        if (conePlacementState == 3) {
             //If the junction is not in the cone of vision, the robot spins until the junction is detected
             if (attachmentActions.getJunctionDistance() < 10) {
                 inCone = true;
             } else if (!spinLeft) {
                 attachmentActions.turnTable.setPower(0.1);
+                conePlacementState = 4;
             } else if (spinLeft) {
                 attachmentActions.turnTable.setPower(-0.1);
+                conePlacementState = 4;
             }
-            spinBit = true;
         }
         //If the junction is already in the cone of vision, turn the other way until it isn't or 90 degrees
         if (attachmentActions.getJunctionDistance() > 10 && inCone) {
             inCone = false;
-            spinBit = false;
         }
         if (inCone) {
             if (spinLeft) {
@@ -192,7 +193,7 @@ public abstract class HelperActions extends LinearOpMode {
             }
         }
         //Activates when the junction is within 12.5 degrees of the sensor
-        if (attachmentActions.getJunctionDistance() < 10 && !averageBit && !inCone) {
+        if (attachmentActions.getJunctionDistance() < 10 && conePlacementState == 4) {
             //Activates once when the junction is first detected
             if (!firstDetectedBit) {
                 startingPosition = attachmentActions.getTurntablePosition();
@@ -204,24 +205,27 @@ public abstract class HelperActions extends LinearOpMode {
             if (System.currentTimeMillis() - startTime < 500) {
                 totalDistance += attachmentActions.getJunctionDistance();
                 i++;
-            } else if (!averageBit) {
+            } else {
                 distance = totalDistance / i;
-                averageBit = true;
+                conePlacementState = 5;
             }
         }
         //If the junction is less than 6.25 inches away, it can use the turntable and extending the grabber, for more accuracy
-        if (attachmentActions.finalDistanceToJunction(distance) < extenderRange && averageBit && !atFinalAngle) {
+        if (attachmentActions.finalDistanceToJunction(distance) < extenderRange && conePlacementState == 5) {
             usingExtender = true;
             attachmentActions.turnTableEncoders(attachmentActions.angleToJunction(distance) + startingPosition, true);
-            if (attachmentActions.isDone){atFinalAngle = true;}
+            if (attachmentActions.isDone){
+                conePlacementState = 6;}
         }
         //After getting the distance to the junction, it turns towards it
-        if (averageBit && !atFinalAngle && !usingExtender) {
+        if (conePlacementState == 5 && !usingExtender) {
             attachmentActions.turnTableEncoders(0, true);
-            atFinalAngle = gyroActions.maintainHeading(0.2, startingPosition + attachmentActions.angleToJunction(distance)) && attachmentActions.isDone;
+            if (gyroActions.maintainHeading(0.2, startingPosition + attachmentActions.angleToJunction(distance)) && attachmentActions.isDone) {
+                conePlacementState = 6;
+            }
         }
         //After turning towards the junction, it lifts the cone to the top of the junction
-        if (atFinalAngle && !isInPlace) {
+        if (conePlacementState == 6) {
             if (level == LOW) {attachmentActions.setLiftLevel(true, false, false);}
             if (level == MEDIUM) {attachmentActions.setLiftLevel(false, true, false);}
             if (level == HIGH) {attachmentActions.setLiftLevel(false, false, true);}
@@ -233,25 +237,29 @@ public abstract class HelperActions extends LinearOpMode {
                         extendingBit = true;
                     }
                     attachmentActions.extendGripper(attachmentActions.finalDistanceToJunction(distance));
-                    isInPlace = ((System.currentTimeMillis() - extendingTime) * attachmentActions.finalDistanceToJunction(distance) * extendingSpeed) > 500;
+                    if (((System.currentTimeMillis() - extendingTime) * attachmentActions.finalDistanceToJunction(distance) * extendingSpeed) > 500) {
+                        conePlacementState = 7;
+                    }
                 } else {
                     encoderActions.encoderDriveNoTimer(200, attachmentActions.finalDistanceToJunction(distance));
-                    isInPlace = !encoderActions.motorFrontL.isBusy();
+                    if (!encoderActions.motorFrontL.isBusy()) {
+                        conePlacementState = 7;
+                    }
                 }
             }
         }
         //After moving over the junction, it drops the cone
-        if (isInPlace && !isPlaced) {
+        if (conePlacementState == 7) {
             if (!releasingBit) {
                 attachmentActions.openGripper();
                 releasingTime = System.currentTimeMillis();
             }
             if (System.currentTimeMillis() - releasingTime > 500){
-                isPlaced = true;
+                conePlacementState = 8;
             }
         }
         //After dropping the cone, it lowers the lift and finishes the program
-        if (isPlaced) {
+        if (conePlacementState == 8) {
             if (usingExtender) {
                 attachmentActions.extendGripper(0);
             }
@@ -265,24 +273,31 @@ public abstract class HelperActions extends LinearOpMode {
     }
 
     private void initConePlacement() {
-        spinBit = false;
+        conePlacementState = 0;
         inCone = false;
         startingPosition = 0;
         firstDetectedBit = false;
         startTime = 0;
         totalDistance = 0;
         i = 0;
-        averageBit = false;
         distance = 0;
         usingExtender = false;
-        atFinalAngle = false;
         extendingBit = false;
         extendingTime = 0;
         extendingSpeed = 200; //Milliseconds per inch, needs to be timed
-        isInPlace = false;
         releasingBit = false;
         releasingTime = 0;
-        isPlaced = false;
         isPlacingCone = false;
+    }
+    public void dudeYouShouldChill (DriveActions driveActions, AttachmentActions attachmentActions) {
+        if (Math.abs(attachmentActions.scissorLift1.getCurrentPosition()) > chillThreshold && upBit == false) {
+            changeSpeed(driveActions, false, false, false, true);
+            upBit = true;
+            downBit = false;
+        } else if (Math.abs(attachmentActions.scissorLift1.getCurrentPosition()) < chillThreshold && downBit == false) {
+            changeSpeed(driveActions, false, false, true, false);
+            downBit = true;
+            upBit = false;
+        }
     }
 }

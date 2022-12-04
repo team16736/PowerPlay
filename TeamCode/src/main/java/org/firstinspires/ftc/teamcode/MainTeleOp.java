@@ -39,7 +39,7 @@ public class MainTeleOp extends HelperActions {
         double speedY; //Create new double for the speed.
         int currentPos; //Create an integer for the current position (IMPORTANT THAT ITS AN INTEGER, WILL NOT WORK OTHERWISE)
         boolean memBitLift = true;
-        int gravityThresholdLift = -250;
+        int gravityThresholdLift = -350;
         boolean memoryBit;
         boolean spinLeft;
         boolean placeBit;
@@ -47,11 +47,11 @@ public class MainTeleOp extends HelperActions {
         double prevTime = 0;
         double extendLength = 1.0;
         int extendTime = 1200; //Time to fully extend the extender in milliseconds. Needs to be changed
-        boolean upBit = false;
-        boolean downBit = true;
 
         attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         attachmentActions.scissorLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        attachmentActions.scissorLift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        attachmentActions.scissorLift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -82,6 +82,9 @@ public class MainTeleOp extends HelperActions {
                 attachmentActions.scissorLift1.setPower(0);
                 attachmentActions.scissorLift2.setPower(0);
             }
+//            if (attachmentActions.scissorLift1.getCurrentPosition() > gravityThresholdLift) {
+//                attachmentActions.stayWhereSet(gamepad2.left_stick_y);
+//            }
 
             if((Math.abs(gamepad2.left_stick_y) < 0.01) && (attachmentActions.scissorLift1.getCurrentPosition() > gravityThresholdLift) && !memBitLift){
                 attachmentActions.liftScissor(3000, -attachmentActions.scissorLift1.getCurrentPosition(), true);
@@ -90,7 +93,7 @@ public class MainTeleOp extends HelperActions {
 
             //gamepad 2 right joystick is giving wonky values when negative. Need to switch gamepads or joysticks to adjust
             encoderAdjustment = ((Math.pow(gamepad2.right_stick_x, 2) * 0.93) + 0.07);
-            if (gamepad2.right_stick_x > 0.01 && attachmentActions.tableencodercount() < 3932) {
+            if (gamepad2.right_stick_x > 0.01 && attachmentActions.tableencodercount() < 1966) {
                 turnTableRotation = encoderAdjustment;
             } else if (gamepad2.right_stick_x < -0.01 && attachmentActions.tableencodercount() > -3932) {
                 turnTableRotation = -1.0 * encoderAdjustment;
@@ -113,17 +116,9 @@ public class MainTeleOp extends HelperActions {
                 attachmentActions.openGripper();
             }
 
-            if (attachmentActions.scissorLift1.getCurrentPosition() < gravityThresholdLift && upBit == false) {
-                changeSpeed(driveActions, false, false, false, true);
-                upBit = true;
-                downBit = false;
-            } else if (downBit = false) {
-                changeSpeed(driveActions, false, false, true, false);
-                downBit = true;
-                upBit = false;
-            }
+            dudeYouShouldChill(driveActions, attachmentActions);
 
-            changeSpeed(driveActions, gamepad1.dpad_up || gamepad1.x, gamepad1.dpad_down || gamepad1.b, gamepad1.a, gamepad1.y);
+            changeSpeed(driveActions, gamepad1.dpad_up, gamepad1.dpad_down, false, false);
 
 
             //Need to add an interrupt

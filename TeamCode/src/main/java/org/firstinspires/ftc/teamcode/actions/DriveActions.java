@@ -37,7 +37,7 @@ public class DriveActions {
     public DcMotor weirdWheels;
 
     //the amount to throttle the power of the motors
-    public double THROTTLE = 0.5;
+    public double THROTTLE = 0.6;
 
     private Telemetry telemetry;
     private HardwareMap hardwareMap;

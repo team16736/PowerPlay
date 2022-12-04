@@ -59,6 +59,9 @@ public class AttachmentActions {
     public boolean isDone = false;
     public double minVel = 10000;
 
+    boolean setBit = false;
+    boolean lowerSetBit = false;
+
 
     private Telemetry telemetry;
     private HardwareMap hardwareMap;
@@ -139,7 +142,7 @@ public class AttachmentActions {
     }
 
     public double angleToJunction(double distance) {
-        double adjustedHorizontal = (Math.cos(77.5) * distance) - horizontalOffset;
+        double adjustedHorizontal = (Math.cos(77.5) * distance) - horizontalOffset + 0.5;
         double adjustedVertical = (Math.sin(77.5) * distance) + verticalOffset;
         return Math.atan(adjustedVertical / adjustedHorizontal);
     }
@@ -272,5 +275,22 @@ public class AttachmentActions {
     public void liftWithoutEncoders() {
         scissorLift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         scissorLift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    public void stayWhereSet(double joystickPosition) {
+        if (Math.abs(joystickPosition) < 0.01) {
+            if (!setBit) {
+                liftScissor(3000, -scissorLift1.getCurrentPosition(), true);
+                setBit = true;
+            }
+            if (!lowerSetBit && Math.abs(scissorLift1.getVelocity()) < 10) {
+                liftScissor(3000, -scissorLift1.getCurrentPosition(), true);
+                lowerSetBit = true;
+            }
+        } else {
+            setBit = false;
+            lowerSetBit = false;
+        }
+        telemetry.addData("target position", scissorLift1.getTargetPosition());
     }
 }
