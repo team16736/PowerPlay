@@ -193,11 +193,12 @@ public class GyroTest extends LinearOpMode {
         // Notes:   Reverse movement is obtained by setting a negative distance (not speed)
         //          holdHeading() is used after turns to let the heading stabilize
         //          Add a sleep(2000) after any step to keep the telemetry data visible for review
-
-        for (int i = 0; i < 5; i++) {
-            driveStraight(DRIVE_SPEED, 36, 0.0);    // Drive Forward 24"
-            driveStraight(DRIVE_SPEED, -36, 0.0);    // Drive Forward 24"
-        }
+//
+//        for (int i = 0; i < 5; i++) {
+//            driveStraight(DRIVE_SPEED, 36, 0.0);    // Drive Forward 24"
+//            driveStraight(DRIVE_SPEED, -36, 0.0);    // Drive Forward 24"
+//        }
+        driveStraight(DRIVE_SPEED, 10, 0.0);    // Drive Forward 24"
         sleep(1000);
 //        turnToHeading(TURN_SPEED, 90.0);
 //
