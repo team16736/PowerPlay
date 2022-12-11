@@ -45,9 +45,12 @@ public class ExperimentTeleOp extends HelperActions {
         double speed = 0.8;
         double y; //Create new double for the speed.
         int currentPos; //Create an integer for the current position (IMPORTANT THAT ITS AN INTEGER, WILL NOT WORK OTHERWISE)
-        int armUpPosition1 = 0;
-        int armUpPosition2 = 0;
         final float[] hsvValues = new float[3];
+
+        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        attachmentActions.scissorLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        attachmentActions.scissorLift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -63,27 +66,27 @@ public class ExperimentTeleOp extends HelperActions {
 //                    -gamepad1.left_stick_y,     //joystick controlling forward/backward
 //                    gamepad1.right_stick_x);    //joystick controlling rotation
 
-            if (gamepad1.x) { }
-            if (gamepad1.y) { }
-            if (gamepad1.a) { }
-            if (gamepad1.b) { }
-
+//            if (gamepad1.x) { }
+//            if (gamepad1.y) { }
+//            if (gamepad1.a) { }
+//            if (gamepad1.b) { }
+//            attachmentActions.setLiftLevel(gamepad2.dpad_down, gamepad2.dpad_left || gamepad2.dpad_right, gamepad2.dpad_up);
+//
             y = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
             attachmentActions.scissorLift1.setPower(y);
             attachmentActions.scissorLift2.setPower(y);
-
-
-            double armSpeed = changeSpeedArm(gamepad2.dpad_up, gamepad2.dpad_down);
-
-            changeSpeed(driveActions, gamepad1.dpad_up || gamepad1.x, gamepad1.dpad_down || gamepad1.b, gamepad1.a, gamepad1.y);
+//
+//
+//            double armSpeed = changeSpeedArm(gamepad2.dpad_up, gamepad2.dpad_down);
+//
+//            changeSpeed(driveActions, gamepad1.dpad_up || gamepad1.x, gamepad1.dpad_down || gamepad1.b, gamepad1.a, gamepad1.y);
+            telemetry.addData("Left X Position", gamepad2.left_stick_y);
+            telemetry.addData("Lift Power", attachmentActions.scissorLift1.getPower());
             telemetry.addData("lift ticks", attachmentActions.scissorLift1.getCurrentPosition());
             telemetry.addData("lift position", attachmentActions.getLiftHeight());
             telemetry.addData("Table Position", attachmentActions.tableencodercount());
             telemetry.addData("Joystick Position", gamepad2.right_stick_x);
-            telemetry.addData("Target Position", targetArmSpin);
-            telemetry.addData("Memory Bit", memBitArmSpin);
-            telemetry.addData("Position 1", armUpPosition1);
-            telemetry.addData("Position 2", armUpPosition2);
+            telemetry.addData("Table Power", attachmentActions.turnTable.getPower());
             telemetry.update();
         }
         telemetry.addData("[ROBOTNAME] ", "Going");

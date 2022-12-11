@@ -3,25 +3,29 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
+import org.firstinspires.ftc.teamcode.actions.EncoderActions;
+import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
-import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
 
 @TeleOp(name = "Main Tele Op", group = "Linear Opmode")
 public class MainTeleOp extends HelperActions {
 
+    private GyroActions gyroActions = null;
     private DriveActions driveActions = null;
     private AttachmentActions attachmentActions = null;
-    boolean memoryBit;
+    private EncoderActions encoderActions = null;
 
     @Override
     public void runOpMode() {
 
+        gyroActions = new GyroActions(this, telemetry, hardwareMap);
         driveActions = new DriveActions(telemetry, hardwareMap);
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
+        encoderActions = new EncoderActions(this, telemetry, hardwareMap);
 
         //Set Speed for teleOp. Mecannum wheel speed.
         //driveActions.setSpeed(1.0);
@@ -30,40 +34,80 @@ public class MainTeleOp extends HelperActions {
         int speeding = 0;
         double speed = 0.8;
         double y = 0;
-        double x = 0;
+        double turnTableRotation = 0;
+        double encoderAdjustment;
         double speedY; //Create new double for the speed.
         int currentPos; //Create an integer for the current position (IMPORTANT THAT ITS AN INTEGER, WILL NOT WORK OTHERWISE)
+        boolean memBitLift = true;
+        int gravityThresholdLift = -350;
+        boolean memoryBit;
+        boolean spinLeft;
+        boolean placeBit;
+        double extenderInput;
+        double prevTime = 0;
+        double extendLength = 1.0;
+        int extendTime = 1200; //Time to fully extend the extender in milliseconds. Needs to be changed
 
+        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        attachmentActions.scissorLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        attachmentActions.scissorLift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        attachmentActions.scissorLift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
-        driveActions.setSpeed(0.8);
-
+        gyroActions.getRawHeading();
 
         while (opModeIsActive()) {
 
             /** Gamepad 1 **/
             driveActions.drive(
-                    (gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x) * 0.5),      //joystick controlling strafe
-                    (-gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y) * 0.5),     //joystick controlling forward/backward
-                    (gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * 0.5));    //joystick controlling rotation
-//            telemetry.addData("Left stick x", gamepad1.left_stick_x);
-//            telemetry.addData("left stick y", gamepad1.left_stick_y);
-//            telemetry.addData("right stick x", gamepad1.right_stick_x);
-//            telemetry.update();
-            y = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
-            attachmentActions.scissorLift1.setPower(y);
-            attachmentActions.scissorLift2.setPower(y);
+                    (gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x)),      //joystick controlling strafe
+                    (-gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y)),     //joystick controlling forward/backward
+                    (gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x)));    //joystick controlling rotation
+            telemetry.addData("Left stick x", gamepad1.left_stick_x);
+            telemetry.addData("left stick y", gamepad1.left_stick_y);
+            telemetry.addData("right stick x", gamepad1.right_stick_x);
+            telemetry.update();
 
-            if (gamepad2.right_stick_x > 0.01 && attachmentActions.tableencodercount() < 3932) {
-                x = ((Math.abs(Math.pow(gamepad2.right_stick_x, 2)) * 0.93) + 0.07);
-            } else if (gamepad2.right_stick_x < -0.01 && attachmentActions.tableencodercount() > -3932) {
-                x = -((Math.abs(Math.pow(gamepad2.right_stick_x, 2)) * 0.93) + 0.07);
-            } else {
-                x = 0;
+            attachmentActions.setLiftLevel(gamepad2.dpad_down, gamepad2.dpad_left || gamepad2.dpad_right, gamepad2.dpad_up);
+
+            if(Math.abs(gamepad2.left_stick_y) > 0.01) {
+                attachmentActions.liftWithoutEncoders();
+                y = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
+                attachmentActions.scissorLift1.setPower(y);
+                attachmentActions.scissorLift2.setPower(y);
+                memBitLift = false;
+            } else if (!attachmentActions.scissorLift1.isBusy() && attachmentActions.scissorLift1.getCurrentPosition() < gravityThresholdLift) {
+                attachmentActions.scissorLift1.setPower(0);
+                attachmentActions.scissorLift2.setPower(0);
             }
-            attachmentActions.turnTable.setPower(x);
+//            if (attachmentActions.scissorLift1.getCurrentPosition() > gravityThresholdLift) {
+//                attachmentActions.stayWhereSet(gamepad2.left_stick_y);
+//            }
+
+            if((Math.abs(gamepad2.left_stick_y) < 0.01) && (attachmentActions.scissorLift1.getCurrentPosition() > gravityThresholdLift) && !memBitLift){
+                attachmentActions.liftScissor(3000, -attachmentActions.scissorLift1.getCurrentPosition(), true);
+                memBitLift = true;
+            }
+
+            //gamepad 2 right joystick is giving wonky values when negative. Need to switch gamepads or joysticks to adjust
+            encoderAdjustment = ((Math.pow(gamepad2.right_stick_x, 2) * 0.93) + 0.07);
+            if (gamepad2.right_stick_x > 0.01 && attachmentActions.tableencodercount() < 1966) {
+                turnTableRotation = encoderAdjustment;
+            } else if (gamepad2.right_stick_x < -0.01 && attachmentActions.tableencodercount() > -3932) {
+                turnTableRotation = -1.0 * encoderAdjustment;
+            } else {
+                turnTableRotation = 0;
+            }
+            attachmentActions.turnTable.setPower(turnTableRotation);
+
+            telemetry.addData("Joystick", gamepad2.right_stick_y);
+
+            extenderInput = gamepad2.right_trigger - gamepad2.left_trigger;
+            extendLength = Range.clip(extendLength - ((extenderInput * (System.currentTimeMillis() - prevTime) / extendTime)), 0.0, 1.0);
+            prevTime = System.currentTimeMillis();
+            attachmentActions.extender.setPosition(extendLength);
 
             if (gamepad2.x) {
                 attachmentActions.closeGripper();
@@ -72,41 +116,27 @@ public class MainTeleOp extends HelperActions {
                 attachmentActions.openGripper();
             }
 
-            double armSpeed = changeSpeedArm(gamepad2.dpad_up, gamepad2.dpad_down);
+            dudeYouShouldChill(driveActions, attachmentActions);
 
-            speedY = gamepad2.left_stick_y; //map double speedY to the Y axis of player 1's left joystick.
-//            currentPos = slideExtendMotor.getCurrentPosition(); //map integer currentPos to the arm's current extended position.
-//            if(currentPos <= -3450 && speedY < 0) {//limit extending to -3450 encoder ticks, about 1 inch from fully extended. check if you are pressing up to continue extending, if so then set speed to 0.
-//                speedY = 0;
-//            }
-//            if(currentPos >= 0 && speedY > 0) {//limit retracting to 0 ticks, fully closed. check if pressing down on joystick, if so set speed to 0.
-//                speedY = 0;
-//                currentPos = 0; //Set the arm to go to the fully closed position. Not needed (dont quote me on this)
-//            }
-//            if((speedY == 0) && (!memoryBit)) { //Only runs if speedY is 0 (joystick idle) and the memory bit is false.
-//                slideExtendMotor.setTargetPosition(currentPos); //Set the arm to hold its position.
-//                slideExtendMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION); //Set the arm's run mode so it actually does stuff
-//                slideExtendMotor.setPower(0.5); //Set the motor to half power.
-//                memoryBit = true; //Change the memory bit back to true so it only runs once.
-//            }
-//            if((speedY != 0)) { //If the joystick IS being pushed, run this code.
-//                memoryBit = false; //Set memory bit to false so that the previous if statement works.
-//                slideExtendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODERS); //Change mode to run using encoders.
-//                slideExtendMotor.setPower(speedY*(armSpeed/.6)); //Set the motor power to the current joystick position.
-//            }
-//
-//            telemetry.addData("Gamepad is at", speedY); //testing junk
-//            telemetry.addData("Arm is extended to", slideExtendMotor.getCurrentPosition()); //testing junk
-//            if(Math.abs(gamepad2.right_stick_y)>0.1){
-//                attachmentActions.slideTurnMotor.setPower(gamepad2.right_stick_y * -armSpeed);
-//                currentTicks = attachmentActions.slideTurnMotor.getCurrentPosition();
-//            }else if(attachmentActions.slideTurnMotor.getCurrentPosition() < currentTicks){
-//                attachmentActions.slideTurnMotor.setPower((attachmentActions.slideTurnMotor.getCurrentPosition()-currentTicks)*-0.003);
-//            }else if(attachmentActions.slideTurnMotor.getCurrentPosition() > currentTicks){
-//                attachmentActions.slideTurnMotor.setPower((attachmentActions.slideTurnMotor.getCurrentPosition()-currentTicks)*-.001);
-//            }
-//
-            changeSpeed(driveActions, gamepad1.dpad_up || gamepad1.x, gamepad1.dpad_down || gamepad1.b, gamepad1.a, gamepad1.y);
+            changeSpeed(driveActions, gamepad1.dpad_up, gamepad1.dpad_down, false, false);
+
+
+            //Need to add an interrupt
+            /*if (!isPlacingCone) {
+                spinLeft = false;
+                placeBit = false;
+            }
+            if (gamepad2.left_bumper) {
+                spinLeft = true;
+                placeBit = true;
+            }
+            if (gamepad2.right_bumper) {
+                placeBit = true;
+            }
+            if (placeBit) {
+                placeConeOnJunction(attachmentActions, gyroActions, encoderActions, spinLeft, HIGH);
+            }*/
+
 //
 //            telemetry.addData("Current Position ", attachmentActions.slideTurnMotor.getCurrentPosition());
 //            telemetry.addData("Target Position", currentTicks);

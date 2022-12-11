@@ -9,7 +9,7 @@ public abstract class HelperActions extends LinearOpMode {
     protected ColorSensor right_sensor;
     protected ColorSensor left_sensor;
     protected boolean foundStone = false;
-    protected float hsvValues[] = {0F,0F,0F};
+    protected float hsvValues[] = {0F, 0F, 0F};
 
     public final double SPEED = 0.5;
 
@@ -17,11 +17,37 @@ public abstract class HelperActions extends LinearOpMode {
     public static int RIGHT = 2;
     public static int FORWARDS = 3;
     public static int BACKWARDS = 4;
+    public static int LOW = 5;
+    public static int MEDIUM = 6;
+    public static int HIGH = 7;
 
     private int speeding = 0;
-    private double speed = 0.8;
+    private double speed = 0.6;
     private int speedingArm = 0;
     private double speedArm = 0.6;
+
+    //stuff for placing cone
+    private int conePlacementState = 0;
+    private boolean inCone;
+    private double extenderRange = 0; //Range the extender can extend to. If it gets added back on, it's 6.25
+    private double startingPosition;
+    private boolean firstDetectedBit;
+    private double startTime;
+    private double totalDistance;
+    private int i;
+    private double distance;
+    private boolean usingExtender;
+    private boolean extendingBit;
+    private double extendingTime;
+    private double extendingSpeed = 200;
+    private boolean releasingBit;
+    private double releasingTime;
+    public boolean isPlacingCone;
+
+    //Chill method variables
+    public int chillThreshold = 250;
+    boolean upBit = false;
+    boolean downBit = true;
 
     public void drive_ForwardAndStop(DriveActions driveActions, double speed, double drivingTime) {
         driveActions.setMotorDirection_Forward();
@@ -29,25 +55,15 @@ public abstract class HelperActions extends LinearOpMode {
         driveActions.stop();
     }
 
-    public boolean strafeAndDetect(EncoderActions encoderActions, AttachmentActions attachmentActions, double speed, double distance, boolean strafeLeft){
-        encoderActions.motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encoderActions.motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encoderActions.motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encoderActions.motorBackR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    public double driveAndDetect(EncoderActions encoderActions, AttachmentActions attachmentActions, double speed, double distance) {
+        encoderActions.resetEncoder();
         // Set the motor's target position to 6.4 rotations
-        double ticksPerInch = 64.75;
+        double ticksPerInch = 32.2;
         int totalTicks = (int) (ticksPerInch * distance);
-        if (strafeLeft){
-            encoderActions.motorFrontL.setTargetPosition(-totalTicks);
-            encoderActions.motorFrontR.setTargetPosition(totalTicks);
-            encoderActions.motorBackL.setTargetPosition(totalTicks);
-            encoderActions.motorBackR.setTargetPosition(-totalTicks);
-        }else{
-            encoderActions.motorFrontL.setTargetPosition(totalTicks);
-            encoderActions.motorFrontR.setTargetPosition(-totalTicks);
-            encoderActions.motorBackL.setTargetPosition(-totalTicks);
-            encoderActions.motorBackR.setTargetPosition(totalTicks);
-        }
+        encoderActions.motorFrontL.setTargetPosition(totalTicks);
+        encoderActions.motorFrontR.setTargetPosition(totalTicks);
+        encoderActions.motorBackL.setTargetPosition(totalTicks);
+        encoderActions.motorBackR.setTargetPosition(totalTicks);
 
 
         // Switch to RUN_TO_POSITION mode
@@ -57,78 +73,62 @@ public abstract class HelperActions extends LinearOpMode {
         encoderActions.motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Start the motor moving by setting the max velocity to 1 revolution per second
-        encoderActions.motorFrontL.setVelocity(-speed);
-        encoderActions.motorFrontR.setVelocity(-speed);
-        encoderActions.motorBackL.setVelocity(-speed);
-        encoderActions.motorBackR.setVelocity(-speed);
+        encoderActions.velocity(speed, speed, speed, speed);
 
-        //motorFrontL.isBusy()hile the Op Mode is running, show the motor's status via telemetry
-        while (encoderActions.motorFrontL.isBusy()) {
-            telemetry.addData("FL is at target", !encoderActions.motorFrontL.isBusy());
-            telemetry.addData("FR is at target", !encoderActions.motorFrontR.isBusy());
-            telemetry.addData("BL is at target", !encoderActions.motorBackL.isBusy());
-            telemetry.addData("BR is at target", !encoderActions.motorBackR.isBusy());
-            telemetry.update();
-            if (attachmentActions.detectElement()){
-                if (attachmentActions.detectElement()){
-                    return true;
-                }
+        // While the Op Mode is running, show the motor's status via telemetry
+        while (encoderActions.motorFrontL.isBusy() && encoderActions.motorFrontR.isBusy() && encoderActions.motorBackL.isBusy() && encoderActions.motorBackR.isBusy()) {
+            if (attachmentActions.getJunctionDistance() < 10) {
+                return attachmentActions.getJunctionDistance();
             }
         }
-        return false;
+        return 0;
     }
-//    public void fancySpinRight(EncoderActions encoderActions, double speed, double distance){
+
+    //    public void fancySpinRight(EncoderActions encoderActions, double speed, double distance){
 //        encoderActions.fancySpin(speed, distance, false);
 //    }
 //    public void fancySpinLeft(EncoderActions encoderActions, double speed, double distance){
 //        encoderActions.fancySpin(speed, distance, true);
 //    }
-    public int elementDetection(EncoderActions encoderActions, AttachmentActions attachmentActions, boolean strafeLeft) {
-        if (attachmentActions.detectElement()) {
-            return 1;
-        } else if (strafeAndDetect(encoderActions, attachmentActions, 762.2, 11, strafeLeft)) {
-            return 2;
-        } else {
-            return 3;
-        }
-    }
-    public void changeSpeed(DriveActions driveActions, boolean upOne, boolean downOne, boolean upTwo, boolean downTwo){
-        if(upOne){
+
+    public void changeSpeed(DriveActions driveActions, boolean upOne, boolean downOne, boolean upTwo, boolean downTwo) {
+        if (upOne) {
             speeding++;
-            if(speeding == 1){
+            if (speeding == 1) {
                 speed = speed + 0.1;
             }
         }
-        if(downOne){
+        if (downOne) {
             speeding++;
-            if(speeding == 1){
+            if (speeding == 1) {
                 speed = speed - 0.1;
             }
         }
-        if(upTwo){
+        if (upTwo) {
             speeding++;
-            if(speeding == 1){
+            if (speeding == 1) {
                 speed = speed + 0.2;
             }
         }
-        if(downTwo){
+        if (downTwo) {
             speeding++;
-            if(speeding == 1){
+            if (speeding == 1) {
                 speed = speed - 0.2;
             }
         }
-        if(!upOne && !downOne && !upTwo && !downTwo){
+        if (!upOne && !downOne && !upTwo && !downTwo) {
             speeding = 0;
         }
-        if (speed < 0){
+        if (speed < 0) {
             speed = 0;
         }
-        if (speed > 1.0){
+        if (speed > 1.0) {
             speed = 1.0;
         }
         driveActions.setSpeed(speed);
         telemetry.addData("speed: ", speed);
     }
+
     public double changeSpeedArm(boolean up, boolean down) {
         if (up) {
             speedingArm++;
@@ -152,5 +152,152 @@ public abstract class HelperActions extends LinearOpMode {
             speedArm = 1.0;
         }
         return speedArm;
+    }
+
+    //Places the cone on the junction when the junction is within 100 degrees of the sensor.
+    public void placeConeOnJunction(AttachmentActions attachmentActions, GyroActions gyroActions, EncoderActions encoderActions, boolean spinLeft, int level) {
+        //Initializes the variables the first time the method is called
+        if (conePlacementState == 0) {
+            initConePlacement();
+            conePlacementState = 1;
+        }
+        //Center the turntable before starting
+        if (conePlacementState == 1) {
+            attachmentActions.turnTableEncoders(0, true);
+            if (attachmentActions.isDone){
+                conePlacementState = 2;
+            }
+        }
+        //Do this at the start of the function
+        if (conePlacementState == 3) {
+            //If the junction is not in the cone of vision, the robot spins until the junction is detected
+            if (attachmentActions.getJunctionDistance() < 10) {
+                inCone = true;
+            } else if (!spinLeft) {
+                attachmentActions.turnTable.setPower(0.1);
+                conePlacementState = 4;
+            } else if (spinLeft) {
+                attachmentActions.turnTable.setPower(-0.1);
+                conePlacementState = 4;
+            }
+        }
+        //If the junction is already in the cone of vision, turn the other way until it isn't or 90 degrees
+        if (attachmentActions.getJunctionDistance() > 10 && inCone) {
+            inCone = false;
+        }
+        if (inCone) {
+            if (spinLeft) {
+                attachmentActions.turnTable.setPower(0.1);
+            } else if (!spinLeft) {
+                attachmentActions.turnTable.setPower(-0.1);
+            }
+        }
+        //Activates when the junction is within 12.5 degrees of the sensor
+        if (attachmentActions.getJunctionDistance() < 10 && conePlacementState == 4) {
+            //Activates once when the junction is first detected
+            if (!firstDetectedBit) {
+                startingPosition = attachmentActions.getTurntablePosition();
+                startTime = System.currentTimeMillis();
+                firstDetectedBit = true;
+            }
+            attachmentActions.turnTableEncoders(startingPosition, true);
+            //Gets the distance to the junction by averaging the distance over 1/2 second
+            if (System.currentTimeMillis() - startTime < 500) {
+                totalDistance += attachmentActions.getJunctionDistance();
+                i++;
+            } else {
+                distance = totalDistance / i;
+                conePlacementState = 5;
+            }
+        }
+        //If the junction is less than 6.25 inches away, it can use the turntable and extending the grabber, for more accuracy
+        if (attachmentActions.finalDistanceToJunction(distance) < extenderRange && conePlacementState == 5) {
+            usingExtender = true;
+            attachmentActions.turnTableEncoders(attachmentActions.angleToJunction(distance) + startingPosition, true);
+            if (attachmentActions.isDone){
+                conePlacementState = 6;}
+        }
+        //After getting the distance to the junction, it turns towards it
+        if (conePlacementState == 5 && !usingExtender) {
+            attachmentActions.turnTableEncoders(0, true);
+            if (gyroActions.maintainHeading(0.2, startingPosition + attachmentActions.angleToJunction(distance)) && attachmentActions.isDone) {
+                conePlacementState = 6;
+            }
+        }
+        //After turning towards the junction, it lifts the cone to the top of the junction
+        if (conePlacementState == 6) {
+            if (level == LOW) {attachmentActions.setLiftLevel(true, false, false);}
+            if (level == MEDIUM) {attachmentActions.setLiftLevel(false, true, false);}
+            if (level == HIGH) {attachmentActions.setLiftLevel(false, false, true);}
+            //After lifting the cone to the top of the junction, it moves over to the junction
+            if (!attachmentActions.scissorLift1.isBusy()) {
+                if (usingExtender) {
+                    if (!extendingBit) {
+                        extendingTime = System.currentTimeMillis();
+                        extendingBit = true;
+                    }
+                    attachmentActions.extendGripper(attachmentActions.finalDistanceToJunction(distance));
+                    if (((System.currentTimeMillis() - extendingTime) * attachmentActions.finalDistanceToJunction(distance) * extendingSpeed) > 500) {
+                        conePlacementState = 7;
+                    }
+                } else {
+                    encoderActions.encoderDriveNoTimer(200, attachmentActions.finalDistanceToJunction(distance));
+                    if (!encoderActions.motorFrontL.isBusy()) {
+                        conePlacementState = 7;
+                    }
+                }
+            }
+        }
+        //After moving over the junction, it drops the cone
+        if (conePlacementState == 7) {
+            if (!releasingBit) {
+                attachmentActions.openGripper();
+                releasingTime = System.currentTimeMillis();
+            }
+            if (System.currentTimeMillis() - releasingTime > 500){
+                conePlacementState = 8;
+            }
+        }
+        //After dropping the cone, it lowers the lift and finishes the program
+        if (conePlacementState == 8) {
+            if (usingExtender) {
+                attachmentActions.extendGripper(0);
+            }
+            attachmentActions.liftScissor(1000, 0, true);
+            encoderActions.resetEncoder();
+            encoderActions.runWithoutEncoder();
+            initConePlacement();
+        } else {
+            isPlacingCone = true;
+        }
+    }
+
+    private void initConePlacement() {
+        conePlacementState = 0;
+        inCone = false;
+        startingPosition = 0;
+        firstDetectedBit = false;
+        startTime = 0;
+        totalDistance = 0;
+        i = 0;
+        distance = 0;
+        usingExtender = false;
+        extendingBit = false;
+        extendingTime = 0;
+        extendingSpeed = 200; //Milliseconds per inch, needs to be timed
+        releasingBit = false;
+        releasingTime = 0;
+        isPlacingCone = false;
+    }
+    public void dudeYouShouldChill (DriveActions driveActions, AttachmentActions attachmentActions) {
+        if (Math.abs(attachmentActions.scissorLift1.getCurrentPosition()) > chillThreshold && upBit == false) {
+            changeSpeed(driveActions, false, false, false, true);
+            upBit = true;
+            downBit = false;
+        } else if (Math.abs(attachmentActions.scissorLift1.getCurrentPosition()) < chillThreshold && downBit == false) {
+            changeSpeed(driveActions, false, false, true, false);
+            downBit = true;
+            upBit = false;
+        }
     }
 }

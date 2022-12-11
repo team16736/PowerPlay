@@ -37,7 +37,7 @@ public class DriveActions {
     public DcMotor weirdWheels;
 
     //the amount to throttle the power of the motors
-    public double THROTTLE = 0.5;
+    public double THROTTLE = 0.6;
 
     private Telemetry telemetry;
     private HardwareMap hardwareMap;
@@ -63,7 +63,12 @@ public class DriveActions {
         rightFront = hardwareMap.get(DcMotorEx.class, ConfigConstants.FRONT_RIGHT);
         rightRear = hardwareMap.get(DcMotorEx.class, ConfigConstants.BACK_RIGHT);
 
-      //  weirdWheels = hardwareMap.get(DcMotor.class, ConfigConstants.WEIRD_WHEELS);
+        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //  weirdWheels = hardwareMap.get(DcMotor.class, ConfigConstants.WEIRD_WHEELS);
       //  weirdWheels.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // 2. Set direction

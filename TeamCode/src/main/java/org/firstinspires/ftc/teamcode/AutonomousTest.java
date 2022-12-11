@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
 import org.firstinspires.ftc.teamcode.actions.EncoderActions;
+import org.firstinspires.ftc.teamcode.actions.FindImageOnCone;
 import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
 
@@ -17,28 +18,74 @@ public class AutonomousTest extends HelperActions{
     private AttachmentActions attachmentActions = null;
     private EncoderActions encoderActions = null;
     private GyroActions gyroActions = null;
+    private FindImageOnCone findImageOnCone = null;
     public void runOpMode() {
 
         driveActions = new DriveActions(telemetry, hardwareMap);
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
         encoderActions = new EncoderActions(this, telemetry, hardwareMap);
         gyroActions = new GyroActions(this, telemetry, hardwareMap);
+        findImageOnCone = new FindImageOnCone(telemetry, hardwareMap);
         driveActions.setMotorDirection_Forward();
+        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        boolean memBitOn = false;
+        boolean memBitOff = false;
+        int ticks = 0;
+        int ticksOff = 0;
 
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
         waitForStart();
 
-        if (opModeIsActive()) {
+        while (opModeIsActive()) {
+//        if (opModeIsActive()) {
             double speed = 762.2;
-            //encoderActions.encoderDriveSpeedRamp(speed, 60, 3);
-//            gyroActions.runUsingEncoders();
+            double degrees = -20;
+            if (!memBitOn) {
+                liftScissor(1, 200);
+                memBitOn = true;
+            }
+            /*if(!memBitOff) {
+                attachmentActions.turnTable.setPower(0.1);
+                memBitOff = true;
+            }
+            if(attachmentActions.getJunctionDistance() < 200 && !memBitOn){
+                ticks = attachmentActions.tableencodercount();
+                memBitOn = true;
+                telemetry.addData("ticks on", ticks);
+                telemetry.update();
+            }
+            if(attachmentActions.getJunctionDistance() > 200 && memBitOn){
+                ticksOff = attachmentActions.tableencodercount();
+                memBitOn = false;
+                attachmentActions.turnTable.setPower(0);
+                telemetry.addData("ticks off", ticksOff);
+                telemetry.update();
+            }*/
+//            attachmentActions.extendGripper(5);
+//            while (attachmentActions.getJunctionDistance() < 1000) {}
 
-            attachmentActions.turnTableEncoders(20, 0.2, this);
-            sleep(10000);
+//            telemetry.addData("distance", attachmentActions.getJunctionDistance());
+//            telemetry.addData("ticks on", ticks);
+//            telemetry.addData("ticks off", ticksOff);
+//            telemetry.addData("difference", ticks - ticksOff);
+//            telemetry.update();
 //            gyroActions.gyroSpin(0.2, 90.0);
+            telemetry.addData("postition", attachmentActions.scissorLift1.getCurrentPosition());
+            telemetry.update();
         }
     }
-    private void placeBlock(EncoderActions encoderActions, AttachmentActions attachmentActions, int blockPlace) {
+    public void liftScissor(double speed, double verticalDistance) {
+        int totalTicks = (int) -verticalDistance;
+
+        attachmentActions.scissorLift1.setTargetPosition(totalTicks);
+        attachmentActions.scissorLift2.setTargetPosition(totalTicks);
+
+        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        attachmentActions.scissorLift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        attachmentActions.scissorLift1.setPower(speed);
+        attachmentActions.scissorLift2.setPower(speed);
     }
 }

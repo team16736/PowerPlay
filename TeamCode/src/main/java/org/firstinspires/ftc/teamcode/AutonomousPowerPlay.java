@@ -43,21 +43,30 @@ public class AutonomousPowerPlay extends HelperActions {
         if (location == "Cow") {
             //            location 1
             encoderActions.encoderDrive(speed, 2);
+            sleep(500);
             encoderActions.encoderStrafe(speed, 23, true);
+            sleep(500);
             encoderActions.encoderDrive(speed, 26);
+            sleep(500);
             telemetry.addData(">", "We Can Drive!");
             telemetry.update();
         } else if (location == "Bus") {
             //sleep(10000);
             //                 location 2
             encoderActions.encoderDrive(speed, 2);
+            sleep(500);
             encoderActions.encoderStrafe(speed, 4.5, false);
+            sleep(500);
             encoderActions.encoderDrive(speed, 26);
+            sleep(500);
         } else {
             //              Location 3
             encoderActions.encoderDrive(speed, 2);
+            sleep(500);
             encoderActions.encoderStrafe(speed, 29, false);
+            sleep(500);
             encoderActions.encoderDrive(speed, 26);
-                    }
+            sleep(500);
+        }
     }
 }
