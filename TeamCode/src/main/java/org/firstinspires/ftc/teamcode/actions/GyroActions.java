@@ -233,6 +233,11 @@ public class GyroActions {
 
         // Ensure that the opmode is still active
         if (opModeObj.opModeIsActive()) {
+            motorFrontL.setDirection(MotorConstants.REVERSE);
+            motorBackL.setDirection(MotorConstants.FORWARD);
+            motorFrontR.setDirection(MotorConstants.REVERSE);
+            motorBackR.setDirection(MotorConstants.FORWARD);
+
             // Determine new target position, and pass to motor controller
             int moveCounts = (int) (distance * ticksPerInch);
             leftFrontTarget = motorFrontL.getCurrentPosition() + moveCounts;
@@ -283,6 +288,7 @@ public class GyroActions {
             motorBackR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
     }
+
     public void strafeStraight(double maxDriveSpeed,
                               double distance,
                               double heading,
@@ -349,7 +355,6 @@ public class GyroActions {
         }
     }
     private void sendTelemetry(boolean straight) {
-
         if (straight) {
             telemetry.addData("Motion", "Drive Straight");
             telemetry.addData("Target Pos L:R",  "%7d:%7d",      leftFrontTarget,  rightFrontTarget);

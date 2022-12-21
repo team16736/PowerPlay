@@ -35,19 +35,20 @@ public class AutonomousRightPowerPlay2Cone extends HelperActions{
         waitForStart();
 
         if (opModeIsActive()) {
-            int totalTicks = -200;
 
-//            speed = 1000;
-//            setHeightStatic(totalTicks);
-//            attachmentActions.closeGripper();
-//            encoderActions.encoderStrafe( 400, 1, false);
-//            holdSteady(totalTicks, 500);
-//            attachmentActions.setLiftLevel(false,true, false);
-//            attachmentActions.turnTableEncoders(90,true);
-            //  encoderActions.encoderStrafeNoWhile(400, 24, true);
-            // while (!attachmentActions.isDone && encoderActions.isBusy()){
-            //   attachmentActions.turnTableEncoders(90,true);
-            // }
+        int totalTicks = -200;
+
+            speed = 1000;
+            setHeightStatic(totalTicks);
+            attachmentActions.closeGripper();
+            encoderActions.encoderStrafe( 400, 1, false);
+            holdSteady(totalTicks, 500);
+            attachmentActions.setLiftLevel(false,true, false);
+            attachmentActions.turnTableEncoders(90,true);
+          //  encoderActions.encoderStrafeNoWhile(400, 24, true);
+           // while (!attachmentActions.isDone && encoderActions.isBusy()){
+             //   attachmentActions.turnTableEncoders(90,true);
+           // }
 
 
 //            attachmentActions.setLiftLevel(false, true, false);
@@ -118,8 +119,8 @@ public class AutonomousRightPowerPlay2Cone extends HelperActions{
         double currentTime = System.currentTimeMillis();
         double timeDiff = currentTime - baseTime;
         while (timeDiff < timeToWait) {
-            currentTime = System.currentTimeMillis();
-            timeDiff = currentTime - baseTime;
+             currentTime = System.currentTimeMillis();
+             timeDiff = currentTime - baseTime;
 
             int positionDiff = totalTicks - attachmentActions.scissorLift1.getCurrentPosition();
 
