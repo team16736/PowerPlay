@@ -28,7 +28,8 @@ public class ConfigConstants {
     public static final String TURN_TABLE_ENCODER = "tableEncoder";
 
     //Sensors
-    public static final String JUNCTION_DETECTOR ="distanceSensor0";
+    public static final String BASE_RANGE = "s1";
+    public static final String GRABBER_RANGE = "s2";
     public static final String BOUNDARY_DETECTOR = "boundaryDetector";
     public static final String IMU = "IMU";
 }

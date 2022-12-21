@@ -6,7 +6,9 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
 import org.firstinspires.ftc.teamcode.actions.constants.MotorConstants;
 
@@ -26,7 +28,8 @@ public class BasicDrive extends LinearOpMode {
     public DcMotorEx rightFront;
     public DcMotorEx rightRear;
 
-    public ColorSensor coneSensor;
+//    public ColorSensor coneSensor;
+    public DistanceSensor junctionSensor;
 
     public double THROTTLE = 0.25;
 
@@ -36,13 +39,18 @@ public class BasicDrive extends LinearOpMode {
 
     public void runOpMode() {
 
-        leftFront = hardwareMap.get(DcMotorEx.class, ConfigConstants.FRONT_LEFT);
-        leftRear = hardwareMap.get(DcMotorEx.class, ConfigConstants.BACK_LEFT);
+        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+        leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
 
-        rightFront = hardwareMap.get(DcMotorEx.class, ConfigConstants.FRONT_RIGHT);
-        rightRear = hardwareMap.get(DcMotorEx.class, ConfigConstants.BACK_RIGHT);
+        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
 
-        coneSensor = hardwareMap.get(ColorSensor.class, "coneSensor");
+//        coneSensor = hardwareMap.get(ColorSensor.class, "coneSensor");
+        junctionSensor = hardwareMap.get(DistanceSensor.class, "junctionSensor");
+
+        double prevTime = System.currentTimeMillis();
+        double currentTime = 0;
+
 
         setMotorDirection_Forward();
 
@@ -57,7 +65,11 @@ public class BasicDrive extends LinearOpMode {
                     (gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x)),      //joystick controlling strafe
                     (-gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y)),     //joystick controlling forward/backward
                     (gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x)));    //joystick controlling rotation
-            telemetry.addData("Seeing Color", mostColor());
+//            telemetry.addData("Seeing Color", mostColor());
+            currentTime = System.currentTimeMillis();
+            telemetry.addData("Interval", currentTime - prevTime);
+            prevTime = currentTime;
+            telemetry.addData("Distance", junctionSensor.getDistance(DistanceUnit.INCH));
             telemetry.update();
         }
     }
@@ -116,19 +128,19 @@ public class BasicDrive extends LinearOpMode {
         rightRear.setDirection(MotorConstants.REVERSE);
     }
 
-    public String mostColor() {
-        red = coneSensor.red() / 1.15;
-        green = coneSensor.green() / 1.83;
-        blue = coneSensor.blue() / 1.43;
-        telemetry.addData("Red", red);
-        telemetry.addData("Green", green);
-        telemetry.addData("Blue", blue);
-        if (red > green && red > blue) {
-            return "Red";
-        } else if (green > blue) {
-            return "Green";
-        } else {
-            return "Blue";
-        }
-    }
+//    public String mostColor() {
+//        red = coneSensor.red() / 1.15;
+//        green = coneSensor.green() / 1.83;
+//        blue = coneSensor.blue() / 1.43;
+//        telemetry.addData("Red", red);
+//        telemetry.addData("Green", green);
+//        telemetry.addData("Blue", blue);
+//        if (red > green && red > blue) {
+//            return "Red";
+//        } else if (green > blue) {
+//            return "Green";
+//        } else {
+//            return "Blue";
+//        }
+//    }
 }

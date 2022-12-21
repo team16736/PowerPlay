@@ -31,8 +31,8 @@ public class AutonomousLeftPowerPlay extends HelperActions {
         waitForStart();
 
         if (opModeIsActive()) {
-            attachmentActions.closeGripper();
-            sleep(500);
+//            attachmentActions.closeGripper();
+            sleep(1000);
             //attachmentActions.liftScissor(1000, 8, false);
             attachmentActions.setLiftLevel(false, false, true);
             encoderActions.encoderStrafe(speed, 6, false);
@@ -43,8 +43,8 @@ public class AutonomousLeftPowerPlay extends HelperActions {
             String location = findImageOnCone.findObject();
             //sleep(500);
             //attachmentActions.setLiftLevel(false, false, true);
-            encoderActions.encoderStrafe(speed, 25.5, false);
-            encoderActions.encoderDrive(speed, 40.5);
+            encoderActions.encoderStrafe(speed, 24, false);
+            encoderActions.encoderDrive(speed, 42.5);
             attachmentActions.liftScissor(3000, 0, true);
             sleep(500);
             attachmentActions.openGripper();

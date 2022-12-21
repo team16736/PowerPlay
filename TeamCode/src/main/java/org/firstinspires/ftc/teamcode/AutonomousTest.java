@@ -8,6 +8,8 @@ import org.firstinspires.ftc.teamcode.actions.DriveActions;
 import org.firstinspires.ftc.teamcode.actions.EncoderActions;
 import org.firstinspires.ftc.teamcode.actions.FindImageOnCone;
 import org.firstinspires.ftc.teamcode.actions.GyroActions;
+import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
+import org.firstinspires.ftc.teamcode.actions.distancecalcs.DistanceSensorActions;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
 
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
@@ -19,6 +21,7 @@ public class AutonomousTest extends HelperActions{
     private EncoderActions encoderActions = null;
     private GyroActions gyroActions = null;
     private FindImageOnCone findImageOnCone = null;
+    private DistanceSensorActions distanceSensorActions1 = null;
     public void runOpMode() {
 
         driveActions = new DriveActions(telemetry, hardwareMap);
@@ -26,6 +29,7 @@ public class AutonomousTest extends HelperActions{
         encoderActions = new EncoderActions(this, telemetry, hardwareMap);
         gyroActions = new GyroActions(this, telemetry, hardwareMap);
         findImageOnCone = new FindImageOnCone(telemetry, hardwareMap);
+        distanceSensorActions1 = new DistanceSensorActions(hardwareMap, 0.5, 10, ConfigConstants.GRABBER_RANGE);
         driveActions.setMotorDirection_Forward();
         attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -38,14 +42,20 @@ public class AutonomousTest extends HelperActions{
         telemetry.update();
         waitForStart();
 
-        while (opModeIsActive()) {
-//        if (opModeIsActive()) {
+//        while (opModeIsActive()) {
+        if (opModeIsActive()) {
             double speed = 762.2;
             double degrees = -20;
-            if (!memBitOn) {
-                liftScissor(1, 200);
-                memBitOn = true;
+//            telemetry.addData("s1", distanceSensorActions.s1.getDistance(DistanceUnit.INCH));
+//            telemetry.addData("s2", distanceSensorActions.s2.getDistance(DistanceUnit.INCH));
+
+            for (int i = 0; i < 6; i++) {
+                encoderActions.encoderDrive(340, 25);
+                sleep(500);
+                encoderActions.encoderDrive(340, -25);
+                sleep(500);
             }
+
             /*if(!memBitOff) {
                 attachmentActions.turnTable.setPower(0.1);
                 memBitOff = true;
@@ -76,6 +86,17 @@ public class AutonomousTest extends HelperActions{
             telemetry.update();
         }
     }
+
+    private void keepCallingSetTarget(double distance) {
+        encoderActions.encoderDriveNoTimer(340, distance);
+        while (encoderActions.motorFrontL.isBusy()) {
+            encoderActions.motorFrontL.setTargetPosition(encoderActions.motorFrontL.getTargetPosition());
+            encoderActions.motorFrontR.setTargetPosition(encoderActions.motorFrontR.getTargetPosition());
+            encoderActions.motorBackR.setTargetPosition(encoderActions.motorBackR.getTargetPosition());
+            encoderActions.motorBackL.setTargetPosition(encoderActions.motorBackL.getTargetPosition());
+        }
+    }
+
     public void liftScissor(double speed, double verticalDistance) {
         int totalTicks = (int) -verticalDistance;
 

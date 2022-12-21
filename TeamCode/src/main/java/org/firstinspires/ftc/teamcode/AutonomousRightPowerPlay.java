@@ -9,11 +9,14 @@ import org.firstinspires.ftc.teamcode.actions.EncoderActions;
 import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.FindImageOnCone;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
+import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
+import org.firstinspires.ftc.teamcode.actions.distancecalcs.DistanceSensorActions;
+import org.firstinspires.ftc.teamcode.actions.distancecalcs.GeometryActions;
 
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
 
 @Autonomous(name = "Autonomous Right PowerPlay")
-public class AutonomousRightPowerPlay extends HelperActions{
+public class AutonomousRightPowerPlay extends HelperActions {
 
     private DriveActions driveActions = null;
     private AttachmentActions attachmentActions = null;
@@ -29,6 +32,7 @@ public class AutonomousRightPowerPlay extends HelperActions{
         driveActions = new DriveActions(telemetry, hardwareMap);
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
         gyroActions = new GyroActions(this, telemetry, hardwareMap);
+        DistanceSensorActions baseSensor = new DistanceSensorActions(hardwareMap, 0.2, 10, ConfigConstants.BASE_RANGE);
         driveActions.setMotorDirection_Forward();
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
@@ -49,7 +53,7 @@ public class AutonomousRightPowerPlay extends HelperActions{
             encoderActions.encoderDrive(300, 42);
             sleep(500);
 
-            attachmentActions.liftScissor(1000, 0, true);
+            attachmentActions.setLiftLevel(true, false, false);
 
             attachmentActions.openGripper();
             sleep(500);
@@ -58,19 +62,38 @@ public class AutonomousRightPowerPlay extends HelperActions{
 
             encoderActions.encoderDrive(400, 11);
 
-//            encoderActions.encoderStrafe(400, 52, false);
-//            findCone(attachmentActions);
+//            encoderActions.encoderStrafe(400, 50, false);
+
+            /*attachmentActions.setLiftLevel(true, false, false);
+            while (attachmentActions.scissorLift1.isBusy()) {
+            }
+
+            double coneAngle = findCone(attachmentActions, baseSensor);
+            attachmentActions.turnTableEncoders(coneAngle, false);
+            while (!attachmentActions.isDone && opModeIsActive()) {
+                attachmentActions.turnTableEncoders(coneAngle, false);
+                telemetry.addData("found angle", coneAngle);
+            }
+            double distance = baseSensor.getAverageDistance();
+            GeometryActions geometry = new GeometryActions(distance + 8.5625, coneAngle);
+            encoderActions.encoderDrive(200, -geometry.getXFromDistanceAndAngle());
+            attachmentActions.turnTableEncoders(0, false);
+            while (!attachmentActions.isDone) {
+                attachmentActions.turnTableEncoders(0, false);
+            }
+            encoderActions.encoderStrafe(200, - (geometry.getYFromDistanceAndAngle() - 12.5625), false);*/
 
 
             moveToLocation(encoderActions, location);
         }
     }
 
-    private void placeCone(EncoderActions encoderActions, AttachmentActions attachmentActions){
+    private void placeCone(EncoderActions encoderActions, AttachmentActions attachmentActions) {
         encoderActions.encoderDrive(speed, -2);
         attachmentActions.setLiftLevel(true, false, false);
         attachmentActions.turnTableEncoders(-120, true);
-        while (attachmentActions.scissorLift1.isBusy()) {}
+        while (attachmentActions.scissorLift1.isBusy()) {
+        }
         attachmentActions.turnTableEncoders(-10, true);
         attachmentActions.openGripper();
     }
@@ -94,19 +117,32 @@ public class AutonomousRightPowerPlay extends HelperActions{
             telemetry.update();
         }
     }
-    private void findCone(AttachmentActions attachmentActions) {
-        double angle = 45;
-        double turnTableSpeed = 0.2;
-        double minDistance = 1000;
-        double minDistanceAngle = 0;
-//        attachmentActions.turnTableEncoders(angle, turnTableSpeed);
-        while (!attachmentActions.isDone && opModeIsActive()) {
-            attachmentActions.turnTableEncoders(angle, false);
-//            if (attachmentActions.getJunctionDistance() < minDistance) {
-//                minDistance = attachmentActions.getJunctionDistance();
-//                minDistanceAngle = attachmentActions.getTurntablePosition();
-//            }
-        }
 
+    private double findCone(AttachmentActions attachmentActions, DistanceSensorActions baseSensor) {
+        double angle = 45;
+        double minDistance = baseSensor.getSensorDistance();
+        double minDistanceAngle = 0;
+        attachmentActions.turnTable.setPower(0.2);
+        while (attachmentActions.getTurntablePosition() < angle && opModeIsActive()/* && Math.abs(baseSensor.getSensorDistance() - minDistance) < 2*/) {
+            if (baseSensor.getSensorDistance() < minDistance) {
+                minDistance = baseSensor.getSensorDistance();
+                minDistanceAngle = attachmentActions.getTurntablePosition();
+            }
+            telemetry.addData("minDistance", minDistance);
+            telemetry.addData("minDistanceAngle", minDistanceAngle);
+            telemetry.addData("distance", baseSensor.getSensorDistance());
+        }
+        minDistance = baseSensor.getSensorDistance();
+        attachmentActions.turnTable.setPower(-0.2);
+        while (attachmentActions.getTurntablePosition() > -angle && opModeIsActive()/* && Math.abs(baseSensor.getSensorDistance() - minDistance) < 2*/) {
+            if (baseSensor.getSensorDistance() < minDistance) {
+                minDistance = baseSensor.getSensorDistance();
+                minDistanceAngle = attachmentActions.getTurntablePosition();
+            }
+            telemetry.addData("minDistance1", minDistance);
+            telemetry.addData("minDistanceAngle1", minDistanceAngle);
+            telemetry.addData("distance", baseSensor.getSensorDistance());
+        }
+        return minDistanceAngle;
     }
 }

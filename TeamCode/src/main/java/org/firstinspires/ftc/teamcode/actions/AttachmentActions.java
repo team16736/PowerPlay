@@ -86,7 +86,6 @@ public class AttachmentActions {
         extender = hardwareMap.get(Servo.class, ConfigConstants.EXTENDER);
         turnTable = hardwareMap.get(CRServo.class, ConfigConstants.TURN_TABLE);
         tableEncoder = hardwareMap.get(DcMotorEx.class, ConfigConstants.TURN_TABLE_ENCODER);
-        junctionSensor = hardwareMap.get(DistanceSensor.class, ConfigConstants.JUNCTION_DETECTOR);
         boundaryDetector = hardwareMap.get(ColorSensor.class, ConfigConstants.BOUNDARY_DETECTOR);
         scissorLift1 = hardwareMap.get(DcMotorEx.class, ConfigConstants.SCISSOR_ONE);
         scissorLift2 = hardwareMap.get(DcMotorEx.class, ConfigConstants.SCISSOR_TWO);
@@ -244,7 +243,7 @@ public class AttachmentActions {
             } else if (mid) {
                 liftScissor(6000, 1750, true);
             } else if (high) {
-                liftScissor(6000, 3900, true);
+                liftScissor(6000, 4096, true);
             } else {
                 scissorLift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 scissorLift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

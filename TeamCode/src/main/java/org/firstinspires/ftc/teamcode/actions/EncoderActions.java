@@ -12,10 +12,10 @@ import java.util.concurrent.TimeUnit;
 
 
 final public class EncoderActions{
-    DcMotorEx motorFrontL;
-    DcMotorEx motorFrontR;
-    DcMotorEx motorBackL;
-    DcMotorEx motorBackR;
+    public DcMotorEx motorFrontL;
+    public DcMotorEx motorFrontR;
+    public DcMotorEx motorBackL;
+    public DcMotorEx motorBackR;
     private static LinearOpMode opModeObj;
 
 
@@ -63,7 +63,7 @@ final public class EncoderActions{
     public void encoderDriveNoTimer(double encoderSpeed, double encoderDistance) {
         resetEncoder();
         // Set the motor's target position to 6.4 rotations
-        double ticksPerInch = 62;
+        double ticksPerInch = 32.2;
         int totalTicks = (int) (ticksPerInch * encoderDistance);
         motorFrontL.setTargetPosition(totalTicks);
         motorFrontR.setTargetPosition(totalTicks);
@@ -81,6 +81,20 @@ final public class EncoderActions{
         velocity(encoderSpeed, encoderSpeed, encoderSpeed, encoderSpeed);
     }
     public void encoderStrafe(double encoderSpeed,
+                              double encoderDistance,
+                              boolean encoderMoveLeft) {
+        encoderStrafeNoWhile(encoderSpeed, encoderDistance, encoderMoveLeft);
+
+        //motorFrontL.isBusy()hile the Op Mode is running, show the motor's status via telemetry
+        while (motorFrontL.isBusy()) {
+            telemetry.addData("FL is at target", !motorFrontL.isBusy());
+            telemetry.addData("FR is at target", !motorFrontR.isBusy());
+            telemetry.addData("BL is at target", !motorBackL.isBusy());
+            telemetry.addData("BR is at target", !motorBackR.isBusy());
+            telemetry.update();
+        }
+    }
+    public void encoderStrafeNoWhile(double encoderSpeed,
                               double encoderDistance,
                               boolean encoderMoveLeft) {
         motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -114,15 +128,6 @@ final public class EncoderActions{
         motorFrontR.setVelocity(-encoderSpeed);
         motorBackL.setVelocity(-encoderSpeed);
         motorBackR.setVelocity(-encoderSpeed);
-
-        //motorFrontL.isBusy()hile the Op Mode is running, show the motor's status via telemetry
-        while (motorFrontL.isBusy()) {
-            telemetry.addData("FL is at target", !motorFrontL.isBusy());
-            telemetry.addData("FR is at target", !motorFrontR.isBusy());
-            telemetry.addData("BL is at target", !motorBackL.isBusy());
-            telemetry.addData("BR is at target", !motorBackR.isBusy());
-            telemetry.update();
-        }
     }
     public void encoderSpin(double encoderSpeed,
                               double encoderDegrees,
@@ -280,6 +285,13 @@ final public class EncoderActions{
     }
     public int getPosition(){
         return motorFrontL.getCurrentPosition();
+    }
+    public void stopEncoderMotors(){
+        int error = motorFrontL.getTargetPosition() - motorFrontL.getCurrentPosition();
+        motorFrontL.setTargetPosition(motorFrontL.getTargetPosition() - error);
+        motorFrontR.setTargetPosition(motorFrontR.getTargetPosition() - error);
+        motorBackL.setTargetPosition(motorBackL.getTargetPosition() - error);
+        motorBackR.setTargetPosition(motorBackR.getTargetPosition() - error);
     }
 }
 
