@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
 import org.firstinspires.ftc.teamcode.actions.EncoderActions;
 import org.firstinspires.ftc.teamcode.actions.FindImageOnCone;
+import org.firstinspires.ftc.teamcode.actions.FindJunctionAction;
 import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
 import org.firstinspires.ftc.teamcode.actions.distancecalcs.DistanceSensorActions;
@@ -21,7 +22,7 @@ public class AutonomousTest extends HelperActions{
     private EncoderActions encoderActions = null;
     private GyroActions gyroActions = null;
     private FindImageOnCone findImageOnCone = null;
-    private DistanceSensorActions distanceSensorActions1 = null;
+    private DistanceSensorActions s1 = null;
     public void runOpMode() {
 
         driveActions = new DriveActions(telemetry, hardwareMap);
@@ -29,9 +30,10 @@ public class AutonomousTest extends HelperActions{
         encoderActions = new EncoderActions(this, telemetry, hardwareMap);
         gyroActions = new GyroActions(this, telemetry, hardwareMap);
         findImageOnCone = new FindImageOnCone(telemetry, hardwareMap);
-        distanceSensorActions1 = new DistanceSensorActions(hardwareMap, 0.5, 10, ConfigConstants.GRABBER_RANGE);
+        s1 = new DistanceSensorActions(hardwareMap, 0.5, 10, ConfigConstants.BASE_RANGE);
         driveActions.setMotorDirection_Forward();
         attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FindJunctionAction findJunctionAction = new FindJunctionAction(hardwareMap, telemetry, this, driveActions, attachmentActions, s1, encoderActions);
 
         boolean memBitOn = false;
         boolean memBitOff = false;
@@ -46,15 +48,12 @@ public class AutonomousTest extends HelperActions{
         if (opModeIsActive()) {
             double speed = 762.2;
             double degrees = -20;
-//            telemetry.addData("s1", distanceSensorActions.s1.getDistance(DistanceUnit.INCH));
+//            telemetry.addData("s1", s1.getSensorDistance());
 //            telemetry.addData("s2", distanceSensorActions.s2.getDistance(DistanceUnit.INCH));
+            findJunctionAction.findJunction(48, 10);
+            sleep(30000);
 
-            for (int i = 0; i < 6; i++) {
-                encoderActions.encoderDrive(340, 25);
-                sleep(500);
-                encoderActions.encoderDrive(340, -25);
-                sleep(500);
-            }
+
 
             /*if(!memBitOff) {
                 attachmentActions.turnTable.setPower(0.1);
@@ -82,8 +81,6 @@ public class AutonomousTest extends HelperActions{
 //            telemetry.addData("difference", ticks - ticksOff);
 //            telemetry.update();
 //            gyroActions.gyroSpin(0.2, 90.0);
-            telemetry.addData("postition", attachmentActions.scissorLift1.getCurrentPosition());
-            telemetry.update();
         }
     }
 

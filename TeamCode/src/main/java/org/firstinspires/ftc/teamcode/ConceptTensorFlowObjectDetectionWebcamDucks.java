@@ -160,7 +160,6 @@ public class ConceptTensorFlowObjectDetectionWebcamDucks extends LinearOpMode {
                 sleep(1000);
 
                 sleep(1000);
-                helperActions.drive_ForwardAndStop(driveActions, 0.6, 8);
                 sleep(1000);
                 break;
             }

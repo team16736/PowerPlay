@@ -77,10 +77,10 @@ public class ExperimentTeleOp extends HelperActions {
 //
 //            changeSpeed(driveActions, gamepad1.dpad_up || gamepad1.x, gamepad1.dpad_down || gamepad1.b, gamepad1.a, gamepad1.y);
             telemetry.addData("s1 raw", s1.getSensorDistance());
-            telemetry.addData("s1 averaged", s1.getAverageDistance());
+            telemetry.addData("s1 averaged", s1.getAverageDistanceLive());
             telemetry.addData("s1 expo smoothed", s1.getExponentialSmoothedDistance());
             telemetry.addData("s2 raw", s2.getSensorDistance());
-            telemetry.addData("s2 averaged", s2.getAverageDistance());
+            telemetry.addData("s2 averaged", s2.getAverageDistanceLive());
             telemetry.addData("s2 expo smoothed", s2.getExponentialSmoothedDistance());
             telemetry.update();
         }

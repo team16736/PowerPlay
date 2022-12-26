@@ -8,10 +8,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class DistanceSensorActions {
     private HardwareMap hardwareMap;
 
-    public int avgDistanceLength = 10;
+    public int avgDistanceLength;
     public double mostRecentAdjusterAvg = 3;
     private double[] distancesAvg;
     private double sumAvg = 0;
+    private double sumAllAvg = 0;
     private DistanceSensor distanceSensor;
 
     private double exponentialSmoothedDistance = 0;
@@ -28,10 +29,14 @@ public class DistanceSensorActions {
     }
 
     public double getSensorDistance(){
-        return distanceSensor.getDistance(DistanceUnit.INCH);
+        return getSensorDistance(DistanceUnit.INCH);
     }
 
-    public double getAverageDistance(){
+    public double getSensorDistance(DistanceUnit distanceUnit) {
+        return distanceSensor.getDistance(distanceUnit);
+    }
+
+    public double getAverageDistanceLive(){
         sumAvg = 0;
         for (int i = 1; i < avgDistanceLength; i++) {
             distancesAvg[(avgDistanceLength) - i] = distancesAvg[(avgDistanceLength - 1) - i];
@@ -42,6 +47,14 @@ public class DistanceSensorActions {
         }
         sumAvg += distancesAvg[0] * mostRecentAdjusterAvg;
         return sumAvg / (avgDistanceLength + mostRecentAdjusterAvg - 1);
+    }
+
+    public double getAverageDistanceAllInOne() {
+        sumAllAvg = 0;
+        for (int i = 0; i < avgDistanceLength; i++) {
+            sumAllAvg += distanceSensor.getDistance(DistanceUnit.INCH);
+        }
+        return sumAllAvg / avgDistanceLength;
     }
 
     public double getExponentialSmoothedDistance(){

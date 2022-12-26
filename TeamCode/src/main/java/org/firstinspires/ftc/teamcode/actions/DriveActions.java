@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.actions;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -161,22 +159,12 @@ public class DriveActions {
         rightFront.setZeroPowerBehavior(MotorConstants.BRAKE);
     }
 
-    public void driveByTime(LinearOpMode opMode, double speed, double drivingTime) {
+    public void setPower(LinearOpMode opMode, double power) {
 
-        leftRear.setPower(speed);
-        rightRear.setPower(speed);
-        rightFront.setPower(speed);
-
-        if(applySensorSpeed){
-
-            leftFront.setPower(speed * 1.1); //Speed needed for sensor
-
-        } else {
-
-            leftFront.setPower(speed);  //Speed needed for hooks (this is our normal speed)
-        }
-
-        opMode.sleep((long)(1000 * drivingTime)); //Make the opMode wait - while it is driving
+        leftRear.setPower(power);
+        rightRear.setPower(power);
+        rightFront.setPower(power);
+        leftFront.setPower(power);
     }
 
 

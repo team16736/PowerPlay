@@ -57,7 +57,7 @@ public class AutonomousRightPowerPlay2Cone extends HelperActions{
             while (!attachmentActions.isDone){
                 attachmentActions.turnTableEncoders(angle, false);
             }
-            double distance = baseSensor.getAverageDistance();
+            double distance = baseSensor.getAverageDistanceAllInOne();
             GeometryActions geometry = new GeometryActions(distance, angle);
             telemetry.addData("distance", baseSensor.getSensorDistance());
             telemetry.addData("avg distance", distance);

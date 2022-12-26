@@ -49,11 +49,6 @@ public abstract class HelperActions extends LinearOpMode {
     boolean upBit = false;
     boolean downBit = true;
 
-    public void drive_ForwardAndStop(DriveActions driveActions, double speed, double drivingTime) {
-        driveActions.setMotorDirection_Forward();
-        driveActions.driveByTime(this, speed, drivingTime);
-        driveActions.stop();
-    }
 
     public double driveAndDetect(EncoderActions encoderActions, AttachmentActions attachmentActions, double speed, double distance) {
         encoderActions.resetEncoder();
