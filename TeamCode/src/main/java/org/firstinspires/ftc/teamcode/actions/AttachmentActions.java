@@ -174,7 +174,7 @@ public class AttachmentActions {
 
     public void turnTableEncoders(double degrees, double Kp, double Ki, double speedCap) {
         double ticksPerRevolution = 8192 * 96 / 100; // 7864
-        double ticksPerDegree = ticksPerRevolution / 360;
+        double ticksPerDegree = ticksPerRevolution / 360; // 21.9
         int totalTicks = (int) (ticksPerDegree * degrees);
         int velocityRange = 1;
         int acceptableError = (int) ticksPerDegree * 2;

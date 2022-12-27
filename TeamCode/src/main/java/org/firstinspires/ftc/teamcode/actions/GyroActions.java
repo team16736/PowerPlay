@@ -28,7 +28,7 @@ public class GyroActions {
 
 
     private double robotHeading = 0;
-    private double headingOffset = 0;
+    public double headingOffset = 0;
     private double headingError = 0;
     private double targetHeading = 0;
     static final double HEADING_THRESHOLD = 1.0;    // How close must the heading get to the target before moving to next step.

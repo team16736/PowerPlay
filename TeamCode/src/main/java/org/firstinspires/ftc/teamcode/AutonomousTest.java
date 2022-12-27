@@ -33,7 +33,7 @@ public class AutonomousTest extends HelperActions{
         s1 = new DistanceSensorActions(hardwareMap, 0.5, 10, ConfigConstants.BASE_RANGE);
         driveActions.setMotorDirection_Forward();
         attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        FindJunctionAction findJunctionAction = new FindJunctionAction(hardwareMap, telemetry, this, driveActions, attachmentActions, s1, encoderActions);
+        FindJunctionAction findJunctionAction = new FindJunctionAction(hardwareMap, telemetry, this, driveActions, attachmentActions, s1, encoderActions, gyroActions);
 
         boolean memBitOn = false;
         boolean memBitOff = false;
@@ -50,8 +50,10 @@ public class AutonomousTest extends HelperActions{
             double degrees = -20;
 //            telemetry.addData("s1", s1.getSensorDistance());
 //            telemetry.addData("s2", distanceSensorActions.s2.getDistance(DistanceUnit.INCH));
-            findJunctionAction.findJunction(48, 10);
-            sleep(30000);
+            attachmentActions.closeGripper();
+            sleep(500);
+            findJunctionAction.findJunction(48, 24);
+            sleep(3000);
 
 
 

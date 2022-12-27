@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.actions;//package org.firstinspires.ftc.teamcode;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -8,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
 import org.firstinspires.ftc.teamcode.actions.distancecalcs.DistanceSensorActions;
 
@@ -23,15 +27,17 @@ public class FindJunctionAction {
     private AttachmentActions attachmentActions;
     private DistanceSensorActions s1;
     private EncoderActions encoderActions;
+    private GyroActions gyroActions;
     private static LinearOpMode opModeObj;
 
-    public FindJunctionAction(HardwareMap hardwareMap, Telemetry telemetry, LinearOpMode opMode, DriveActions driveActions, AttachmentActions attachmentActions, DistanceSensorActions distanceSensorActions, EncoderActions encoderActions) {
+    public FindJunctionAction(HardwareMap hardwareMap, Telemetry telemetry, LinearOpMode opMode, DriveActions driveActions, AttachmentActions attachmentActions, DistanceSensorActions distanceSensorActions, EncoderActions encoderActions, GyroActions gyroActions) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
         this.driveActions = driveActions;
         this.attachmentActions = attachmentActions;
         this.s1 = distanceSensorActions;
         this.encoderActions = encoderActions;
+        this.gyroActions = gyroActions;
         opModeObj = opMode;
     }
 
@@ -59,9 +65,10 @@ public class FindJunctionAction {
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
 
-        double speed = 762.2;
-        double degrees = -20;
+        double speed = 0;
+        double degrees = gyroActions.getRawHeading() - gyroActions.headingOffset;
         double topSpeed = 2400 * 0.5; // = 1200
+        double tiltError;
         /*    
         motorFrontL.setTargetPosition(targetPos);
         motorFrontR.setTargetPosition(targetPos);
@@ -106,9 +113,9 @@ public class FindJunctionAction {
         //-------------------------------------
 
         while (encoderActions.motorFrontL.getCurrentPosition() < targetPos && opModeObj.opModeIsActive()) {
-
+            attachmentActions.turnTableEncoders(0, true);
             if (encoderActions.motorFrontL.getCurrentPosition() < (targetPos * adj)) {
-                encoderActions.velocity(topSpeed, topSpeed, topSpeed, topSpeed);
+                speed = topSpeed;
                 transitionVelocity = encoderActions.motorFrontL.getVelocity();
             } else {
                 //ramp = topSpeed * 2 * ((targetPos-motorFrontL.getCurrentPosition())/targetPos);
@@ -116,13 +123,15 @@ public class FindJunctionAction {
                 if (ramp < minSpeed) {
                     ramp = minSpeed;
                 }
-                encoderActions.velocity(ramp, ramp, ramp, ramp);
+                speed = ramp;
             }
-            
+            tiltError = gyroActions.getSteeringCorrection(degrees, 0.02);
+            encoderActions.velocity(speed - tiltError, speed, speed - tiltError, speed);
+
 
             double distanceS1 = s1.getSensorDistance(DistanceUnit.MM);
             int currentPos = encoderActions.motorFrontL.getCurrentPosition();
-            if (!attachmentActions.scissorLift1.isBusy() && (targetPos - currentPos) < 600 && distanceS1 < 2000) {
+            if (attachmentActions.scissorLift1.getCurrentPosition() < -490 && (targetPos - currentPos) < 600 && distanceS1 < 200) {
 
 
                 if (distanceS1 < dist) {
@@ -203,14 +212,27 @@ public class FindJunctionAction {
             telemetry.addData("distance", distances[j]);
         }
         */
-
-        telemetry.addData("distance", dist);
+        int overshoot = encoderActions.motorFrontL.getCurrentPosition() - ticksAtLowestDist;
+        telemetry.addData("minimum distance", dist);
         telemetry.addData("Motor ticks at lowest dist", ticksAtLowestDist);
         telemetry.addData("Current pos", encoderActions.motorFrontL.getCurrentPosition());
-        telemetry.addData("Distance past lowest dist", (encoderActions.motorFrontL.getCurrentPosition() - ticksAtLowestDist));
+        telemetry.addData("Distance past lowest dist", overshoot);
         telemetry.addData("time", dur);
         telemetry.addData("counter", counter);
         telemetry.update();
-        return encoderActions.motorFrontL.getCurrentPosition() - ticksAtLowestDist;
+
+        placeOnJunction(dist, overshoot);
+
+        return overshoot;
+    }
+
+    public void placeOnJunction (double sensorDistance, int overshoot) {
+        double radius = 13; //Distance from center of rotation to center of held cone
+        double y = sensorDistance - 96.8375;
+        double x = overshoot / 32.2;
+        encoderActions.encoderStrafe(300, y / DistanceUnit.mmPerInch, false);
+        encoderActions.encoderDrive(300, -x);
+        attachmentActions.openGripper();
+        attachmentActions.liftScissor(3000, 10, false);
     }
 }
