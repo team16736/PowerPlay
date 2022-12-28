@@ -7,215 +7,123 @@ import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
 import org.firstinspires.ftc.teamcode.actions.EncoderActions;
 import org.firstinspires.ftc.teamcode.actions.FindImageOnCone;
+import org.firstinspires.ftc.teamcode.actions.FindJunctionAction;
 import org.firstinspires.ftc.teamcode.actions.GyroActions;
-import org.firstinspires.ftc.teamcode.actions.HelperActions;
 import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
 import org.firstinspires.ftc.teamcode.actions.distancecalcs.DistanceSensorActions;
-import org.firstinspires.ftc.teamcode.actions.distancecalcs.GeometryActions;
+import org.firstinspires.ftc.teamcode.actions.HelperActions;
 
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
 
-@Autonomous(name = "Autonomous Right PowerPlay 2 Cone")
+@Autonomous(name = "Autonomous Right Powerplay 2 Cone")
 public class AutonomousRightPowerPlay2Cone extends HelperActions{
-
     private DriveActions driveActions = null;
     private AttachmentActions attachmentActions = null;
     private EncoderActions encoderActions = null;
     private GyroActions gyroActions = null;
-
     private FindImageOnCone findImageOnCone = null;
-    private double speed = 200;
+    private DistanceSensorActions s1 = null;
+
+    int state = 0;
+    double startTime;
 
     public void runOpMode() {
-        encoderActions = new EncoderActions(this, telemetry, hardwareMap);
-        findImageOnCone = new FindImageOnCone(telemetry, hardwareMap);
+
         driveActions = new DriveActions(telemetry, hardwareMap);
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
+        encoderActions = new EncoderActions(this, telemetry, hardwareMap);
         gyroActions = new GyroActions(this, telemetry, hardwareMap);
-        DistanceSensorActions baseSensor = new DistanceSensorActions(hardwareMap, 0.2, 20, ConfigConstants.BASE_RANGE);
-
+        findImageOnCone = new FindImageOnCone(telemetry, hardwareMap);
+        s1 = new DistanceSensorActions(hardwareMap, 0.5, 10, ConfigConstants.BASE_RANGE);
         driveActions.setMotorDirection_Forward();
+        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FindJunctionAction findJunctionAction = new FindJunctionAction(hardwareMap, telemetry, this, driveActions, attachmentActions, s1, encoderActions, gyroActions);
+
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
         waitForStart();
 
         if (opModeIsActive()) {
+            double speed = 762.2;
+            double degrees = -20;
+            double prevTime = System.currentTimeMillis();
 
-        int totalTicks = -200;
 
-//            speed = 1000;
-//            setHeightStatic(totalTicks);
-//            attachmentActions.closeGripper();
-//            encoderActions.encoderStrafe( 400, 1, false);
-//            holdSteady(totalTicks, 500);
-//            attachmentActions.setLiftLevel(false,true, false);
-//            attachmentActions.turnTableEncoders(90,true);
-            attachmentActions.setLiftLevel(true, false, false);
-            while (attachmentActions.scissorLift1.isBusy()){}
-            double angle = findCone(baseSensor, attachmentActions);
-            attachmentActions.turnTableEncoders(angle, false);
-            while (!attachmentActions.isDone){
-                attachmentActions.turnTableEncoders(angle, false);
-            }
-            double distance = baseSensor.getAverageDistanceAllInOne();
-            GeometryActions geometry = new GeometryActions(distance, angle);
-            telemetry.addData("distance", baseSensor.getSensorDistance());
-            telemetry.addData("avg distance", distance);
-            telemetry.addData("angle", angle);
-            telemetry.addData("X", geometry.getXFromDistanceAndAngle());
-            telemetry.addData("Y", geometry.getYFromDistanceAndAngle());
-            telemetry.update();
-            sleep(1000000);
-            encoderActions.encoderDriveNoTimer(200, -geometry.getXFromDistanceAndAngle());
+            attachmentActions.closeGripper();
+            sleep(500);
+            attachmentActions.liftScissor(3000, 10, false);
+            encoderActions.encoderStrafe(400, 6, false);
+            String location = findImageOnCone.findObject();
+            encoderActions.encoderStrafe(400, 27, true);
+            sleep(400);
+            findJunctionAction.findJunction(47, 24);
+            encoderActions.encoderStrafe(300, 3, true);
+            gyroActions.encoderGyroDrive(300, 14, 0);
+            goToCone();
             attachmentActions.turnTableEncoders(0, false);
-            while (encoderActions.motorFrontL.isBusy() && !attachmentActions.isDone) {
+            findJunctionAction.findJunctionStateMachine(-35, 26, false);
+            while (!attachmentActions.isDone || findJunctionAction.state != 0) {
                 attachmentActions.turnTableEncoders(0, false);
-            }
-            encoderActions.encoderStrafe(200, geometry.getYFromDistanceAndAngle(), false);
-          //  encoderActions.encoderStrafeNoWhile(400, 24, true);
-           // while (!attachmentActions.isDone && encoderActions.isBusy()){
-             //   attachmentActions.turnTableEncoders(90,true);
-           // }
-
-
-//            attachmentActions.setLiftLevel(false, true, false);
-//            sleep(2000);
-//            attachmentActions.liftScissor(1000, 0, true);
-//            sleep(2000);
-//            attachmentActions.liftScissor(500, 265, true );
-//
-//           // attachmentActions.liftScissor(1000, 265 , true );
-//            sleep(10000);
-//            encoderActions.encoderStrafe(400, 6, false);
-//            String location = findImageOnCone.findObject();
-//
-//            attachmentActions.closeGripper();
-//            sleep(500);
-//
-//            attachmentActions.setLiftLevel(false, true, false);
-//
-//            encoderActions.encoderStrafe(400, 27.5, true);
-//            sleep(500);
-//
-//            encoderActions.encoderDrive(300, 42);
-//            sleep(500);
-//
-//            attachmentActions.liftScissor(1000, 0, true);
-//
-//            attachmentActions.openGripper();
-//            sleep(500);
-//
-//            encoderActions.encoderStrafe(400, 2, true);
-//
-//            encoderActions.encoderDrive(400, 13.5);
-//
-//            // strafe to cone to pick up
-//            //encoderActions.encoderDrive(400,2);
-//            attachmentActions.liftScissor(500, 265, true );
-//            encoderActions.encoderStrafe(400, 50.50, false);
-//            sleep(250);
-//            attachmentActions.closeGripper();
-
-
-//            encoderActions.encoderStrafe(400, 52, false);
-//            findCone(attachmentActions);
-
-
-            //moveToLocation(encoderActions, location);
-        }
-    }
-
-    private void setHeightStatic(int totalTicks) {
-        attachmentActions.scissorLift1.setTargetPosition(totalTicks);
-        attachmentActions.scissorLift2.setTargetPosition(totalTicks);
-
-        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        attachmentActions.scissorLift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            DcMotor.RunMode.
-        attachmentActions.scissorLift1.setVelocity(speed);
-        attachmentActions.scissorLift2.setVelocity(speed);
-        while (attachmentActions.scissorLift1.isBusy()) {
-            telemetry.addData("scissor lift height reached", !attachmentActions.scissorLift1.isBusy());
-            telemetry.update();
-        }
-    }
-
-    private void holdSteady(int totalTicks, double timeToWait) {
-        int tolerance = 5;
-        double baseTime = System.currentTimeMillis();
-        double currentTime = System.currentTimeMillis();
-        double timeDiff = currentTime - baseTime;
-        while (timeDiff < timeToWait) {
-             currentTime = System.currentTimeMillis();
-             timeDiff = currentTime - baseTime;
-
-            int positionDiff = totalTicks - attachmentActions.scissorLift1.getCurrentPosition();
-
-            if (Math.abs(positionDiff) > tolerance){
-                attachmentActions.scissorLift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                attachmentActions.scissorLift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                attachmentActions.scissorLift1.setVelocity(speed);
-                attachmentActions.scissorLift2.setVelocity(speed);
-                while (attachmentActions.scissorLift1.isBusy()) {
-                    telemetry.addData("scissor lift height adjustment",attachmentActions.scissorLift1.getCurrentPosition());
-                    telemetry.update();
+                if (findJunctionAction.state != 0) {
+                    findJunctionAction.findJunctionStateMachine(-35, 26, false);
                 }
-
             }
-            telemetry.addData("scissor stable",attachmentActions.scissorLift1.getCurrentPosition());
+            encoderActions.encoderStrafe(400, 2, true);
+            moveToLocation(gyroActions, location);
+            telemetry.addData("time", System.currentTimeMillis() - prevTime);
             telemetry.update();
         }
     }
-
-    private void placeCone(EncoderActions encoderActions, AttachmentActions attachmentActions){
-        encoderActions.encoderDrive(speed, -2);
-        attachmentActions.setLiftLevel(true, false, false);
-        attachmentActions.turnTableEncoders(-120, true);
-        while (attachmentActions.scissorLift1.isBusy()) {}
-        attachmentActions.turnTableEncoders(-10, true);
-        attachmentActions.openGripper();
-    }
-
-    private void moveToLocation(EncoderActions encoderActions, String location) {
+    private void moveToLocation(GyroActions gyroActions, String location) {
         if (location == "Cow") {
             //            location 1
-            telemetry.addData(")", "<");
+            gyroActions.encoderGyroDrive(700, -10, -90);
+            telemetry.addData(location, "<");
             telemetry.update();
         } else if (location == "Bus") {
             //                 location 2
-            encoderActions.encoderStrafe(400, 25, false);
+            gyroActions.encoderGyroDrive(700, 10, -90);
             sleep(500);
-            telemetry.addData(")", "<");
+            telemetry.addData(location, "<");
             telemetry.update();
         } else {
             //              Location 3
-            encoderActions.encoderStrafe(400, 52, false);
-            sleep(500);
-            telemetry.addData(")", "<");
+            gyroActions.encoderGyroDrive(700, 32, -90);
+            telemetry.addData(location, "<");
             telemetry.update();
         }
     }
-    private double findCone(DistanceSensorActions distanceSensor, AttachmentActions attachmentActions) {
-        double angle = 45;
-        double turnTableSpeed = 0.2;
-        double minDistance = 1000;
-        double minDistanceAngle = 0;
-        attachmentActions.turnTable.setPower(0.2);
-        while (attachmentActions.getTurntablePosition() < angle && opModeIsActive()) {
-            if (distanceSensor.getSensorDistance() < minDistance) {
-                minDistance = distanceSensor.getSensorDistance();
-                minDistanceAngle = attachmentActions.getTurntablePosition();
+    private void goToCone() {
+        while (state != 6) {
+            if (state == 0) {
+                encoderActions.encoderSpinNoWhile(300, -90, true);
+                attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                attachmentActions.scissorLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                attachmentActions.liftScissor(3000, 290, true);
+                state = 1;
             }
-        }
-        minDistance = distanceSensor.getSensorDistance();
-        minDistanceAngle = attachmentActions.getTurntablePosition();
-        attachmentActions.turnTable.setPower(-0.2);
-        while (attachmentActions.getTurntablePosition() > -angle && opModeIsActive()) {
-            if (distanceSensor.getSensorDistance() < minDistance) {
-                minDistance = distanceSensor.getSensorDistance();
-                minDistanceAngle = attachmentActions.getTurntablePosition();
+            if (state == 1 && !encoderActions.motorFrontL.isBusy()) {
+                state = 2;
             }
+            if (state == 2) {
+                gyroActions.encoderGyroDrive(700, 47, -90);
+                if (gyroActions.driveState == 0) {
+                    state = 3;
+                }
+            }
+            if (state == 3 && attachmentActions.isDone) {
+                attachmentActions.closeGripper();
+                startTime = System.currentTimeMillis();
+                state = 4;
+            }
+            if (state == 4 && System.currentTimeMillis() - startTime > 650) {
+                attachmentActions.liftScissor(3000, 24, false);
+                state = 5;
+            }
+            if (state == 5 && attachmentActions.getLiftHeight() > 10) {
+                state = 6;
+            }
+            attachmentActions.turnTableEncoders(-90, false);
         }
-        return minDistanceAngle;
     }
 }

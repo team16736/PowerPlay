@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.actions;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -16,8 +15,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.actions.constants.MotorConstants;
-
-import java.util.concurrent.TimeUnit;
 
 public class GyroActions {
     DcMotorEx motorFrontL;
@@ -47,8 +44,13 @@ public class GyroActions {
     int rightFrontTarget = 0;
     int rightBackTarget = 0;
 
-    double ticksPerInch = 39;
+    double ticksPerInch = 31;
     double ticksPerInchStrafe = 39;
+
+    public int driveState = 0;
+    int distanceError;
+    double adjSpeed;
+    int totalTicks;
 
     private static LinearOpMode opModeObj;
 
@@ -92,8 +94,127 @@ public class GyroActions {
         resetHeading();
     }
 
+    public void encoderGyroDrive(double speed, double distance, double heading) {
+        while (encoderGyroDriveStateMachine(speed, distance, heading)) {}
+    }
+    public boolean encoderGyroDriveStateMachine(double speed, double distance, double heading) {
+        if (driveState == 0) {
+            motorFrontL.setDirection(MotorConstants.REVERSE);
+            motorBackL.setDirection(MotorConstants.FORWARD);
+
+            motorFrontR.setDirection(MotorConstants.REVERSE);
+            motorBackR.setDirection(MotorConstants.FORWARD);
+            adjSpeed = speed;
+            motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motorBackR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            totalTicks = (int) (ticksPerInch * distance);
+            motorFrontL.setTargetPosition(totalTicks);
+            motorFrontR.setTargetPosition(totalTicks);
+            motorBackL.setTargetPosition(totalTicks);
+            motorBackR.setTargetPosition(totalTicks);
+
+            // Switch to RUN_TO_POSITION mode
+            motorFrontL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorFrontR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorBackL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            motorFrontL.setVelocity(speed);
+            motorFrontR.setVelocity(speed);
+            motorBackL.setVelocity(speed);
+            motorBackR.setVelocity(speed);
+            driveState = 1;
+        }
+
+        if (motorFrontL.isBusy()) {
+            if (Math.abs(motorFrontL.getCurrentPosition()) > Math.abs(totalTicks * 0.9)) {
+                adjSpeed = speed * 0.5;
+            }
+            headingError = getSteeringCorrection(heading, adjSpeed * 0.05, adjSpeed);
+            if (distance < 0) {
+                headingError *= -1;
+            }
+            motorFrontL.setVelocity(adjSpeed - headingError);
+            motorFrontR.setVelocity(adjSpeed + headingError);
+            motorBackL.setVelocity(adjSpeed - headingError);
+            motorBackR.setVelocity(adjSpeed + headingError);
+
+            distanceError = motorFrontL.getTargetPosition() - motorFrontL.getCurrentPosition();
+            motorFrontL.setTargetPosition(motorFrontL.getCurrentPosition() + distanceError);
+            motorFrontR.setTargetPosition(motorFrontR.getCurrentPosition() + distanceError);
+            motorBackL.setTargetPosition(motorBackL.getCurrentPosition() + distanceError);
+            motorBackR.setTargetPosition(motorBackR.getCurrentPosition() + distanceError);
+            return true;
+        } else {
+            driveState = 0;
+            return false;
+        }
+    }
+
+    public void encoderGyroStrafe (double speed, double distance, double heading, boolean strafeLeft) {
+        double headingError;
+        int distanceError;
+        motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        double ticksPerInch = 33.6;
+        int totalTicks = (int) (ticksPerInch * distance);
+        if (strafeLeft){
+            motorFrontL.setTargetPosition(-totalTicks);
+            motorFrontR.setTargetPosition(totalTicks);
+            motorBackL.setTargetPosition(totalTicks);
+            motorBackR.setTargetPosition(-totalTicks);
+        }else{
+            motorFrontL.setTargetPosition(totalTicks);
+            motorFrontR.setTargetPosition(-totalTicks);
+            motorBackL.setTargetPosition(-totalTicks);
+            motorBackR.setTargetPosition(totalTicks);
+        }
+
+        // Switch to RUN_TO_POSITION mode
+        motorFrontL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorFrontR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBackL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        motorFrontL.setVelocity(-speed);
+        motorFrontR.setVelocity(-speed);
+        motorBackL.setVelocity(-speed);
+        motorBackR.setVelocity(-speed);
+
+        while (motorFrontL.isBusy()) {
+            headingError = getSteeringCorrection(heading, speed * 0.05, speed);
+            motorFrontL.setVelocity(-speed + headingError);
+            motorFrontR.setVelocity(-speed - headingError);
+            motorBackL.setVelocity(-speed + headingError);
+            motorBackR.setVelocity(-speed - headingError);
+
+            distanceError = Math.abs(motorFrontL.getTargetPosition() - motorFrontL.getCurrentPosition());
+            if (strafeLeft){
+                motorFrontL.setTargetPosition(motorFrontL.getCurrentPosition() - distanceError);
+                motorFrontR.setTargetPosition(motorFrontR.getCurrentPosition() + distanceError);
+                motorBackL.setTargetPosition(motorBackL.getCurrentPosition() + distanceError);
+                motorBackR.setTargetPosition(motorBackR.getCurrentPosition() - distanceError);
+            }else{
+                motorFrontL.setTargetPosition(motorFrontL.getCurrentPosition() + distanceError);
+                motorFrontR.setTargetPosition(motorFrontR.getCurrentPosition() - distanceError);
+                motorBackL.setTargetPosition(motorBackL.getCurrentPosition() - distanceError);
+                motorBackR.setTargetPosition(motorBackR.getCurrentPosition() + distanceError);
+            }
+        }
+    }
+
     public void gyroSpin(double speed,
                          double heading) {
+        motorFrontL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBackL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorFrontR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBackR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Run getSteeringCorrection() once to pre-calculate the current error
         getSteeringCorrection(heading, P_DRIVE_GAIN);
@@ -148,6 +269,9 @@ public class GyroActions {
     }
 
     public double getSteeringCorrection(double desiredHeading, double proportionalGain) {
+        return getSteeringCorrection(desiredHeading, proportionalGain, 1);
+    }
+    public double getSteeringCorrection(double desiredHeading, double proportionalGain, double range) {
         targetHeading = desiredHeading;  // Save for telemetry
 
         // Get the robot heading by applying an offset to the IMU heading
@@ -164,7 +288,7 @@ public class GyroActions {
         while (headingError <= -180) headingError += 360;
 
         // Multiply the error by the gain to determine the required steering correction/  Limit the result to +/- 1.0
-        return Range.clip(headingError * proportionalGain, -1, 1);
+        return Range.clip(headingError * proportionalGain, -range, range);
     }
 
     public void moveRobot(double drive, double turn) {

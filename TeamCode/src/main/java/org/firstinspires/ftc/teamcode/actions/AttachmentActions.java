@@ -58,6 +58,7 @@ public class AttachmentActions {
     private int sum = 0;
     public boolean isDone = false;
     public double minVel = 10000;
+    double startTime;
 
     boolean setBit = false;
     boolean lowerSetBit = false;
@@ -177,11 +178,12 @@ public class AttachmentActions {
         double ticksPerDegree = ticksPerRevolution / 360; // 21.9
         int totalTicks = (int) (ticksPerDegree * degrees);
         int velocityRange = 1;
-        int acceptableError = (int) ticksPerDegree * 2;
+        int acceptableError = (int) (ticksPerDegree * 2.1);
 
         if (!initBit) {
             isDone = false;
             prevTimeI = System.currentTimeMillis();
+            startTime = prevTimeI;
             initBit = true;
         }
 
@@ -189,7 +191,7 @@ public class AttachmentActions {
 
         velocity = tableEncoder.getVelocity();
 
-        if (Math.abs(error) < acceptableError && Math.abs(velocity) < velocityRange) {
+        if ((Math.abs(error) < acceptableError && Math.abs(velocity) < velocityRange) || System.currentTimeMillis() - startTime > 6000) {
             isDone = true;
         }
 
@@ -253,6 +255,13 @@ public class AttachmentActions {
 
     public void liftScissor(double speed, double verticalDistance, boolean hardCode) {
         int totalTicks = (int) -(0.1161 * Math.pow(verticalDistance, 3) - 2.2579 * Math.pow(verticalDistance, 2) + 56.226 * verticalDistance + 36.647);
+        if (Math.abs(totalTicks) < 500) {
+            scissorLift1.setTargetPositionTolerance(1);
+            scissorLift2.setTargetPositionTolerance(1);
+        } else {
+            scissorLift1.setTargetPositionTolerance(5);
+            scissorLift2.setTargetPositionTolerance(5);
+        }
         if (hardCode) {
             totalTicks = (int) -verticalDistance;
         }

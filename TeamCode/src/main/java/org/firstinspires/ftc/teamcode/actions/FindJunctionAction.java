@@ -1,24 +1,15 @@
 package org.firstinspires.ftc.teamcode.actions;//package org.firstinspires.ftc.teamcode;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
 import org.firstinspires.ftc.teamcode.actions.distancecalcs.DistanceSensorActions;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class FindJunctionAction {
     private HardwareMap hardwareMap;
@@ -29,6 +20,33 @@ public class FindJunctionAction {
     private EncoderActions encoderActions;
     private GyroActions gyroActions;
     private static LinearOpMode opModeObj;
+
+    double sensorToCone = 96.8375; // distance from sensor to cone\
+
+    public int state;
+    public int placeState;
+    double speed;
+    double targetPos;
+    double degrees;
+    double tableDegrees;
+    boolean memBitOn;
+    double topSpeed;
+    double ramp;
+    double tiltError;
+    double minSpeed;
+    double x;
+    double dur;
+    double adj;
+    double dist;
+    int ticksAtLowestDist;
+    int counter;
+    int totalTicks;
+    int overshoot;
+
+    double strafe;
+    double drive;
+
+    ElapsedTime runtime = new ElapsedTime();
 
     public FindJunctionAction(HardwareMap hardwareMap, Telemetry telemetry, LinearOpMode opMode, DriveActions driveActions, AttachmentActions attachmentActions, DistanceSensorActions distanceSensorActions, EncoderActions encoderActions, GyroActions gyroActions) {
         this.hardwareMap = hardwareMap;
@@ -41,97 +59,69 @@ public class FindJunctionAction {
         opModeObj = opMode;
     }
 
-    public int findJunction(double distance, double scissorDistance) {
+    public void findJunction(double distance, double scissorDistance) {
+        findJunctionStateMachine(distance, scissorDistance, true);
+        while (state != 0) {
+            findJunctionStateMachine(distance, scissorDistance, true);
+        }
+    }
+    public void findJunctionStateMachine(double distance, double scissorDistance, boolean steadyTable) {
         //Telemetry telemetry;
-        HardwareMap hardwareMap;
-        ElapsedTime runtime = new ElapsedTime();
-        driveActions.setMotorDirection_Forward();
+        telemetry.addData("state", state);
+        telemetry.addData("placeState", placeState);
+        if (state == 0) {
+            reset();
 
-        encoderActions.resetEncoder();
-        
-/*
-        double[] distances = new double[1000];
-        double[] times = new double[1000];
-        int i = 0;
-*/
+            driveActions.setMotorDirection_Forward();
+            encoderActions.resetEncoder();
 
-        boolean memBitOn = false;
-        boolean memBitOff = false;
-        int ticks = 0;
-        int ticksOff = 0;
-        double targetPos = distance * 32.3;
-        double pwr = 1.0;
+            encoderActions.motorFrontL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            encoderActions.motorFrontR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            encoderActions.motorBackL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            encoderActions.motorBackR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        telemetry.addData(">", "Press Play to start op mode");
-        telemetry.update();
+            runtime.reset();
 
-        double speed = 0;
-        double degrees = gyroActions.getRawHeading() - gyroActions.headingOffset;
-        double topSpeed = 2400 * 0.5; // = 1200
-        double tiltError;
-        /*    
-        motorFrontL.setTargetPosition(targetPos);
-        motorFrontR.setTargetPosition(targetPos);
-        motorBackL.setTargetPosition(targetPos);
-        motorBackR.setTargetPosition(targetPos);   
-        
-        motorFrontL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorFrontR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        */
-        encoderActions.motorFrontL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        encoderActions.motorFrontR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        encoderActions.motorBackL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        encoderActions.motorBackR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            targetPos = distance * 32.3;
+            degrees = gyroActions.getRawHeading() - gyroActions.headingOffset;
+            tableDegrees = attachmentActions.getTurntablePosition();
+            if (distance < 0) {
+                topSpeed *= -1;
+            }
+            minSpeed = 0.05 * topSpeed;
 
-        runtime.reset();
-        /*
-        motorFrontL.setPower(pwr);
-        motorFrontR.setPower(pwr);
-        motorBackL.setPower(pwr);
-        motorBackR.setPower(pwr);
-        */
 
-        double ramp = 0.0;
-        double minSpeed = 0.05 * topSpeed;
-        double transitionVelocity = 0.0;
+            telemetry.addData(">", "Press Play to start op mode");
+            int totalTicks = (int) -(0.1161 * Math.pow(scissorDistance, 3) - 2.2579 * Math.pow(scissorDistance, 2) + 56.226 * scissorDistance + 36.647);
 
-        double dur = 0.0;
-        double adj = 0.25;
+            attachmentActions.liftScissor(3000, -totalTicks, true);
+            state = 1;
+        }
 
-        double dist = 2000.0;
-        int ticksAtLowestDist = 0;
-
-        int counter = 0;
-        //------------------------------
-        int totalTicks = (int) -(0.1161 * Math.pow(scissorDistance, 3) - 2.2579 * Math.pow(scissorDistance, 2) + 56.226 * scissorDistance + 36.647);
-        //if (hardCode) {
-        //    totalTicks = (int) -verticalDistance;
-
-        attachmentActions.liftScissor(3000, -totalTicks, true);
-        //-------------------------------------
-
-        while (encoderActions.motorFrontL.getCurrentPosition() < targetPos && opModeObj.opModeIsActive()) {
-            attachmentActions.turnTableEncoders(0, true);
-            if (encoderActions.motorFrontL.getCurrentPosition() < (targetPos * adj)) {
+        if (Math.abs(encoderActions.motorFrontL.getCurrentPosition()) < Math.abs(targetPos) && opModeObj.opModeIsActive() && state == 1) {
+            if (steadyTable) {
+                attachmentActions.turnTableEncoders(tableDegrees, false);
+            }
+            if (Math.abs(encoderActions.motorFrontL.getCurrentPosition()) < Math.abs(targetPos - targetPos * adj)) {
                 speed = topSpeed;
-                transitionVelocity = encoderActions.motorFrontL.getVelocity();
             } else {
+                drive = encoderActions.motorFrontL.getCurrentPosition() - (targetPos * (1 - adj));
                 //ramp = topSpeed * 2 * ((targetPos-motorFrontL.getCurrentPosition())/targetPos);
-                ramp = topSpeed * (targetPos - encoderActions.motorFrontL.getCurrentPosition()) / (targetPos - (targetPos * adj));
-                if (ramp < minSpeed) {
+//                ramp = topSpeed * (targetPos - encoderActions.motorFrontL.getCurrentPosition()) / (targetPos - (targetPos * adj));
+                ramp = drive * -(topSpeed - minSpeed) / (adj * targetPos) + topSpeed;
+                if (Math.abs(ramp) < Math.abs(minSpeed)) {
                     ramp = minSpeed;
                 }
                 speed = ramp;
             }
-            tiltError = gyroActions.getSteeringCorrection(degrees, 0.02);
-            encoderActions.velocity(speed - tiltError, speed, speed - tiltError, speed);
+            tiltError = gyroActions.getSteeringCorrection(degrees, Math.abs(speed) * 0.05, Math.abs(speed));
+            encoderActions.setVelocity(speed - tiltError, speed + tiltError, speed - tiltError, speed + tiltError);
+//            encoderActions.setVelocity(speed, speed, speed, speed);
 
 
             double distanceS1 = s1.getSensorDistance(DistanceUnit.MM);
             int currentPos = encoderActions.motorFrontL.getCurrentPosition();
-            if (attachmentActions.scissorLift1.getCurrentPosition() < -490 && (targetPos - currentPos) < 600 && distanceS1 < 200) {
+            if (attachmentActions.scissorLift1.getCurrentPosition() < -490 && Math.abs(targetPos - currentPos) < 600 && distanceS1 < 200) {
 
 
                 if (distanceS1 < dist) {
@@ -147,7 +137,7 @@ public class FindJunctionAction {
 
                 }
 
-                if ((memBitOn = true) && (distanceS1 > dist)) {
+                if ((memBitOn == true) && (distanceS1 > dist)) {
 
                     counter = counter + 1;
 
@@ -159,80 +149,84 @@ public class FindJunctionAction {
 
                     targetPos = ticksAtLowestDist;
 
-                    encoderActions.velocity(0, 0, 0, 0);
+                    encoderActions.setVelocity(0, 0, 0, 0);
 
                 }
-            /*
-                distances[i] = distSensor.getDistance(DistanceUnit.MM);
-                times[i] = System.currentTimeMillis();
-                i++;
-                */
 
                 telemetry.addData("Scissor Y", attachmentActions.scissorLift1.getCurrentPosition());
                 telemetry.addData("Scissor Y Target", totalTicks);
-                telemetry.update();
 
             }
 
-            // telemetry.addData("ramp", ramp);
-            // telemetry.addData("Current pos", motorFrontL.getCurrentPosition());
-            // telemetry.addData("topSpeed", topSpeed);
-            // telemetry.addData("targetPos", targetPos);
-            // telemetry.addData("switch velocity", transitionVelocity);
-            // telemetry.addData("distance", dist);
-            // telemetry.addData("Scissor Y", scissor1.getCurrentPosition());
-            // telemetry.addData("Scissor Y Target", totalTicks);
-            // telemetry.update();
-
+        } else if (state == 1) {
+            state = 2;
         }
 
-        encoderActions.velocity(0, 0, 0, 0);
+        if (state == 2) {
+            encoderActions.setVelocity(0, 0, 0, 0);
 
-        dur = runtime.time();
-            
-        
-        /*
-        double topSpeed =0.0;
-        while(motorFrontL.isBusy() && motorFrontR.isBusy() && motorBackL.isBusy() && motorBackR.isBusy()){
-            if (motorFrontL.getVelocity() > topSpeed) {
-                topSpeed = motorFrontL.getVelocity();
-            }
+            dur = runtime.time();
+
+            overshoot = encoderActions.motorFrontL.getCurrentPosition() - ticksAtLowestDist;
+            telemetry.addData("minimum distance", dist);
+            telemetry.addData("Motor ticks at lowest dist", ticksAtLowestDist);
+            telemetry.addData("Current pos", encoderActions.motorFrontL.getCurrentPosition());
+            telemetry.addData("Distance past lowest dist", overshoot);
+            telemetry.addData("time", dur);
+            telemetry.addData("counter", counter);
+
+            state = 3;
         }
-        */
-        
-        /*
-        for(int j = 0; j < i; j++) {
-            double time = times[j];
-            if(j > 0) {
-                time = times[j] - times[j-1];
-            }
-            String distance = "f";
-            distance = distance.valueOf(distances[j]);
-            telemetry.addData("time", time);
-            telemetry.addData("distance", distances[j]);
+        if (state == 3 && !placeOnJunction(dist, ticksAtLowestDist, degrees)) {
+            state = 0;
         }
-        */
-        int overshoot = encoderActions.motorFrontL.getCurrentPosition() - ticksAtLowestDist;
-        telemetry.addData("minimum distance", dist);
-        telemetry.addData("Motor ticks at lowest dist", ticksAtLowestDist);
-        telemetry.addData("Current pos", encoderActions.motorFrontL.getCurrentPosition());
-        telemetry.addData("Distance past lowest dist", overshoot);
-        telemetry.addData("time", dur);
-        telemetry.addData("counter", counter);
         telemetry.update();
-
-        placeOnJunction(dist, overshoot);
-
-        return overshoot;
     }
 
-    public void placeOnJunction (double sensorDistance, int overshoot) {
-        double radius = 13; //Distance from center of rotation to center of held cone
-        double y = sensorDistance - 96.8375;
-        double x = overshoot / 32.2;
-        encoderActions.encoderStrafe(300, y / DistanceUnit.mmPerInch, false);
-        encoderActions.encoderDrive(300, -x);
-        attachmentActions.openGripper();
-        attachmentActions.liftScissor(3000, 10, false);
+    public boolean placeOnJunction (double sensorDistance, int ticksAtLowestDist, double degrees) {
+        if (placeState == 0) {
+            strafe = sensorDistance - sensorToCone;
+            overshoot = encoderActions.motorFrontL.getCurrentPosition() - ticksAtLowestDist;
+            double offset = 0.85;
+            if (ticksAtLowestDist < 0) {
+                offset *= -1;
+            }
+            drive = overshoot / 31 + offset;
+            encoderActions.encoderStrafeNoWhile(700, strafe / DistanceUnit.mmPerInch, false);
+            placeState = 1;
+        }
+        if (placeState == 1 && !encoderActions.motorFrontL.isBusy()) {
+            placeState = 2;
+        }
+        if (placeState == 2) {
+            if (!gyroActions.encoderGyroDriveStateMachine(350, -drive, degrees)){
+                placeState = 3;
+            }
+        }
+        if (placeState == 3) {
+            attachmentActions.openGripper();
+            attachmentActions.liftScissor(3000, -1.5, false);
+            placeState = 0;
+            telemetry.addData("strafe", strafe);
+            telemetry.addData("drive", drive);
+            telemetry.addData("overshoot", overshoot);
+            telemetry.addData("ticks at lowest distance", ticksAtLowestDist);
+            telemetry.addData("current ticks", encoderActions.motorFrontL.getCurrentPosition());
+            return false;
+        }
+        return true;
+    }
+    public void reset() {
+        placeState = 0;
+        topSpeed = 2400 * 0.5; // = 1200
+        state = 0;
+        speed = 0;
+        memBitOn = false;
+        dur = 0.0;
+        adj = 0.75;
+        dist = 2000.0;
+        ticksAtLowestDist = 0;
+        counter = 0;
+        ramp = 0.0;
     }
 }

@@ -68,7 +68,7 @@ public abstract class HelperActions extends LinearOpMode {
         encoderActions.motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Start the motor moving by setting the max velocity to 1 revolution per second
-        encoderActions.velocity(speed, speed, speed, speed);
+        encoderActions.setVelocity(speed, speed, speed, speed);
 
         // While the Op Mode is running, show the motor's status via telemetry
         while (encoderActions.motorFrontL.isBusy() && encoderActions.motorFrontR.isBusy() && encoderActions.motorBackL.isBusy() && encoderActions.motorBackR.isBusy()) {
