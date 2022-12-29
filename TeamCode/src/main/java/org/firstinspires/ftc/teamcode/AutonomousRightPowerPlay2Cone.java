@@ -56,16 +56,16 @@ public class AutonomousRightPowerPlay2Cone extends HelperActions{
             String location = findImageOnCone.findObject();
             encoderActions.encoderStrafe(400, 27, true);
             sleep(400);
-            findJunctionAction.findJunction(47, 24);
+            findJunctionAction.findJunction(47, 24, true, FORWARDS);
             encoderActions.encoderStrafe(300, 3, true);
             gyroActions.encoderGyroDrive(300, 14, 0);
             goToCone();
             attachmentActions.turnTableEncoders(0, false);
-            findJunctionAction.findJunctionStateMachine(-35, 26, false);
+            findJunctionAction.findJunctionStateMachine(-35, 26, false, true, FORWARDS);
             while (!attachmentActions.isDone || findJunctionAction.state != 0) {
                 attachmentActions.turnTableEncoders(0, false);
                 if (findJunctionAction.state != 0) {
-                    findJunctionAction.findJunctionStateMachine(-35, 26, false);
+                    findJunctionAction.findJunctionStateMachine(-35, 26, false, true, FORWARDS);
                 }
             }
             encoderActions.encoderStrafe(400, 2, true);

@@ -54,31 +54,47 @@ public class AutonomousTest extends HelperActions{
             double degrees = -20;
             double prevTime = System.currentTimeMillis();
 
-
+//            attachmentActions.turnTableEncoders(0, false);
+//            gyroActions.encoderGyroDriveStateMachine(700, 32, 0);
+//            while (!attachmentActions.isDone || findJunctionAction.state != 0) {
+//                attachmentActions.turnTableEncoders(0, false);
+//                if (gyroActions.driveState != 0) {
+//                    gyroActions.encoderGyroDriveStateMachine(700, 32, 0);
+//                }
+//            }
             attachmentActions.closeGripper();
             sleep(500);
             attachmentActions.liftScissor(3000, 10, false);
             encoderActions.encoderStrafe(400, 6, false);
             String location = findImageOnCone.findObject();
-            encoderActions.encoderStrafe(400, 27, true);
-            sleep(400);
-            findJunctionAction.findJunction(47, 24);
-            encoderActions.encoderStrafe(300, 3, true);
-            gyroActions.encoderGyroDrive(300, 14, 0);
-            goToCone();
-            attachmentActions.turnTableEncoders(0, false);
-            findJunctionAction.findJunctionStateMachine(-35, 26, false);
-            while (!attachmentActions.isDone || findJunctionAction.state != 0) {
-                attachmentActions.turnTableEncoders(0, false);
-                if (findJunctionAction.state != 0) {
-                    findJunctionAction.findJunctionStateMachine(-35, 26, false);
-                }
+            findJunctionAction.findJunction(47, 24, false, FORWARDS);
+            gyroActions.encoderGyroDriveStateMachine(700, 8, 0);
+            attachmentActions.turnTableEncoders(180, false);
+            while (gyroActions.encoderGyroDriveStateMachine(700, 8, 0)) {
+                attachmentActions.turnTableEncoders(180, false);
             }
-            encoderActions.encoderStrafe(400, 2, true);
-            moveToLocation(gyroActions, location);
-            telemetry.addData("time", System.currentTimeMillis() - prevTime);
-            telemetry.update();
+            encoderActions.encoderStrafeNoWhile(700, 21, true);
+            attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            attachmentActions.scissorLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            attachmentActions.liftScissor(3000, 290, true);
+            while (encoderActions.motorFrontL.isBusy()) {
+                attachmentActions.turnTableEncoders(180, false);
+            }
+            attachmentActions.closeGripper();
+            sleep(500);
+            attachmentActions.liftScissor(3000, 10, false);
+            while (attachmentActions.getLiftHeight() < 9){}
+            findJunctionAction.findJunctionStateMachine(40, 25, false, false, RIGHT);
+            attachmentActions.turnTableEncoders(90, false);
+            while (findJunctionAction.state != 0) {
+                attachmentActions.turnTableEncoders(90, false);
+                findJunctionAction.findJunctionStateMachine(40, 25, false, false, RIGHT);
+            }
             sleep(10000);
+            //James debug code
+//            attachmentActions.closeGripper();
+//            sleep(500);
+//            findJunctionAction.findJunction(48,24, false, RIGHT);
 
             //The static code for goToCone
 //            encoderActions.encoderSpinNoWhile(300, -90, true);
@@ -137,6 +153,9 @@ public class AutonomousTest extends HelperActions{
 //            telemetry.update();
 //            gyroActions.gyroSpin(0.2, 90.0);
         }
+    }
+    private void placeCone(AttachmentActions attachmentActions, FindJunctionAction findJunctionAction, EncoderActions encoderActions) {
+
     }
     private void moveToLocation(GyroActions gyroActions, String location) {
         if (location == "Cow") {

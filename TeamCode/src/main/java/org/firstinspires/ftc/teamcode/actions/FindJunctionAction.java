@@ -21,7 +21,7 @@ public class FindJunctionAction {
     private GyroActions gyroActions;
     private static LinearOpMode opModeObj;
 
-    double sensorToCone = 96.8375; // distance from sensor to cone\
+    double sensorToCone = 115.9; // distance from sensor to cone\
 
     public int state;
     public int placeState;
@@ -42,6 +42,7 @@ public class FindJunctionAction {
     int counter;
     int totalTicks;
     int overshoot;
+    int driveSpeed = 350;
 
     double strafe;
     double drive;
@@ -59,13 +60,13 @@ public class FindJunctionAction {
         opModeObj = opMode;
     }
 
-    public void findJunction(double distance, double scissorDistance) {
-        findJunctionStateMachine(distance, scissorDistance, true);
+    public void findJunction(double distance, double scissorDistance, boolean turnTableLeft, int direction) {
+        findJunctionStateMachine(distance, scissorDistance, true,  turnTableLeft, direction);
         while (state != 0) {
-            findJunctionStateMachine(distance, scissorDistance, true);
+            findJunctionStateMachine(distance, scissorDistance, true, turnTableLeft, direction);
         }
     }
-    public void findJunctionStateMachine(double distance, double scissorDistance, boolean steadyTable) {
+    public void findJunctionStateMachine(double distance, double scissorDistance, boolean steadyTable, boolean turnTableLeft, int direction) {
         //Telemetry telemetry;
         telemetry.addData("state", state);
         telemetry.addData("placeState", placeState);
@@ -82,7 +83,10 @@ public class FindJunctionAction {
 
             runtime.reset();
 
-            targetPos = distance * 32.3;
+            double ticksPerInch = 32.3;
+            if (direction == HelperActions.RIGHT || direction == HelperActions.LEFT) {ticksPerInch = 33.6;}
+
+            targetPos = distance * ticksPerInch;
             degrees = gyroActions.getRawHeading() - gyroActions.headingOffset;
             tableDegrees = attachmentActions.getTurntablePosition();
             if (distance < 0) {
@@ -105,7 +109,7 @@ public class FindJunctionAction {
             if (Math.abs(encoderActions.motorFrontL.getCurrentPosition()) < Math.abs(targetPos - targetPos * adj)) {
                 speed = topSpeed;
             } else {
-                drive = encoderActions.motorFrontL.getCurrentPosition() - (targetPos * (1 - adj));
+                drive = Math.abs(encoderActions.motorFrontL.getCurrentPosition()) - (targetPos * (1 - adj));
                 //ramp = topSpeed * 2 * ((targetPos-motorFrontL.getCurrentPosition())/targetPos);
 //                ramp = topSpeed * (targetPos - encoderActions.motorFrontL.getCurrentPosition()) / (targetPos - (targetPos * adj));
                 ramp = drive * -(topSpeed - minSpeed) / (adj * targetPos) + topSpeed;
@@ -113,16 +117,26 @@ public class FindJunctionAction {
                     ramp = minSpeed;
                 }
                 speed = ramp;
+                if (targetPos < 0) {
+                    ramp *= -1;
+                }
             }
             tiltError = gyroActions.getSteeringCorrection(degrees, Math.abs(speed) * 0.05, Math.abs(speed));
-            encoderActions.setVelocity(speed - tiltError, speed + tiltError, speed - tiltError, speed + tiltError);
+            if (direction == HelperActions.FORWARDS) {
+                encoderActions.setVelocity(speed - tiltError, speed + tiltError, speed - tiltError, speed + tiltError);
+            } else if (direction == HelperActions.BACKWARDS) {
+                encoderActions.setVelocity(-speed - tiltError, -speed + tiltError, -speed - tiltError, -speed + tiltError);
+            } else if (direction == HelperActions.RIGHT) {
+                encoderActions.setVelocity(speed - tiltError, -speed + tiltError, -speed - tiltError, speed + tiltError);
+            } else if (direction == HelperActions.LEFT) {
+                encoderActions.setVelocity(-speed - tiltError, speed + tiltError, speed - tiltError, -speed + tiltError);
+            }
 //            encoderActions.setVelocity(speed, speed, speed, speed);
 
 
             double distanceS1 = s1.getSensorDistance(DistanceUnit.MM);
             int currentPos = encoderActions.motorFrontL.getCurrentPosition();
-            if (attachmentActions.scissorLift1.getCurrentPosition() < -490 && Math.abs(targetPos - currentPos) < 600 && distanceS1 < 200) {
-
+            if (attachmentActions.scissorLift1.getCurrentPosition() < -490 && (Math.abs(targetPos) - Math.abs(currentPos)) < 600 && distanceS1 < 200) {
 
                 if (distanceS1 < dist) {
 
@@ -174,36 +188,69 @@ public class FindJunctionAction {
             telemetry.addData("Distance past lowest dist", overshoot);
             telemetry.addData("time", dur);
             telemetry.addData("counter", counter);
+//            telemetry.update();
+//            opModeObj.sleep(1000000);
 
             state = 3;
         }
-        if (state == 3 && !placeOnJunction(dist, ticksAtLowestDist, degrees)) {
+        if (state == 3 && !placeOnJunction(dist, ticksAtLowestDist, degrees, turnTableLeft, direction)) {
             state = 0;
         }
         telemetry.update();
     }
 
-    public boolean placeOnJunction (double sensorDistance, int ticksAtLowestDist, double degrees) {
+    public boolean placeOnJunction (double sensorDistance, int ticksAtLowestDist, double degrees, boolean turnTableLeft, int direction) {
         if (placeState == 0) {
-            strafe = sensorDistance - sensorToCone;
-            overshoot = encoderActions.motorFrontL.getCurrentPosition() - ticksAtLowestDist;
-            double offset = 0.85;
-            if (ticksAtLowestDist < 0) {
-                offset *= -1;
+            if (sensorDistance > 200) {
+                placeState = 4;
+                return true;
             }
-            drive = overshoot / 31 + offset;
-            encoderActions.encoderStrafeNoWhile(700, strafe / DistanceUnit.mmPerInch, false);
+            int turnTableLefti = 1;
+            int strafeSpeed = 700;
+            if (!turnTableLeft) {turnTableLefti = -1;}
+            overshoot = encoderActions.motorFrontL.getCurrentPosition() - ticksAtLowestDist;
+            if (direction  == HelperActions.FORWARDS) {
+                strafe = (sensorDistance - sensorToCone) * turnTableLefti / DistanceUnit.mmPerInch;
+                double offset = 0.85;
+                if (ticksAtLowestDist > 0) {
+                    offset *= -1;
+                }
+                drive = overshoot / 31 + offset;
+            } else if (direction == HelperActions.BACKWARDS) {
+                strafe = (sensorDistance - sensorToCone) * turnTableLefti / DistanceUnit.mmPerInch;
+                double offset = -0.85;
+                if (ticksAtLowestDist < 0) {
+                    offset *= -1;
+                }
+                drive = overshoot / 31 + offset;
+            } else if (direction == HelperActions.RIGHT) {
+                drive = (sensorDistance - sensorToCone) * -turnTableLefti / DistanceUnit.mmPerInch;
+                strafe = overshoot / 31;
+                driveSpeed = 700;
+                strafeSpeed = 350;
+            } else if (direction == HelperActions.LEFT) {
+                drive = ((sensorDistance - sensorToCone) * turnTableLefti) / DistanceUnit.mmPerInch;
+                strafe = overshoot / 31;
+                driveSpeed = 700;
+                strafeSpeed = 350;
+            }
+
+            encoderActions.encoderStrafeNoWhile(strafeSpeed, strafe, true);
             placeState = 1;
         }
         if (placeState == 1 && !encoderActions.motorFrontL.isBusy()) {
             placeState = 2;
         }
         if (placeState == 2) {
-            if (!gyroActions.encoderGyroDriveStateMachine(350, -drive, degrees)){
-                placeState = 3;
-            }
+            gyroActions.encoderGyroDriveStateMachine(driveSpeed, -drive, degrees);
+            placeState = 3;
         }
         if (placeState == 3) {
+            if (!gyroActions.encoderGyroDriveStateMachine(driveSpeed, -drive, degrees)){
+                placeState = 4;
+            }
+        }
+        if (placeState == 4) {
             attachmentActions.openGripper();
             attachmentActions.liftScissor(3000, -1.5, false);
             placeState = 0;
