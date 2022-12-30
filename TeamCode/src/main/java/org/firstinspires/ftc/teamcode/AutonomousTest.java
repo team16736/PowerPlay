@@ -26,7 +26,7 @@ public class AutonomousTest extends HelperActions{
 
     int state = 0;
     double startTime;
-    int coneNum = 5;
+    public int coneNum = 5;
 
     public void runOpMode() {
 
@@ -71,20 +71,23 @@ public class AutonomousTest extends HelperActions{
             encoderActions.encoderStrafe(400, 6, false);
             String location = findImageOnCone.findObject();
             findJunctionAction.findJunction(47, 24, false, FORWARDS);
-            gyroActions.encoderGyroDriveStateMachine(700, 8, 0);
-            attachmentActions.turnTableEncoders(180, false);
-            while (gyroActions.encoderGyroDriveStateMachine(700, 8, 0)) {
-                attachmentActions.turnTableEncoders(180, false);
-            }
+            attachmentActions.liftScissor(3000, 260, true);
             attachmentActions.openGripper();
-            double previousTime = System.currentTimeMillis();
-            while (System.currentTimeMillis()-previousTime < 300) {
+            gyroActions.encoderGyroDriveStateMachine(700, 10, 0);
+            attachmentActions.turnTableEncoders(180, false);
+            while (gyroActions.encoderGyroDriveStateMachine(700, 10, 0)) {
                 attachmentActions.turnTableEncoders(180, false);
             }
-            encoderActions.encoderStrafeNoWhile(700, 21, true);
-            attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            attachmentActions.scissorLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            attachmentActions.liftScissor(4000, 300, true);
+            gyroActions.encoderGyroDriveStateMachine(700, -1, 0);
+            attachmentActions.turnTableEncoders(180, false);
+            while (gyroActions.encoderGyroDriveStateMachine(700, -1, 0)) {
+                attachmentActions.turnTableEncoders(180, false);
+            }
+            double previousTime = System.currentTimeMillis();
+            while (System.currentTimeMillis()-previousTime < 100) {
+                attachmentActions.turnTableEncoders(180, false);
+            }
+            encoderActions.encoderStrafeNoWhile(700, 20, true);
             while (encoderActions.motorFrontL.isBusy()) {
                 attachmentActions.turnTableEncoders(180, false);
             }
@@ -174,34 +177,23 @@ public class AutonomousTest extends HelperActions{
     private void placeCone(AttachmentActions attachmentActions, FindJunctionAction findJunctionAction, EncoderActions encoderActions) {
         attachmentActions.liftScissor(3000, 1500, true);
         sleep(100);
-        double strafeDistance = 35;
-        if (coneNum == 4) {strafeDistance = 36;}
+        double strafeDistance = 34;
+        if (coneNum == 3 || coneNum == 4) {strafeDistance = 36;}
         int strafeSpeed = 650;
         gyroActions.encoderGyroDriveStateMachine(700, -1, 0);
         while (gyroActions.encoderGyroDriveStateMachine(700, -1, 0)) {
             attachmentActions.turnTableEncoders(180, false);
         }
-        gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, true);
+        gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, true);
+        //Run turntable first bc cannot run both(would hit junction) and turntable is slower than lowering the lift
         while (Math.abs(encoderActions.motorFrontL.getCurrentPosition()) < 235) {
             attachmentActions.turnTableEncoders(180, false);
             gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, true);
         }
-        attachmentActions.liftScissor(3000, -1.5, false);
-        while (attachmentActions.getLiftHeight() > 0) {
-            attachmentActions.turnTableEncoders(180, false);
-            gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, true);
-        }
-        double previousTime = System.currentTimeMillis();
-        while (System.currentTimeMillis()-previousTime < 100) {
-            attachmentActions.turnTableEncoders(180, false);
-            gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, true);
-        }
-        attachmentActions.openGripper();
-        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        attachmentActions.scissorLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        int grabHeight = 260;
-        if (coneNum == 4) {grabHeight = 280;}
+        int grabHeight = 220;
+        if (coneNum == 4) {grabHeight = 240;}
         attachmentActions.liftScissor(3000, grabHeight, true);
+        attachmentActions.openGripper();
         while (gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, true)) {
             attachmentActions.turnTableEncoders(180, false);
         }
@@ -210,33 +202,33 @@ public class AutonomousTest extends HelperActions{
         coneNum--;
         attachmentActions.liftScissor(3000, 10, false);
         while (attachmentActions.getLiftHeight() < 9){}
-        findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT);
+        findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT, -1);
         attachmentActions.turnTableEncoders(90, false);
         while (findJunctionAction.state != 0) {
             attachmentActions.turnTableEncoders(90, false);
-            findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT);
+            findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT, -1);
         }
     }
     private void moveToLocation(GyroActions gyroActions, String location) {
-        if (location == "Cow") {
-            //            location 1
+        if (location == "Racket") {
+            //            location 3
             gyroActions.encoderGyroDrive(2500, 1, 0);
             sleep(100);
-            gyroActions.encoderGyroStrafe(2300, 7, 0, false);
+            gyroActions.encoderGyroStrafe(2300, 8, 0, false);
             telemetry.addData(location, "<");
             telemetry.update();
         } else if (location == "Bus") {
             //                 location 2
             gyroActions.encoderGyroDrive(2500, 1, 0);
             sleep(100);
-            gyroActions.encoderGyroStrafe(2300, 7, 0, true);
+            gyroActions.encoderGyroStrafe(2400, 14, 0, true);
             telemetry.addData(location, "<");
             telemetry.update();
         } else {
-            //              Location 3
+            //              Location 1
             gyroActions.encoderGyroDrive(2500, 1, 0);
             sleep(100);
-            gyroActions.encoderGyroStrafe(2300, 32, 0, true);
+            gyroActions.encoderGyroStrafe(2300, 39, 0, true);
             telemetry.addData(location, "<");
             telemetry.update();
         }

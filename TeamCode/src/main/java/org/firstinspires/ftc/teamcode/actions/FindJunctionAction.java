@@ -67,6 +67,9 @@ public class FindJunctionAction {
         }
     }
     public void findJunctionStateMachine(double distance, double scissorDistance, boolean steadyTable, boolean turnTableLeft, int direction) {
+        findJunctionStateMachine(distance, scissorDistance, steadyTable, turnTableLeft, direction, 0);
+    }
+    public void findJunctionStateMachine(double distance, double scissorDistance, boolean steadyTable, boolean turnTableLeft, int direction, double offset) {
         //Telemetry telemetry;
         telemetry.addData("state", state);
         telemetry.addData("placeState", placeState);
@@ -193,13 +196,13 @@ public class FindJunctionAction {
 
             state = 3;
         }
-        if (state == 3 && !placeOnJunction(dist, ticksAtLowestDist, degrees, turnTableLeft, direction)) {
+        if (state == 3 && !placeOnJunction(dist, ticksAtLowestDist, degrees, turnTableLeft, direction, offset)) {
             state = 0;
         }
         telemetry.update();
     }
 
-    public boolean placeOnJunction (double sensorDistance, int ticksAtLowestDist, double degrees, boolean turnTableLeft, int direction) {
+    public boolean placeOnJunction (double sensorDistance, int ticksAtLowestDist, double degrees, boolean turnTableLeft, int direction, double offset2) {
         if (placeState == 0) {
             if (sensorDistance > 200) {
                 placeState = 4;
@@ -211,20 +214,20 @@ public class FindJunctionAction {
             overshoot = encoderActions.motorFrontL.getCurrentPosition() - ticksAtLowestDist;
             if (direction == HelperActions.FORWARDS) {
                 strafe = (sensorDistance - sensorToCone) * turnTableLefti / DistanceUnit.mmPerInch;
-                double offset = 0.0;
+                double offset = 0.0 + offset2;
                 if (ticksAtLowestDist > 0) {
                     offset *= -1;
                 }
                 drive = overshoot / 31 + offset;
             } else if (direction == HelperActions.BACKWARDS) {
                 strafe = (sensorDistance - sensorToCone) * turnTableLefti / DistanceUnit.mmPerInch;
-                double offset = -0.85;
+                double offset = -0.85 + offset2;
                 if (ticksAtLowestDist < 0) {
                     offset *= -1;
                 }
                 drive = overshoot / 31 + offset;
             } else if (direction == HelperActions.RIGHT) {
-                double offset = 0.5;
+                double offset = 0.5 + offset2;
                 if (ticksAtLowestDist < 0) {
                     offset *= -1;
                 }
@@ -233,7 +236,11 @@ public class FindJunctionAction {
                 driveSpeed = 700;
                 strafeSpeed = 350;
             } else if (direction == HelperActions.LEFT) {
-                drive = ((sensorDistance - sensorToCone) * turnTableLefti) / DistanceUnit.mmPerInch;
+                double offset = 0.0 + offset2;
+                if (ticksAtLowestDist < 0) {
+                    offset *= -1;
+                }
+                drive = ((sensorDistance - sensorToCone) * turnTableLefti) / DistanceUnit.mmPerInch + offset;
                 strafe = overshoot / 31;
                 driveSpeed = 700;
                 strafeSpeed = 350;

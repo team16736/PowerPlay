@@ -157,41 +157,74 @@ public class GyroActions {
     }
 
     public void encoderGyroStrafe (double speed, double distance, double heading, boolean strafeLeft) {
+        initEncoderGyroStrafeStateMachine(speed, distance, strafeLeft);
         while (encoderGyroStrafeStateMachine(speed, distance, heading, strafeLeft)) {}
     }
-    public boolean encoderGyroStrafeStateMachine (double speed, double distance, double heading, boolean strafeLeft) {
-        if (strafeState == 0) {
-            motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motorBackR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    public void initEncoderGyroStrafeStateMachine (double speed, double distance, boolean strafeLeft) {
+        motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-            double ticksPerInch = 33.6;
-            int totalTicks = (int) (ticksPerInch * distance);
-            if (strafeLeft) {
-                motorFrontL.setTargetPosition(-totalTicks);
-                motorFrontR.setTargetPosition(totalTicks);
-                motorBackL.setTargetPosition(totalTicks);
-                motorBackR.setTargetPosition(-totalTicks);
-            } else {
-                motorFrontL.setTargetPosition(totalTicks);
-                motorFrontR.setTargetPosition(-totalTicks);
-                motorBackL.setTargetPosition(-totalTicks);
-                motorBackR.setTargetPosition(totalTicks);
-            }
-
-            // Switch to RUN_TO_POSITION mode
-            motorFrontL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorFrontR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorBackL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            motorFrontL.setVelocity(-speed);
-            motorFrontR.setVelocity(-speed);
-            motorBackL.setVelocity(-speed);
-            motorBackR.setVelocity(-speed);
-            strafeState = 1;
+        double ticksPerInch = 33.6;
+        int totalTicks = (int) (ticksPerInch * distance);
+        if (strafeLeft) {
+            motorFrontL.setTargetPosition(-totalTicks);
+            motorFrontR.setTargetPosition(totalTicks);
+            motorBackL.setTargetPosition(totalTicks);
+            motorBackR.setTargetPosition(-totalTicks);
+        } else {
+            motorFrontL.setTargetPosition(totalTicks);
+            motorFrontR.setTargetPosition(-totalTicks);
+            motorBackL.setTargetPosition(-totalTicks);
+            motorBackR.setTargetPosition(totalTicks);
         }
+
+        // Switch to RUN_TO_POSITION mode
+        motorFrontL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorFrontR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBackL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        motorFrontL.setVelocity(-speed);
+        motorFrontR.setVelocity(-speed);
+        motorBackL.setVelocity(-speed);
+        motorBackR.setVelocity(-speed);
+        strafeState = 1;
+    }
+    public boolean encoderGyroStrafeStateMachine (double speed, double distance, double heading, boolean strafeLeft) {
+//        if (strafeState == 0) {
+//            motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            motorBackR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//
+//            double ticksPerInch = 33.6;
+//            int totalTicks = (int) (ticksPerInch * distance);
+//            if (strafeLeft) {
+//                motorFrontL.setTargetPosition(-totalTicks);
+//                motorFrontR.setTargetPosition(totalTicks);
+//                motorBackL.setTargetPosition(totalTicks);
+//                motorBackR.setTargetPosition(-totalTicks);
+//            } else {
+//                motorFrontL.setTargetPosition(totalTicks);
+//                motorFrontR.setTargetPosition(-totalTicks);
+//                motorBackL.setTargetPosition(-totalTicks);
+//                motorBackR.setTargetPosition(totalTicks);
+//            }
+//
+//            // Switch to RUN_TO_POSITION mode
+//            motorFrontL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            motorFrontR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            motorBackL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//
+//            motorFrontL.setVelocity(-speed);
+//            motorFrontR.setVelocity(-speed);
+//            motorBackL.setVelocity(-speed);
+//            motorBackR.setVelocity(-speed);
+//            strafeState = 1;
+//        }
 
         if (motorFrontL.isBusy()) {
             headingError = getSteeringCorrection(heading, speed * 0.05, speed);
@@ -219,9 +252,11 @@ public class GyroActions {
                 motorBackL.setTargetPosition(motorBackL.getCurrentPosition() - distanceError);
                 motorBackR.setTargetPosition(motorBackR.getCurrentPosition() + distanceError);
             }
+            telemetry.addData("is busy", true);
             return true;
         } else {
             strafeState = 0;
+            telemetry.addData("isn't busy", false);
             return false;
         }
     }
