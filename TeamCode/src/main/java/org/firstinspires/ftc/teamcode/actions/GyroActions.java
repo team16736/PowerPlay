@@ -52,6 +52,8 @@ public class GyroActions {
     double adjSpeed;
     int totalTicks;
 
+    public int strafeState = 0;
+
     private static LinearOpMode opModeObj;
 
 
@@ -155,44 +157,55 @@ public class GyroActions {
     }
 
     public void encoderGyroStrafe (double speed, double distance, double heading, boolean strafeLeft) {
-        double headingError;
-        int distanceError;
-        motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorBackR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        while (encoderGyroStrafeStateMachine(speed, distance, heading, strafeLeft)) {}
+    }
+    public boolean encoderGyroStrafeStateMachine (double speed, double distance, double heading, boolean strafeLeft) {
+        if (strafeState == 0) {
+            motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motorBackR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        double ticksPerInch = 33.6;
-        int totalTicks = (int) (ticksPerInch * distance);
-        if (strafeLeft){
-            motorFrontL.setTargetPosition(-totalTicks);
-            motorFrontR.setTargetPosition(totalTicks);
-            motorBackL.setTargetPosition(totalTicks);
-            motorBackR.setTargetPosition(-totalTicks);
-        }else{
-            motorFrontL.setTargetPosition(totalTicks);
-            motorFrontR.setTargetPosition(-totalTicks);
-            motorBackL.setTargetPosition(-totalTicks);
-            motorBackR.setTargetPosition(totalTicks);
+            double ticksPerInch = 33.6;
+            int totalTicks = (int) (ticksPerInch * distance);
+            if (strafeLeft) {
+                motorFrontL.setTargetPosition(-totalTicks);
+                motorFrontR.setTargetPosition(totalTicks);
+                motorBackL.setTargetPosition(totalTicks);
+                motorBackR.setTargetPosition(-totalTicks);
+            } else {
+                motorFrontL.setTargetPosition(totalTicks);
+                motorFrontR.setTargetPosition(-totalTicks);
+                motorBackL.setTargetPosition(-totalTicks);
+                motorBackR.setTargetPosition(totalTicks);
+            }
+
+            // Switch to RUN_TO_POSITION mode
+            motorFrontL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorFrontR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorBackL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            motorFrontL.setVelocity(-speed);
+            motorFrontR.setVelocity(-speed);
+            motorBackL.setVelocity(-speed);
+            motorBackR.setVelocity(-speed);
+            strafeState = 1;
         }
 
-        // Switch to RUN_TO_POSITION mode
-        motorFrontL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorFrontR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        motorFrontL.setVelocity(-speed);
-        motorFrontR.setVelocity(-speed);
-        motorBackL.setVelocity(-speed);
-        motorBackR.setVelocity(-speed);
-
-        while (motorFrontL.isBusy()) {
+        if (motorFrontL.isBusy()) {
             headingError = getSteeringCorrection(heading, speed * 0.05, speed);
-            motorFrontL.setVelocity(-speed + headingError);
+//            motorFrontL.setVelocity(-speed + headingError);
+//            motorFrontR.setVelocity(-speed - headingError);
+//            motorBackL.setVelocity(-speed + headingError);
+//            motorBackR.setVelocity(-speed - headingError);
+            if (!strafeLeft) {
+                headingError *= -1;
+            }
+            motorFrontL.setVelocity(-speed - headingError);
             motorFrontR.setVelocity(-speed - headingError);
             motorBackL.setVelocity(-speed + headingError);
-            motorBackR.setVelocity(-speed - headingError);
+            motorBackR.setVelocity(-speed + headingError);
 
             distanceError = Math.abs(motorFrontL.getTargetPosition() - motorFrontL.getCurrentPosition());
             if (strafeLeft){
@@ -206,6 +219,10 @@ public class GyroActions {
                 motorBackL.setTargetPosition(motorBackL.getCurrentPosition() - distanceError);
                 motorBackR.setTargetPosition(motorBackR.getCurrentPosition() + distanceError);
             }
+            return true;
+        } else {
+            strafeState = 0;
+            return false;
         }
     }
 

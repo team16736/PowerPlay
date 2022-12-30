@@ -30,6 +30,5 @@ public class ConfigConstants {
     //Sensors
     public static final String BASE_RANGE = "s1";
     public static final String GRABBER_RANGE = "s2";
-    public static final String BOUNDARY_DETECTOR = "boundaryDetector";
     public static final String IMU = "IMU";
 }

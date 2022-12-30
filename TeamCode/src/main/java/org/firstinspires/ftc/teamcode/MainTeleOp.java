@@ -138,10 +138,8 @@ public class MainTeleOp extends HelperActions {
             }*/
 
 //
-//            telemetry.addData("Current Position ", attachmentActions.slideTurnMotor.getCurrentPosition());
-//            telemetry.addData("Target Position", currentTicks);
-//            telemetry.addData("Current Power", attachmentActions.slideTurnMotor.getPower());
-//            telemetry.update();
+            telemetry.addData("Current Position ", attachmentActions.scissorLift1.getCurrentPosition());
+            telemetry.update();
         }
 
         telemetry.addData("[ROBOTNAME] ", "Going");

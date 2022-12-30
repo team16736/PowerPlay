@@ -209,9 +209,9 @@ public class FindJunctionAction {
             int strafeSpeed = 700;
             if (!turnTableLeft) {turnTableLefti = -1;}
             overshoot = encoderActions.motorFrontL.getCurrentPosition() - ticksAtLowestDist;
-            if (direction  == HelperActions.FORWARDS) {
+            if (direction == HelperActions.FORWARDS) {
                 strafe = (sensorDistance - sensorToCone) * turnTableLefti / DistanceUnit.mmPerInch;
-                double offset = 0.85;
+                double offset = 0.0;
                 if (ticksAtLowestDist > 0) {
                     offset *= -1;
                 }
@@ -224,7 +224,11 @@ public class FindJunctionAction {
                 }
                 drive = overshoot / 31 + offset;
             } else if (direction == HelperActions.RIGHT) {
-                drive = (sensorDistance - sensorToCone) * -turnTableLefti / DistanceUnit.mmPerInch;
+                double offset = 0.5;
+                if (ticksAtLowestDist < 0) {
+                    offset *= -1;
+                }
+                drive = (sensorDistance - sensorToCone) * -turnTableLefti / DistanceUnit.mmPerInch + offset;
                 strafe = overshoot / 31;
                 driveSpeed = 700;
                 strafeSpeed = 350;

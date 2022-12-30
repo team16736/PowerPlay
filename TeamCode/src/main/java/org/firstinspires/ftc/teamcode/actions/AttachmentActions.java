@@ -35,7 +35,6 @@ public class AttachmentActions {
     public Servo extender;
     public CRServo turnTable;
     public DistanceSensor junctionSensor;
-    public ColorSensor boundaryDetector;
     public DcMotorEx scissorLift1;
     public DcMotorEx scissorLift2;
     public DcMotorEx tableEncoder;
@@ -87,7 +86,6 @@ public class AttachmentActions {
         extender = hardwareMap.get(Servo.class, ConfigConstants.EXTENDER);
         turnTable = hardwareMap.get(CRServo.class, ConfigConstants.TURN_TABLE);
         tableEncoder = hardwareMap.get(DcMotorEx.class, ConfigConstants.TURN_TABLE_ENCODER);
-        boundaryDetector = hardwareMap.get(ColorSensor.class, ConfigConstants.BOUNDARY_DETECTOR);
         scissorLift1 = hardwareMap.get(DcMotorEx.class, ConfigConstants.SCISSOR_ONE);
         scissorLift2 = hardwareMap.get(DcMotorEx.class, ConfigConstants.SCISSOR_TWO);
 //        elbowServo.setPosition(0.87);
