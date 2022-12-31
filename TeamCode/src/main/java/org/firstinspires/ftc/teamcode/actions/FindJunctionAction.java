@@ -220,11 +220,8 @@ public class FindJunctionAction {
                 }
                 drive = overshoot / 31 + offset;
             } else if (direction == HelperActions.BACKWARDS) {
-                strafe = (sensorDistance - sensorToCone) * turnTableLefti / DistanceUnit.mmPerInch;
+                strafe = (sensorDistance - sensorToCone) * -turnTableLefti / DistanceUnit.mmPerInch;
                 double offset = -0.85 + offset2;
-                if (ticksAtLowestDist < 0) {
-                    offset *= -1;
-                }
                 drive = overshoot / 31 + offset;
             } else if (direction == HelperActions.RIGHT) {
                 double offset = 0.5 + offset2;

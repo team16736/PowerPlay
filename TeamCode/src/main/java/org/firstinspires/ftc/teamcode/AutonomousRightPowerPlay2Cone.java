@@ -44,10 +44,7 @@ public class AutonomousRightPowerPlay2Cone extends HelperActions{
         waitForStart();
 
         if (opModeIsActive()) {
-            double speed = 762.2;
-            double degrees = -20;
             double prevTime = System.currentTimeMillis();
-
 
             attachmentActions.closeGripper();
             sleep(500);
@@ -58,14 +55,14 @@ public class AutonomousRightPowerPlay2Cone extends HelperActions{
             sleep(400);
             findJunctionAction.findJunction(47, 24, true, FORWARDS);
             encoderActions.encoderStrafe(300, 3, true);
-            gyroActions.encoderGyroDrive(300, 14, 0);
+            gyroActions.encoderGyroDrive(300, 12, 0);
             goToCone();
             attachmentActions.turnTableEncoders(0, false);
-            findJunctionAction.findJunctionStateMachine(-35, 26, false, true, FORWARDS);
+            findJunctionAction.findJunctionStateMachine(35, 26, false, true, BACKWARDS);
             while (!attachmentActions.isDone || findJunctionAction.state != 0) {
                 attachmentActions.turnTableEncoders(0, false);
                 if (findJunctionAction.state != 0) {
-                    findJunctionAction.findJunctionStateMachine(-35, 26, false, true, FORWARDS);
+                    findJunctionAction.findJunctionStateMachine(35, 26, false, true, BACKWARDS);
                 }
             }
             encoderActions.encoderStrafe(400, 2, true);
@@ -77,12 +74,12 @@ public class AutonomousRightPowerPlay2Cone extends HelperActions{
     private void moveToLocation(GyroActions gyroActions, String location) {
         if (location == "Cow") {
             //            location 1
-            gyroActions.encoderGyroDrive(700, -10, -90);
+            gyroActions.encoderGyroDrive(700, -8, -90);
             telemetry.addData(location, "<");
             telemetry.update();
         } else if (location == "Bus") {
             //                 location 2
-            gyroActions.encoderGyroDrive(700, 10, -90);
+            gyroActions.encoderGyroDrive(700, 8, -90);
             sleep(500);
             telemetry.addData(location, "<");
             telemetry.update();
@@ -106,7 +103,7 @@ public class AutonomousRightPowerPlay2Cone extends HelperActions{
                 state = 2;
             }
             if (state == 2) {
-                gyroActions.encoderGyroDrive(700, 47, -90);
+                gyroActions.encoderGyroDrive(700, 48, -90);
                 if (gyroActions.driveState == 0) {
                     state = 3;
                 }

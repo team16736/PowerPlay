@@ -15,8 +15,8 @@ import org.firstinspires.ftc.teamcode.actions.HelperActions;
 
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
 
-@Autonomous(name = "Autonomous Test")
-public class AutonomousTest extends HelperActions{
+@Autonomous(name = "Autonomous Left Powerplay 3 Cone")
+public class AutonomousLeftPowerPlay3Cone extends HelperActions{
     private DriveActions driveActions = null;
     private AttachmentActions attachmentActions = null;
     private EncoderActions encoderActions = null;
@@ -27,6 +27,10 @@ public class AutonomousTest extends HelperActions{
     int state = 0;
     double startTime;
     public int coneNum = 5;
+    double distanceFromCones;
+    double ticksAtDistance;
+    boolean distanceMemBit = false;
+    int strafeSpeed;
 
     public void runOpMode() {
 
@@ -64,7 +68,6 @@ public class AutonomousTest extends HelperActions{
 //                }
 //            }
 
-
             attachmentActions.closeGripper();
             sleep(500);
             attachmentActions.liftScissor(3000, 10, false);
@@ -90,6 +93,7 @@ public class AutonomousTest extends HelperActions{
             encoderActions.encoderStrafeNoWhile(700, 20, true);
             while (encoderActions.motorFrontL.isBusy()) {
                 attachmentActions.turnTableEncoders(180, false);
+                getDistance(attachmentActions, encoderActions);
             }
             attachmentActions.closeGripper();
             sleep(500);
@@ -103,7 +107,7 @@ public class AutonomousTest extends HelperActions{
                 findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT);
             }
             placeCone(attachmentActions, findJunctionAction, encoderActions);
-            placeCone(attachmentActions, findJunctionAction, encoderActions);
+//            placeCone(attachmentActions, findJunctionAction, encoderActions);
             moveToLocation(gyroActions, location);
             telemetry.addData("time", System.currentTimeMillis() - prevTime);
             telemetry.update();
@@ -176,25 +180,44 @@ public class AutonomousTest extends HelperActions{
 
     private void placeCone(AttachmentActions attachmentActions, FindJunctionAction findJunctionAction, EncoderActions encoderActions) {
         attachmentActions.liftScissor(3000, 1500, true);
-        sleep(100);
-        double strafeDistance = 34;
-        if (coneNum == 3 || coneNum == 4) {strafeDistance = 36;}
-        int strafeSpeed = 650;
+        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        attachmentActions.scissorLift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        attachmentActions.scissorLift1.setPower(1.0);
+        attachmentActions.scissorLift2.setPower(1.0);
+        sleep(150);
+        attachmentActions.liftScissor(3000, 1500, true);
+        double strafeDistance = 32;
+        if (coneNum == 3 || coneNum == 4) {strafeDistance = 32;}
+        strafeSpeed = 650;
         gyroActions.encoderGyroDriveStateMachine(700, -1, 0);
         while (gyroActions.encoderGyroDriveStateMachine(700, -1, 0)) {
             attachmentActions.turnTableEncoders(180, false);
         }
+        attachmentActions.scissorLift1.setPower(0.0);
+        attachmentActions.scissorLift2.setPower(0.0);
         gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, true);
         //Run turntable first bc cannot run both(would hit junction) and turntable is slower than lowering the lift
         while (Math.abs(encoderActions.motorFrontL.getCurrentPosition()) < 235) {
             attachmentActions.turnTableEncoders(180, false);
             gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, true);
+            getDistance(attachmentActions, encoderActions);
         }
         int grabHeight = 220;
-        if (coneNum == 4) {grabHeight = 240;}
-        attachmentActions.liftScissor(3000, grabHeight, true);
+        if (coneNum == 4) {grabHeight = 260;}
+        attachmentActions.liftScissor(3000, 400, true);
         attachmentActions.openGripper();
         while (gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, true)) {
+            attachmentActions.turnTableEncoders(180, false);
+            while (distanceMemBit == false) {
+                attachmentActions.turnTableEncoders(180, false);
+                getDistance(attachmentActions, encoderActions);
+                gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, true);
+            }
+            attachmentActions.liftScissor(3000, grabHeight, true);
+            telemetry.addData("is Done", true);
+            telemetry.update();
+        }
+        while (attachmentActions.scissorLift1.isBusy() || attachmentActions.scissorLift2.isBusy()) {
             attachmentActions.turnTableEncoders(180, false);
         }
         attachmentActions.closeGripper();
@@ -209,12 +232,28 @@ public class AutonomousTest extends HelperActions{
             findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT, -1);
         }
     }
+
+    private void getDistance(AttachmentActions attachmentActions, EncoderActions encoderActions) {
+        if (attachmentActions.scissorLift1.getCurrentPosition() < -300 && attachmentActions.isDone && distanceMemBit == false && s1.getSensorDistance() < 10) {
+//        if (Math.abs(attachmentActions.getTurntablePosition() - 180) < 10) {
+            double raw = s1.getSensorDistance();
+            double expSmoothed = s1.getExponentialSmoothedDistance();
+            distanceFromCones = s1.getAverageDistanceAllInOne() - 3.75;
+            telemetry.addData("avg distance", distanceFromCones);
+            telemetry.addData("raw", raw);
+            telemetry.addData("exp smoothed", expSmoothed);
+            telemetry.update();
+            gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, distanceFromCones, true);
+            distanceMemBit = true;
+        }
+    }
+
     private void moveToLocation(GyroActions gyroActions, String location) {
         if (location == "Racket") {
             //            location 3
             gyroActions.encoderGyroDrive(2500, 1, 0);
             sleep(100);
-            gyroActions.encoderGyroStrafe(2300, 8, 0, false);
+            gyroActions.encoderGyroStrafe(2000, 14, 0, false);
             telemetry.addData(location, "<");
             telemetry.update();
         } else if (location == "Bus") {

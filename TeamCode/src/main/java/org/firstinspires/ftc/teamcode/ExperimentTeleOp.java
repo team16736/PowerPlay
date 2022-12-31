@@ -27,7 +27,6 @@ public class ExperimentTeleOp extends HelperActions {
         driveActions = new DriveActions(telemetry, hardwareMap);
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
         encoderActions = new EncoderActions(this, telemetry, hardwareMap);
-        DistanceSensorActions s1 = new DistanceSensorActions(hardwareMap, 0.2, 10, ConfigConstants.GRABBER_RANGE);
         DistanceSensorActions s2 = new DistanceSensorActions(hardwareMap, 0.2, 10, ConfigConstants.BASE_RANGE);
 
         //Set Speed for teleOp. Mecannum wheel speed.
@@ -51,8 +50,6 @@ public class ExperimentTeleOp extends HelperActions {
 
         driveActions.setSpeed(0.8);
 
-        attachmentActions.setLiftLevel(true, false, false);
-
         while (opModeIsActive()) {
             //TODO: add functionality for red side carousel
 
@@ -68,17 +65,15 @@ public class ExperimentTeleOp extends HelperActions {
 //            if (gamepad1.b) { }
 //            attachmentActions.setLiftLevel(gamepad2.dpad_down, gamepad2.dpad_left || gamepad2.dpad_right, gamepad2.dpad_up);
 //
-//            y = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
-//            attachmentActions.scissorLift1.setPower(y);
-//            attachmentActions.scissorLift2.setPower(y);
+            y = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
+            attachmentActions.scissorLift1.setPower(y);
+            attachmentActions.scissorLift2.setPower(y);
 //
 //
 //            double armSpeed = changeSpeedArm(gamepad2.dpad_up, gamepad2.dpad_down);
 //
 //            changeSpeed(driveActions, gamepad1.dpad_up || gamepad1.x, gamepad1.dpad_down || gamepad1.b, gamepad1.a, gamepad1.y);
-            telemetry.addData("s1 raw", s1.getSensorDistance());
-            telemetry.addData("s1 averaged", s1.getAverageDistanceLive());
-            telemetry.addData("s1 expo smoothed", s1.getExponentialSmoothedDistance());
+            telemetry.addData("Current Position ", attachmentActions.scissorLift1.getCurrentPosition());
             telemetry.addData("s2 raw", s2.getSensorDistance());
             telemetry.addData("s2 averaged", s2.getAverageDistanceLive());
             telemetry.addData("s2 expo smoothed", s2.getExponentialSmoothedDistance());
