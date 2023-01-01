@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.actions.distancecalcs.DistanceSensorAction
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.RobotLog;
 
 public class FindJunctionAction {
     private HardwareMap hardwareMap;
@@ -67,9 +68,9 @@ public class FindJunctionAction {
         }
     }
     public void findJunctionStateMachine(double distance, double scissorDistance, boolean steadyTable, boolean turnTableLeft, int direction) {
-        findJunctionStateMachine(distance, scissorDistance, steadyTable, turnTableLeft, direction, 0);
+        findJunctionStateMachine(distance, scissorDistance, steadyTable, turnTableLeft, direction, 0, 0);
     }
-    public void findJunctionStateMachine(double distance, double scissorDistance, boolean steadyTable, boolean turnTableLeft, int direction, double offset) {
+    public void findJunctionStateMachine(double distance, double scissorDistance, boolean steadyTable, boolean turnTableLeft, int direction, double offset, double heading) {
         //Telemetry telemetry;
         telemetry.addData("state", state);
         telemetry.addData("placeState", placeState);
@@ -91,6 +92,9 @@ public class FindJunctionAction {
 
             targetPos = distance * ticksPerInch;
             degrees = gyroActions.getRawHeading() - gyroActions.headingOffset;
+            if (heading != 0) {
+                degrees = heading;
+            }
             tableDegrees = attachmentActions.getTurntablePosition();
             if (distance < 0) {
                 topSpeed *= -1;
@@ -139,7 +143,8 @@ public class FindJunctionAction {
 
             double distanceS1 = s1.getSensorDistance(DistanceUnit.MM);
             int currentPos = encoderActions.motorFrontL.getCurrentPosition();
-            if (attachmentActions.scissorLift1.getCurrentPosition() < -490 && (Math.abs(targetPos) - Math.abs(currentPos)) < 600 && distanceS1 < 200) {
+            RobotLog.dd("FindJunction", "distance: %f currentPos: %d, counter: %d, time: &d", distanceS1, currentPos, counter, System.currentTimeMillis());
+            if (attachmentActions.scissorLift1.getCurrentPosition() < -490 && (Math.abs(targetPos) - Math.abs(currentPos)) < 400 && distanceS1 < 200) {
 
                 if (distanceS1 < dist) {
 
@@ -162,7 +167,7 @@ public class FindJunctionAction {
                     counter = 0;
                 }
 
-                if (counter > 2) {
+                if (counter > 0) {
 
                     targetPos = ticksAtLowestDist;
 
@@ -176,6 +181,11 @@ public class FindJunctionAction {
             }
 
         } else if (state == 1) {
+            if (counter == 0) {
+                targetPos += 30;
+                RobotLog.dd("FindJunction", "Kept Going");
+                return;
+            }
             state = 2;
         }
 

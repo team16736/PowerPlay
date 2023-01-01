@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
@@ -68,44 +69,47 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
 //                }
 //            }
 
-            attachmentActions.closeGripper();
-            sleep(500);
-            attachmentActions.liftScissor(3000, 10, false);
-            encoderActions.encoderStrafe(400, 6, false);
-            String location = findImageOnCone.findObject();
-            findJunctionAction.findJunction(47, 24, false, FORWARDS);
-            attachmentActions.liftScissor(3000, 260, true);
-            attachmentActions.openGripper();
-            gyroActions.encoderGyroDriveStateMachine(700, 10, 0);
+            attachmentActions.closeGripper(); //Close gripper around preloaded cone
+            String location = findImageOnCone.findObject(); //Detect parking spot
+            sleep(350); //Allow gripper to close - Changed from 500ms to 350ms by Wyatt 12/31/2022
+            attachmentActions.liftScissor(3000, 10, false); //Lift scissor to 10 inches
+//            encoderActions.encoderStrafe(400, 6, false);
+            findJunctionAction.findJunction(43, 24, false, FORWARDS); //Drive to and align with pole
+            attachmentActions.liftScissor(3000, 260, true); //Lower scissor slightly
+            attachmentActions.openGripper(); //Release cone
+            RobotLog.dd("FindJunction", "Drive to Junction 1");
+            gyroActions.encoderGyroDriveStateMachine(500, 13, 0); //Drive forwards 10 inches to push signal out of the way
+            attachmentActions.turnTableEncoders(180, false); //Turn turntable 180 degrees clockwise to point at stack
+            while (gyroActions.encoderGyroDriveStateMachine(500, 13, 0)) {
+                attachmentActions.turnTableEncoders(180, false); //Allows it to complete drive forwards
+            }
+            gyroActions.encoderGyroDriveStateMachine(500, -1, 0); //Drive back an inch to ensure signal is out of the way
             attachmentActions.turnTableEncoders(180, false);
-            while (gyroActions.encoderGyroDriveStateMachine(700, 10, 0)) {
-                attachmentActions.turnTableEncoders(180, false);
+            while (gyroActions.encoderGyroDriveStateMachine(500, -1, 0)) {
+                attachmentActions.turnTableEncoders(180, false); //Allow previous to finish
             }
-            gyroActions.encoderGyroDriveStateMachine(700, -1, 0);
-            attachmentActions.turnTableEncoders(180, false);
-            while (gyroActions.encoderGyroDriveStateMachine(700, -1, 0)) {
-                attachmentActions.turnTableEncoders(180, false);
+//            double previousTime = System.currentTimeMillis(); //Is this really necessary? Commented out by Wyatt 12/31/2022
+//            while (System.currentTimeMillis()-previousTime < 100) { //still finishing turn, apparently 100ms
+//                attachmentActions.turnTableEncoders(180, false);
+//            }
+            gyroActions.initEncoderGyroStrafeStateMachine(700, 20, true); //strafe left 20 inches to stack
+            while (gyroActions.encoderGyroStrafeStateMachine(700, 20, 0, true)) { //while still driving:
+                attachmentActions.turnTableEncoders(180, false); //keep turning to 180 degrees..?
+//                getDistance(attachmentActions, encoderActions); //get the distance from the distance sensor, drives until <10mm detected
             }
-            double previousTime = System.currentTimeMillis();
-            while (System.currentTimeMillis()-previousTime < 100) {
-                attachmentActions.turnTableEncoders(180, false);
+            attachmentActions.closeGripper(); //Close around top cone on stack
+            sleep(350); //Allow gripper to close - Changed from 500ms to 350ms by Wyatt 12/31/2022
+            RobotLog.dd("FindJunction", "Drive to Cone 2");
+            attachmentActions.liftScissor(3000, 10, false); //Lift scissor to 10 inches
+            coneNum--; //Subtracts cone number by one
+            while (attachmentActions.getLiftHeight() < 9){} //Pause until the lift is above 9 inches to not tip over stack (!!!)
+            findJunctionAction.findJunctionStateMachine(37, 26, false, false, RIGHT); //Was at 40 in for dist, changed by Wyatt on 12/31/22 to 37 in
+            attachmentActions.turnTableEncoders(90, false); //turn turntable to the back
+            while (findJunctionAction.state != 0) { //while we arent lined up with the junction,
+                attachmentActions.turnTableEncoders(90, false); //let turntable finish turning to the back
+                findJunctionAction.findJunctionStateMachine(37, 26, false, false, RIGHT); //Was at 40 in for dist, changed by Wyatt on 12/31/22 to 36 in
             }
-            encoderActions.encoderStrafeNoWhile(700, 20, true);
-            while (encoderActions.motorFrontL.isBusy()) {
-                attachmentActions.turnTableEncoders(180, false);
-                getDistance(attachmentActions, encoderActions);
-            }
-            attachmentActions.closeGripper();
-            sleep(500);
-            attachmentActions.liftScissor(3000, 10, false);
-            coneNum--;
-            while (attachmentActions.getLiftHeight() < 9){}
-            findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT);
-            attachmentActions.turnTableEncoders(90, false);
-            while (findJunctionAction.state != 0) {
-                attachmentActions.turnTableEncoders(90, false);
-                findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT);
-            }
+            RobotLog.dd("FindJunction", "Drive to Junction 2");
             placeCone(attachmentActions, findJunctionAction, encoderActions);
 //            placeCone(attachmentActions, findJunctionAction, encoderActions);
             moveToLocation(gyroActions, location);
@@ -222,15 +226,17 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
         }
         attachmentActions.closeGripper();
         sleep(500);
+        RobotLog.dd("FindJunction", "Drive to Cone 3");
         coneNum--;
         attachmentActions.liftScissor(3000, 10, false);
         while (attachmentActions.getLiftHeight() < 9){}
-        findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT, -1);
+        findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT, -1, 0);
         attachmentActions.turnTableEncoders(90, false);
         while (findJunctionAction.state != 0) {
             attachmentActions.turnTableEncoders(90, false);
-            findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT, -1);
+            findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT, -1, 0);
         }
+        RobotLog.dd("FindJunction", "Drive to Junction 3");
     }
 
     private void getDistance(AttachmentActions attachmentActions, EncoderActions encoderActions) {
@@ -260,7 +266,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             //                 location 2
             gyroActions.encoderGyroDrive(2500, 1, 0);
             sleep(100);
-            gyroActions.encoderGyroStrafe(2400, 14, 0, true);
+            gyroActions.encoderGyroStrafe(2400, 15, 0, true);
             telemetry.addData(location, "<");
             telemetry.update();
         } else {
