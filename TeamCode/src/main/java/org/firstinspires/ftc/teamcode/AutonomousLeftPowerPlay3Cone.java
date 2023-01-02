@@ -111,10 +111,11 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             }
             RobotLog.dd("FindJunction", "Drive to Junction 2");
             placeCone(attachmentActions, findJunctionAction, encoderActions);
-//            placeCone(attachmentActions, findJunctionAction, encoderActions);
+            placeCone(attachmentActions, findJunctionAction, encoderActions);
             moveToLocation(gyroActions, location);
             telemetry.addData("time", System.currentTimeMillis() - prevTime);
             telemetry.update();
+            RobotLog.dd("FindJunction", "Time %f", (System.currentTimeMillis() - prevTime));
             sleep(10000);
 
 
@@ -226,21 +227,22 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
         }
         attachmentActions.closeGripper();
         sleep(500);
-        RobotLog.dd("FindJunction", "Drive to Cone 3");
         coneNum--;
         attachmentActions.liftScissor(3000, 10, false);
         while (attachmentActions.getLiftHeight() < 9){}
-        findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT, -1, 0);
+        int offset = 1;
+        findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT, offset, 0);
         attachmentActions.turnTableEncoders(90, false);
         while (findJunctionAction.state != 0) {
             attachmentActions.turnTableEncoders(90, false);
-            findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT, -1, 0);
+            findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT, offset, 0);
         }
         RobotLog.dd("FindJunction", "Drive to Junction 3");
+        distanceMemBit = false;
     }
 
     private void getDistance(AttachmentActions attachmentActions, EncoderActions encoderActions) {
-        if (attachmentActions.scissorLift1.getCurrentPosition() < -300 && attachmentActions.isDone && distanceMemBit == false && s1.getSensorDistance() < 10) {
+        if (attachmentActions.scissorLift1.getCurrentPosition() < -300 && Math.abs(attachmentActions.getTurntablePosition() - 180) < 5 && distanceMemBit == false && s1.getSensorDistance() < 10) {
 //        if (Math.abs(attachmentActions.getTurntablePosition() - 180) < 10) {
             double raw = s1.getSensorDistance();
             double expSmoothed = s1.getExponentialSmoothedDistance();
@@ -257,26 +259,45 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
     private void moveToLocation(GyroActions gyroActions, String location) {
         if (location == "Racket") {
             //            location 3
-            gyroActions.encoderGyroDrive(2500, 1, 0);
+            gyroActions.encoderGyroDriveStateMachine(2500, 1, 0);
+            while (gyroActions.encoderGyroDriveStateMachine(2500, 1, 0)) {
+                attachmentActions.turnTableEncoders(180, false);
+            }
             sleep(100);
-            gyroActions.encoderGyroStrafe(2000, 14, 0, false);
+            gyroActions.initEncoderGyroStrafeStateMachine(2000, 17, false);
+            while (gyroActions.encoderGyroStrafeStateMachine(2000, 17, 0, false)) {
+                attachmentActions.turnTableEncoders(180, false);
+            }
             telemetry.addData(location, "<");
             telemetry.update();
         } else if (location == "Bus") {
             //                 location 2
-            gyroActions.encoderGyroDrive(2500, 1, 0);
+            gyroActions.encoderGyroDriveStateMachine(2500, 1, 0);
+            while (gyroActions.encoderGyroDriveStateMachine(2500, 1, 0)) {
+                attachmentActions.turnTableEncoders(0, false);
+            }
             sleep(100);
-            gyroActions.encoderGyroStrafe(2400, 15, 0, true);
+            gyroActions.initEncoderGyroStrafeStateMachine(2000, 18, true);
+            while (gyroActions.encoderGyroStrafeStateMachine(2000, 18, 0, true)) {
+                attachmentActions.turnTableEncoders(0, false);
+            }
             telemetry.addData(location, "<");
             telemetry.update();
         } else {
             //              Location 1
-            gyroActions.encoderGyroDrive(2500, 1, 0);
+            gyroActions.encoderGyroDriveStateMachine(2500, 2, 0);
+            while (gyroActions.encoderGyroDriveStateMachine(2500, 2, 0)) {
+                attachmentActions.turnTableEncoders(0, false);
+            }
             sleep(100);
-            gyroActions.encoderGyroStrafe(2300, 39, 0, true);
+            gyroActions.initEncoderGyroStrafeStateMachine(2000, 42, true);
+            while (gyroActions.encoderGyroStrafeStateMachine(2000, 42, 0, true)) {
+                attachmentActions.turnTableEncoders(0, false);
+            }
             telemetry.addData(location, "<");
             telemetry.update();
         }
+        attachmentActions.turnTable.setPower(0.0);
     }
     private void goToCone() {
         while (state != 6) {
