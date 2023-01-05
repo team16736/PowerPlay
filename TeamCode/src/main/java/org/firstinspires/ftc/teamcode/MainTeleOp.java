@@ -14,7 +14,6 @@ import org.firstinspires.ftc.teamcode.actions.HelperActions;
 @TeleOp(name = "Main Tele Op", group = "Linear Opmode")
 public class MainTeleOp extends HelperActions {
 
-    private GyroActions gyroActions = null;
     private DriveActions driveActions = null;
     private AttachmentActions attachmentActions = null;
     private EncoderActions encoderActions = null;
@@ -22,7 +21,6 @@ public class MainTeleOp extends HelperActions {
     @Override
     public void runOpMode() {
 
-        gyroActions = new GyroActions(this, telemetry, hardwareMap);
         driveActions = new DriveActions(telemetry, hardwareMap);
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
         encoderActions = new EncoderActions(this, telemetry, hardwareMap);
@@ -55,8 +53,6 @@ public class MainTeleOp extends HelperActions {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-
-        gyroActions.getRawHeading();
 
         while (opModeIsActive()) {
 
@@ -132,9 +128,6 @@ public class MainTeleOp extends HelperActions {
             }
             if (gamepad2.right_bumper) {
                 placeBit = true;
-            }
-            if (placeBit) {
-                placeConeOnJunction(attachmentActions, gyroActions, encoderActions, spinLeft, HIGH);
             }*/
 
 //

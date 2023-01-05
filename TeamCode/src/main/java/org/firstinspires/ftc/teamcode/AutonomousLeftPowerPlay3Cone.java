@@ -116,70 +116,6 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             telemetry.addData("time", System.currentTimeMillis() - prevTime);
             telemetry.update();
             RobotLog.dd("FindJunction", "Time %f", (System.currentTimeMillis() - prevTime));
-            sleep(10000);
-
-
-//            James debug code
-//            attachmentActions.closeGripper();
-//            sleep(500);
-//            findJunctionAction.findJunction(48,24, false, RIGHT);
-//
-//            The static code for goToCone
-//            encoderActions.encoderSpinNoWhile(300, -90, true);
-//            sleep(500);
-//            attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//            attachmentActions.scissorLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//            attachmentActions.liftScissor(3000, 290, true);
-//            attachmentActions.turnTableEncoders(-90, false);
-//            while (!attachmentActions.isDone) {
-//                attachmentActions.turnTableEncoders(-90, false);
-//            }
-//            gyroActions.encoderGyroDrive(700, 47.5, -90);
-//            attachmentActions.closeGripper();
-//            sleep(500);
-//            attachmentActions.liftScissor(3000, 24, false);
-//            attachmentActions.turnTableEncoders(0, false);
-
-
-//            sleep(3000);
-//            encoderActions.encoderSpin(300, 90, false);
-//            for (int i = 0; i < 5; i++) {
-////                encoderActions.encoderStrafe(700, 40, false);
-//                gyroActions.encoderGyroDrive(700, 60, 0);
-//                sleep(500);
-////                encoderActions.encoderStrafe(700, 40, true);
-//                gyroActions.encoderGyroDrive(700, -40, -90);
-//                sleep(500);
-//            }
-
-
-
-            /*if(!memBitOff) {
-                attachmentActions.turnTable.setPower(0.1);
-                memBitOff = true;
-            }
-            if(attachmentActions.getJunctionDistance() < 200 && !memBitOn){
-                ticks = attachmentActions.tableencodercount();
-                memBitOn = true;
-                telemetry.addData("ticks on", ticks);
-                telemetry.update();
-            }
-            if(attachmentActions.getJunctionDistance() > 200 && memBitOn){
-                ticksOff = attachmentActions.tableencodercount();
-                memBitOn = false;
-                attachmentActions.turnTable.setPower(0);
-                telemetry.addData("ticks off", ticksOff);
-                telemetry.update();
-            }*/
-//            attachmentActions.extendGripper(5);
-//            while (attachmentActions.getJunctionDistance() < 1000) {}
-
-//            telemetry.addData("distance", attachmentActions.getJunctionDistance());
-//            telemetry.addData("ticks on", ticks);
-//            telemetry.addData("ticks off", ticksOff);
-//            telemetry.addData("difference", ticks - ticksOff);
-//            telemetry.update();
-//            gyroActions.gyroSpin(0.2, 90.0);
         }
     }
 
@@ -208,7 +144,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             getDistance(attachmentActions, encoderActions);
         }
         int grabHeight = 220;
-        if (coneNum == 4) {grabHeight = 260;}
+        if (coneNum == 4) {grabHeight = 240;}
         attachmentActions.liftScissor(3000, 400, true);
         attachmentActions.openGripper();
         while (gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, true)) {

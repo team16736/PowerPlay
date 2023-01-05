@@ -61,6 +61,7 @@ public class FindJunctionAction {
         opModeObj = opMode;
     }
 
+    //turnTableLeft is whether the turntable is left from the perspective of the direction the robot is driving
     public void findJunction(double distance, double scissorDistance, boolean turnTableLeft, int direction) {
         findJunctionStateMachine(distance, scissorDistance, true,  turnTableLeft, direction);
         while (state != 0) {
@@ -252,8 +253,12 @@ public class FindJunctionAction {
                 driveSpeed = 700;
                 strafeSpeed = 350;
             }
-
-            encoderActions.encoderStrafeNoWhile(strafeSpeed, strafe, true);
+            boolean encoderMoveLeft = true;
+            if (strafe < 0) {
+                encoderMoveLeft = false;
+                strafe = Math.abs(strafe);
+            }
+            encoderActions.encoderStrafeNoWhile(strafeSpeed, strafe, encoderMoveLeft);
             placeState = 1;
         }
         if (placeState == 1 && !encoderActions.motorFrontL.isBusy()) {
