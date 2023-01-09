@@ -50,7 +50,7 @@ public class AutonomousRightPowerPlay extends HelperActions {
             encoderActions.encoderStrafe(400, 27.5, true);
             sleep(500);
 
-            encoderActions.encoderDrive(300, 42);
+            encoderActions.encoderDrive(300, 40);
             sleep(500);
 
             attachmentActions.setLiftLevel(true, false, false);

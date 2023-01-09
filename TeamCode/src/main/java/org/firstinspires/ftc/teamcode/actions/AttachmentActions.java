@@ -250,6 +250,20 @@ public class AttachmentActions {
             }
         }
     }
+    public void setConeLevel(boolean low, boolean mid, boolean high) {
+        if (!scissorLift1.isBusy()) {
+            if (low) {
+                liftScissor(6000, 220, true);
+            } else if (mid) {
+                liftScissor(6000, 260, true);
+            } else if (high) {
+                liftScissor(6000, 280, true);
+            } else {
+                scissorLift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                scissorLift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
+        }
+    }
 
     public void liftScissor(double speed, double verticalDistance, boolean hardCode) {
         int totalTicks = (int) -(0.1161 * Math.pow(verticalDistance, 3) - 2.2579 * Math.pow(verticalDistance, 2) + 56.226 * verticalDistance + 36.647);

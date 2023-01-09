@@ -92,8 +92,8 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
 //            while (System.currentTimeMillis()-previousTime < 100) { //still finishing turn, apparently 100ms
 //                attachmentActions.turnTableEncoders(180, false);
 //            }
-            gyroActions.initEncoderGyroStrafeStateMachine(700, 20, true); //strafe left 20 inches to stack
-            while (gyroActions.encoderGyroStrafeStateMachine(700, 20, 0, true)) { //while still driving:
+            gyroActions.initEncoderGyroStrafeStateMachine(700, 19.5, true); //strafe left 20 inches to stack
+            while (gyroActions.encoderGyroStrafeStateMachine(700, 19.5, 0, true)) { //while still driving:
                 attachmentActions.turnTableEncoders(180, false); //keep turning to 180 degrees..?
 //                getDistance(attachmentActions, encoderActions); //get the distance from the distance sensor, drives until <10mm detected
             }
@@ -111,7 +111,9 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             }
             RobotLog.dd("FindJunction", "Drive to Junction 2");
             placeCone(attachmentActions, findJunctionAction, encoderActions);
-            placeCone(attachmentActions, findJunctionAction, encoderActions);
+            if (System.currentTimeMillis() - startTime < 20000) {
+                placeCone(attachmentActions, findJunctionAction, encoderActions);
+            }
             moveToLocation(gyroActions, location);
             telemetry.addData("time", System.currentTimeMillis() - prevTime);
             telemetry.update();
@@ -125,10 +127,10 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
         attachmentActions.scissorLift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         attachmentActions.scissorLift1.setPower(1.0);
         attachmentActions.scissorLift2.setPower(1.0);
-        sleep(150);
+        sleep(200);
         attachmentActions.liftScissor(3000, 1500, true);
         double strafeDistance = 32;
-        if (coneNum == 3 || coneNum == 4) {strafeDistance = 32;}
+        if (coneNum == 3 || coneNum == 4) {strafeDistance = 30;}
         strafeSpeed = 650;
         gyroActions.encoderGyroDriveStateMachine(700, -1, 0);
         while (gyroActions.encoderGyroDriveStateMachine(700, -1, 0)) {
@@ -166,7 +168,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
         coneNum--;
         attachmentActions.liftScissor(3000, 10, false);
         while (attachmentActions.getLiftHeight() < 9){}
-        int offset = 1;
+        int offset = 0;
         findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT, offset, 0);
         attachmentActions.turnTableEncoders(90, false);
         while (findJunctionAction.state != 0) {
@@ -182,13 +184,17 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
 //        if (Math.abs(attachmentActions.getTurntablePosition() - 180) < 10) {
             double raw = s1.getSensorDistance();
             double expSmoothed = s1.getExponentialSmoothedDistance();
-            distanceFromCones = s1.getAverageDistanceAllInOne() - 3.75;
+            distanceFromCones = s1.getAverageDistanceAllInOne() - 4;
             telemetry.addData("avg distance", distanceFromCones);
             telemetry.addData("raw", raw);
             telemetry.addData("exp smoothed", expSmoothed);
             telemetry.update();
             gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, distanceFromCones, true);
             distanceMemBit = true;
+        } else if (s1.getSensorDistance() > 10 && gyroActions.strafeState == 0) {
+            distanceFromCones = s1.getAverageDistanceAllInOne() - 7.5;
+            gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, 2, true);
+            RobotLog.dd("FindJunction", ":/");
         }
     }
 
@@ -200,8 +206,8 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
                 attachmentActions.turnTableEncoders(180, false);
             }
             sleep(100);
-            gyroActions.initEncoderGyroStrafeStateMachine(2000, 17, false);
-            while (gyroActions.encoderGyroStrafeStateMachine(2000, 17, 0, false)) {
+            gyroActions.initEncoderGyroStrafeStateMachine(2000, 15, false);
+            while (gyroActions.encoderGyroStrafeStateMachine(2000, 15, 0, false)) {
                 attachmentActions.turnTableEncoders(180, false);
             }
             telemetry.addData(location, "<");
@@ -226,8 +232,12 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
                 attachmentActions.turnTableEncoders(0, false);
             }
             sleep(100);
-            gyroActions.initEncoderGyroStrafeStateMachine(2000, 42, true);
-            while (gyroActions.encoderGyroStrafeStateMachine(2000, 42, 0, true)) {
+            gyroActions.initEncoderGyroStrafeStateMachine(2000, 43, true);
+            while (Math.abs(encoderActions.motorFrontL.getCurrentPosition() * 2) < Math.abs(encoderActions.motorFrontL.getTargetPosition())) {
+                attachmentActions.turnTableEncoders(0, false);
+                gyroActions.encoderGyroStrafeStateMachine(2000, 43, 0, true);
+            }
+            while (gyroActions.encoderGyroStrafeStateMachine(1200, 43, 0, true)) {
                 attachmentActions.turnTableEncoders(0, false);
             }
             telemetry.addData(location, "<");

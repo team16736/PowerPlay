@@ -23,7 +23,7 @@ public class AutonomousTest extends HelperActions{
 //    private EncoderActions encoderActions = null;
     private GyroActions gyroActions = null;
 //    private FindImageOnCone findImageOnCone = null;
-//    private DistanceSensorActions s1 = null;
+    private DistanceSensorActions s1 = null;
 
     int state = 0;
     double startTime;
@@ -40,7 +40,7 @@ public class AutonomousTest extends HelperActions{
 //        encoderActions = new EncoderActions(this, telemetry, hardwareMap);
         gyroActions = new GyroActions(this, telemetry, hardwareMap);
 //        findImageOnCone = new FindImageOnCone(telemetry, hardwareMap);
-//        s1 = new DistanceSensorActions(hardwareMap, 0.5, 10, ConfigConstants.BASE_RANGE);
+        s1 = new DistanceSensorActions(hardwareMap, 0.5, 10, ConfigConstants.BASE_RANGE);
 //        driveActions.setMotorDirection_Forward();
 //        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        FindJunctionAction findJunctionAction = new FindJunctionAction(hardwareMap, telemetry, this, driveActions, attachmentActions, s1, encoderActions, gyroActions);
@@ -54,14 +54,10 @@ public class AutonomousTest extends HelperActions{
         telemetry.update();
         waitForStart();
 
-//        while (opModeIsActive()) {
-        if (opModeIsActive()) {
-            double speed = 762.2;
-            double degrees = -20;
-            double prevTime = System.currentTimeMillis();
+        while (opModeIsActive()) {
+//        if (opModeIsActive()) {
 
-            gyroActions.getRawHeading();
-            sleep(400000);
+            RobotLog.dd("FindJunction", "distance %f", s1.getSensorDistance());
 //            attachmentActions.turnTableEncoders(0, false);
 //            gyroActions.encoderGyroDriveStateMachine(700, 32, 0);
 //            while (!attachmentActions.isDone || findJunctionAction.state != 0) {

@@ -66,7 +66,7 @@ public class MainTeleOp extends HelperActions {
             telemetry.addData("right stick x", gamepad1.right_stick_x);
             telemetry.update();
 
-            attachmentActions.setLiftLevel(gamepad2.dpad_down, gamepad2.dpad_left || gamepad2.dpad_right, gamepad2.dpad_up);
+            attachmentActions.setConeLevel(gamepad2.dpad_down, gamepad2.dpad_left || gamepad2.dpad_right, gamepad2.dpad_up);
 
             if(Math.abs(gamepad2.left_stick_y) > 0.01) {
                 attachmentActions.liftWithoutEncoders();
@@ -89,9 +89,9 @@ public class MainTeleOp extends HelperActions {
 
             //gamepad 2 right joystick is giving wonky values when negative. Need to switch gamepads or joysticks to adjust
             encoderAdjustment = ((Math.pow(gamepad2.right_stick_x, 2) * 0.93) + 0.07);
-            if (gamepad2.right_stick_x > 0.01 && attachmentActions.tableencodercount() < 1966) {
+            if (gamepad2.right_stick_x > 0.01 && attachmentActions.tableencodercount() < 3932) {
                 turnTableRotation = encoderAdjustment;
-            } else if (gamepad2.right_stick_x < -0.01 && attachmentActions.tableencodercount() > -3932) {
+            } else if (gamepad2.right_stick_x < -0.01 && attachmentActions.tableencodercount() > -5898) {
                 turnTableRotation = -1.0 * encoderAdjustment;
             } else {
                 turnTableRotation = 0;
