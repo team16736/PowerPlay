@@ -16,8 +16,8 @@ import org.firstinspires.ftc.teamcode.actions.HelperActions;
 
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
 
-@Autonomous(name = "Autonomous Right Powerplay 4 Cone")
-public class AutonomousRightPowerPlay4Cone extends HelperActions{
+@Autonomous(name = "Autonomous Right Powerplay 3 Cone")
+public class AutonomousRightPowerPlay3Cone extends HelperActions{
     private DriveActions driveActions = null;
     private AttachmentActions attachmentActions = null;
     private EncoderActions encoderActions = null;
@@ -118,7 +118,7 @@ public class AutonomousRightPowerPlay4Cone extends HelperActions{
             RobotLog.dd("FindJunction", "Drive to Junction 2");
             placeCone(attachmentActions, findJunctionAction, encoderActions);
 //            if (System.currentTimeMillis() - startTime < 20000) {
-                placeCone(attachmentActions, findJunctionAction, encoderActions);
+//                placeCone(attachmentActions, findJunctionAction, encoderActions);
 //            }
             moveToLocation(gyroActions, location);
             telemetry.addData("time", System.currentTimeMillis() - startTime);
@@ -192,7 +192,7 @@ public class AutonomousRightPowerPlay4Cone extends HelperActions{
 //        if (Math.abs(attachmentActions.getTurntablePosition() - 180) < 10) {
             double raw = s1.getSensorDistance();
             double expSmoothed = s1.getExponentialSmoothedDistance();
-            distanceFromCones = s1.getAverageDistanceAllInOne() - 3.75;
+            distanceFromCones = s1.getAverageDistanceAllInOne() - 5;
             telemetry.addData("avg distance", distanceFromCones);
             telemetry.addData("raw", raw);
             telemetry.addData("exp smoothed", expSmoothed);

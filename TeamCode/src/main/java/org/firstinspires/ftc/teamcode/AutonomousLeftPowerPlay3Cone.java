@@ -184,7 +184,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
 //        if (Math.abs(attachmentActions.getTurntablePosition() - 180) < 10) {
             double raw = s1.getSensorDistance();
             double expSmoothed = s1.getExponentialSmoothedDistance();
-            distanceFromCones = s1.getAverageDistanceAllInOne() - 4;
+            distanceFromCones = s1.getAverageDistanceAllInOne() - 5;
             telemetry.addData("avg distance", distanceFromCones);
             telemetry.addData("raw", raw);
             telemetry.addData("exp smoothed", expSmoothed);

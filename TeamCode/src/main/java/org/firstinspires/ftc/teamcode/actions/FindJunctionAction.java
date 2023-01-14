@@ -22,7 +22,7 @@ public class FindJunctionAction {
     private GyroActions gyroActions;
     private static LinearOpMode opModeObj;
 
-    double sensorToCone = 115.9; // distance from sensor to cone\
+    double sensorToJunction = 144.8; // distance from sensor to cone\
 
     public int state;
     public int placeState;
@@ -247,14 +247,14 @@ public class FindJunctionAction {
             overshoot = encoderActions.motorFrontL.getCurrentPosition() - ticksAtLowestDist;
             RobotLog.dd("FindJunction:", "overshoot %d", overshoot);
             if (direction == HelperActions.FORWARDS) {
-                strafe = (sensorDistance - sensorToCone) * turnTableLefti / DistanceUnit.mmPerInch;
+                strafe = (sensorDistance - sensorToJunction) * turnTableLefti / DistanceUnit.mmPerInch;
                 double offset = 0.0 + offset2;
                 if (ticksAtLowestDist > 0) {
                     offset *= -1;
                 }
                 drive = overshoot / 31.0 + offset;
             } else if (direction == HelperActions.BACKWARDS) {
-                strafe = (sensorDistance - sensorToCone) * -turnTableLefti / DistanceUnit.mmPerInch;
+                strafe = (sensorDistance - sensorToJunction) * -turnTableLefti / DistanceUnit.mmPerInch;
                 double offset = -0.85 + offset2;
                 drive = overshoot / 31.0 + offset;
             } else if (direction == HelperActions.RIGHT) {
@@ -262,7 +262,7 @@ public class FindJunctionAction {
                 if (ticksAtLowestDist < 0) {
                     offset *= -1;
                 }
-                drive = (sensorDistance - sensorToCone) * -turnTableLefti / DistanceUnit.mmPerInch + offset;
+                drive = (sensorDistance - sensorToJunction) * -turnTableLefti / DistanceUnit.mmPerInch + offset;
                 strafe = overshoot / 31.0 + 1;
                 driveSpeed = 700;
                 strafeSpeed = 350;
@@ -271,7 +271,7 @@ public class FindJunctionAction {
                 if (ticksAtLowestDist < 0) {
                     offset *= -1;
                 }
-                drive = ((sensorDistance - sensorToCone) * turnTableLefti) / DistanceUnit.mmPerInch + offset;
+                drive = ((sensorDistance - sensorToJunction) * turnTableLefti) / DistanceUnit.mmPerInch + offset;
                 strafe = (overshoot / 33.6) - 2;
                 RobotLog.dd("FindJunction", "Strafe %f, drive %f, sensordistance %f, distance at minimum %d, current distance %d", strafe, drive, sensorDistance, ticksAtLowestDist, encoderActions.motorFrontL.getCurrentPosition());
                 driveSpeed = 700;
