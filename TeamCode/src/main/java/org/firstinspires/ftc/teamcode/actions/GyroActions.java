@@ -261,6 +261,42 @@ public class GyroActions {
         }
     }
 
+    public void setVelocityStraight (double speed, double heading, int direction) {
+        headingError = getSteeringCorrection(heading, speed * 0.05, speed);
+        if (speed < 0) {
+            headingError *= -1;
+        }
+        double fL;
+        double fR;
+        double bL;
+        double bR;
+        if (direction == HelperActions.BACKWARDS) {
+            fL = -1;
+            fR = -1;
+            bL = -1;
+            bR = -1;
+        } else if (direction == HelperActions.RIGHT) {
+            fL = 1;
+            fR = -1;
+            bL = -1;
+            bR = 1;
+        } else if (direction == HelperActions.LEFT) {
+            fL = -1;
+            fR = 1;
+            bL = 1;
+            bR = -1;
+        } else {
+            // Forwards
+            fL = 1;
+            fR = 1;
+            bL = 1;
+            bR = 1;
+        }
+        motorFrontL.setVelocity((speed - headingError) * fL);
+        motorFrontR.setVelocity((speed + headingError) * fR);
+        motorBackL.setVelocity((speed - headingError) * bL);
+        motorBackR.setVelocity((speed + headingError) * bR);
+    }
     public void gyroSpin(double speed,
                          double heading) {
         motorFrontL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

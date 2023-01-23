@@ -26,7 +26,7 @@ public class FindImageOnCone {
             "AareZG7/////AAABmTJ0xUnT50AFtHQoZbOhHWJVFYPHhtpRKUPcI002vbLJNDFkStQrbg6q7pDW/WKMU6RihSol/TNPaAwcayfgOp1GtPzns2CKdad5gcGjv5A39kGKK31xdbuL1VM+xlMiOQV/ve4ogqq8+boju02dPWrFSq0iMWgFuuk0CV6R9KXN0S7HnjXIlcbu4brJZ/TBwV28vV7YPPlkt4qsv+qfi1+YDP4vMzM/jfrZZnmFrSpwXbQnwhvCfbDFNWHQRcRbs8stzmlOYhZnKFD1qm2kHalezdQecV3kkqLn8RXV6wv/MNmYLKDB5CwV9Nu0RmiXwjRTiBFr43KPNneDeO532THiRhxC57bXMXNkr+6v/8It";
 
     private VuforiaLocalizer vuforia;
-    private TFObjectDetector tfod;
+    public TFObjectDetector tfod;
     private Telemetry telemetry;
     private HardwareMap hardwareMap;
 
@@ -49,7 +49,7 @@ public class FindImageOnCone {
             // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
             // should be set to the value of the images used to create the TensorFlow Object Detection model
             // (typically 16/9).
-            tfod.setZoom(1.5, 16.0/9.0);
+            tfod.setZoom(1.3, 16.0/9.0);
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
         }

@@ -16,6 +16,7 @@ public class ConfigConstants {
     //slide
     public static final String SCISSOR_ONE = "scissorLift1";
     public static final String SCISSOR_TWO = "scissorLift2";
+    public static final String ARM_EXTENDER = "armExtender";
 
     //Grabber Extender
     public static final String EXTENDER = "extender";

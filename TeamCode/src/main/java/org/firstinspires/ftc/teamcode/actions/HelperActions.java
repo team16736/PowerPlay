@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.actions.distancecalcs.DistanceSensorActions;
+
 public abstract class HelperActions extends LinearOpMode {
 
     protected ColorSensor right_sensor;
@@ -86,6 +88,9 @@ public abstract class HelperActions extends LinearOpMode {
 //        encoderActions.fancySpin(speed, distance, true);
 //    }
 
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
     public void changeSpeed(DriveActions driveActions, boolean upOne, boolean downOne, boolean upTwo, boolean downTwo) {
         if (upOne) {
             speeding++;
@@ -150,123 +155,170 @@ public abstract class HelperActions extends LinearOpMode {
     }
 
     //Places the cone on the junction when the junction is within 100 degrees of the sensor.
-    public void placeConeOnJunction(AttachmentActions attachmentActions, GyroActions gyroActions, EncoderActions encoderActions, boolean spinLeft, int level) {
-        //Initializes the variables the first time the method is called
-        if (conePlacementState == 0) {
-            initConePlacement();
-            conePlacementState = 1;
-        }
-        //Center the turntable before starting
-        if (conePlacementState == 1) {
-            attachmentActions.turnTableEncoders(0, true);
-            if (attachmentActions.isDone){
-                conePlacementState = 2;
-            }
-        }
-        //Do this at the start of the function
-        if (conePlacementState == 3) {
-            //If the junction is not in the cone of vision, the robot spins until the junction is detected
-            if (attachmentActions.getJunctionDistance() < 10) {
-                inCone = true;
-            } else if (!spinLeft) {
-                attachmentActions.turnTable.setPower(0.1);
-                conePlacementState = 4;
-            } else if (spinLeft) {
-                attachmentActions.turnTable.setPower(-0.1);
-                conePlacementState = 4;
-            }
-        }
-        //If the junction is already in the cone of vision, turn the other way until it isn't or 90 degrees
-        if (attachmentActions.getJunctionDistance() > 10 && inCone) {
-            inCone = false;
-        }
-        if (inCone) {
-            if (spinLeft) {
-                attachmentActions.turnTable.setPower(0.1);
-            } else if (!spinLeft) {
-                attachmentActions.turnTable.setPower(-0.1);
-            }
-        }
-        //Activates when the junction is within 12.5 degrees of the sensor
-        if (attachmentActions.getJunctionDistance() < 10 && conePlacementState == 4) {
-            //Activates once when the junction is first detected
-            if (!firstDetectedBit) {
-                startingPosition = attachmentActions.getTurntablePosition();
-                startTime = System.currentTimeMillis();
-                firstDetectedBit = true;
-            }
-            attachmentActions.turnTableEncoders(startingPosition, true);
-            //Gets the distance to the junction by averaging the distance over 1/2 second
-            if (System.currentTimeMillis() - startTime < 500) {
-                totalDistance += attachmentActions.getJunctionDistance();
-                i++;
+//    public void placeConeOnJunction(AttachmentActions attachmentActions, GyroActions gyroActions, EncoderActions encoderActions, boolean spinLeft, int level) {
+//        //Initializes the variables the first time the method is called
+//        if (conePlacementState == 0) {
+//            initConePlacement();
+//            conePlacementState = 1;
+//        }
+//        //Center the turntable before starting
+//        if (conePlacementState == 1) {
+//            attachmentActions.turnTableEncoders(0, true);
+//            if (attachmentActions.isDone){
+//                conePlacementState = 2;
+//            }
+//        }
+//        //Do this at the start of the function
+//        if (conePlacementState == 3) {
+//            //If the junction is not in the cone of vision, the robot spins until the junction is detected
+//            if (attachmentActions.getJunctionDistance() < 10) {
+//                inCone = true;
+//            } else if (!spinLeft) {
+//                attachmentActions.turnTable.setPower(0.1);
+//                conePlacementState = 4;
+//            } else if (spinLeft) {
+//                attachmentActions.turnTable.setPower(-0.1);
+//                conePlacementState = 4;
+//            }
+//        }
+//        //If the junction is already in the cone of vision, turn the other way until it isn't or 90 degrees
+//        if (attachmentActions.getJunctionDistance() > 10 && inCone) {
+//            inCone = false;
+//        }
+//        if (inCone) {
+//            if (spinLeft) {
+//                attachmentActions.turnTable.setPower(0.1);
+//            } else if (!spinLeft) {
+//                attachmentActions.turnTable.setPower(-0.1);
+//            }
+//        }
+//        //Activates when the junction is within 12.5 degrees of the sensor
+//        if (attachmentActions.getJunctionDistance() < 10 && conePlacementState == 4) {
+//            //Activates once when the junction is first detected
+//            if (!firstDetectedBit) {
+//                startingPosition = attachmentActions.getTurntablePosition();
+//                startTime = System.currentTimeMillis();
+//                firstDetectedBit = true;
+//            }
+//            attachmentActions.turnTableEncoders(startingPosition, true);
+//            //Gets the distance to the junction by averaging the distance over 1/2 second
+//            if (System.currentTimeMillis() - startTime < 500) {
+//                totalDistance += attachmentActions.getJunctionDistance();
+//                i++;
+//            } else {
+//                distance = totalDistance / i;
+//                conePlacementState = 5;
+//            }
+//        }
+//        //If the junction is less than 6.25 inches away, it can use the turntable and extending the grabber, for more accuracy
+//        if (attachmentActions.finalDistanceToJunction(distance) < extenderRange && conePlacementState == 5) {
+//            usingExtender = true;
+//            attachmentActions.turnTableEncoders(attachmentActions.angleToJunction(distance) + startingPosition, true);
+//            if (attachmentActions.isDone){
+//                conePlacementState = 6;}
+//        }
+//        //After getting the distance to the junction, it turns towards it
+//        if (conePlacementState == 5 && !usingExtender) {
+//            attachmentActions.turnTableEncoders(0, true);
+//            if (gyroActions.maintainHeading(0.2, startingPosition + attachmentActions.angleToJunction(distance)) && attachmentActions.isDone) {
+//                conePlacementState = 6;
+//            }
+//        }
+//        //After turning towards the junction, it lifts the cone to the top of the junction
+//        if (conePlacementState == 6) {
+//            if (level == LOW) {attachmentActions.setLiftLevel(true, false, false);}
+//            if (level == MEDIUM) {attachmentActions.setLiftLevel(false, true, false);}
+//            if (level == HIGH) {attachmentActions.setLiftLevel(false, false, true);}
+//            //After lifting the cone to the top of the junction, it moves over to the junction
+//            if (!attachmentActions.scissorLift1.isBusy()) {
+//                if (usingExtender) {
+//                    if (!extendingBit) {
+//                        extendingTime = System.currentTimeMillis();
+//                        extendingBit = true;
+//                    }
+//                    attachmentActions.extendGripper(attachmentActions.finalDistanceToJunction(distance));
+//                    if (((System.currentTimeMillis() - extendingTime) * attachmentActions.finalDistanceToJunction(distance) * extendingSpeed) > 500) {
+//                        conePlacementState = 7;
+//                    }
+//                } else {
+//                    encoderActions.encoderDriveNoTimer(200, attachmentActions.finalDistanceToJunction(distance));
+//                    if (!encoderActions.motorFrontL.isBusy()) {
+//                        conePlacementState = 7;
+//                    }
+//                }
+//            }
+//        }
+//        //After moving over the junction, it drops the cone
+//        if (conePlacementState == 7) {
+//            if (!releasingBit) {
+//                attachmentActions.openGripper();
+//                releasingTime = System.currentTimeMillis();
+//            }
+//            if (System.currentTimeMillis() - releasingTime > 500){
+//                conePlacementState = 8;
+//            }
+//        }
+//        //After dropping the cone, it lowers the lift and finishes the program
+//        if (conePlacementState == 8) {
+//            if (usingExtender) {
+//                attachmentActions.extendGripper(0);
+//            }
+//            attachmentActions.liftScissor(1000, 0, true);
+//            encoderActions.resetEncoder();
+//            encoderActions.runWithoutEncoder();
+//            initConePlacement();
+//        } else {
+//            isPlacingCone = true;
+//        }
+//    }
+
+    private double minSpeed = 0;
+    private double distAtMinSpeed = 0;
+    private int ticksAtMinSpeed = 0;
+    private int counter = 0;
+    private boolean coneFinishState = false;
+    private double coneDistanceFinal;
+    public boolean driveToCone(GyroActions gyroActions, DistanceSensorActions s1, EncoderActions encoderActions, double offset, int direction) {
+        if (!coneFinishState) {
+            double setSpeed = s1.driveToObject(offset, 700, 400);
+            if (setSpeed > minSpeed) {
+                counter++;
             } else {
-                distance = totalDistance / i;
-                conePlacementState = 5;
+                counter = 0;
+                minSpeed = setSpeed;
+                distAtMinSpeed = s1.latestDistance;
+                ticksAtMinSpeed = encoderActions.motorFrontL.getCurrentPosition();
             }
-        }
-        //If the junction is less than 6.25 inches away, it can use the turntable and extending the grabber, for more accuracy
-        if (attachmentActions.finalDistanceToJunction(distance) < extenderRange && conePlacementState == 5) {
-            usingExtender = true;
-            attachmentActions.turnTableEncoders(attachmentActions.angleToJunction(distance) + startingPosition, true);
-            if (attachmentActions.isDone){
-                conePlacementState = 6;}
-        }
-        //After getting the distance to the junction, it turns towards it
-        if (conePlacementState == 5 && !usingExtender) {
-            attachmentActions.turnTableEncoders(0, true);
-            if (gyroActions.maintainHeading(0.2, startingPosition + attachmentActions.angleToJunction(distance)) && attachmentActions.isDone) {
-                conePlacementState = 6;
+            if (counter >= 3) {
+                coneDistanceFinal = distAtMinSpeed - Math.abs(encoderActions.motorFrontL.getCurrentPosition() - ticksAtMinSpeed);
+                coneFinishState = true;
+            } else if (setSpeed == 0) {
+                coneDistanceFinal = s1.getSensorDistance() - offset;
+                coneFinishState = true;
+            } else {
+                gyroActions.setVelocityStraight(setSpeed, 0, RIGHT);
             }
-        }
-        //After turning towards the junction, it lifts the cone to the top of the junction
-        if (conePlacementState == 6) {
-            if (level == LOW) {attachmentActions.setLiftLevel(true, false, false);}
-            if (level == MEDIUM) {attachmentActions.setLiftLevel(false, true, false);}
-            if (level == HIGH) {attachmentActions.setLiftLevel(false, false, true);}
-            //After lifting the cone to the top of the junction, it moves over to the junction
-            if (!attachmentActions.scissorLift1.isBusy()) {
-                if (usingExtender) {
-                    if (!extendingBit) {
-                        extendingTime = System.currentTimeMillis();
-                        extendingBit = true;
-                    }
-                    attachmentActions.extendGripper(attachmentActions.finalDistanceToJunction(distance));
-                    if (((System.currentTimeMillis() - extendingTime) * attachmentActions.finalDistanceToJunction(distance) * extendingSpeed) > 500) {
-                        conePlacementState = 7;
-                    }
-                } else {
-                    encoderActions.encoderDriveNoTimer(200, attachmentActions.finalDistanceToJunction(distance));
-                    if (!encoderActions.motorFrontL.isBusy()) {
-                        conePlacementState = 7;
-                    }
+        } else {
+            if (direction == FORWARDS) {
+                if (!gyroActions.encoderGyroDriveStateMachine(400, coneDistanceFinal, 0)) {
+                    return false;
+                }
+            } else if (direction == BACKWARDS) {
+                if (!gyroActions.encoderGyroDriveStateMachine(400, -coneDistanceFinal, 0)) {
+                    return false;
+                }
+            } else if (direction == RIGHT) {
+                if (!gyroActions.encoderGyroStrafeStateMachine(400, coneDistanceFinal, 0, false)) {
+                    return false;
+                }
+            } else if (direction == LEFT) {
+                if (!gyroActions.encoderGyroStrafeStateMachine(400, coneDistanceFinal, 0, true)) {
+                    return false;
                 }
             }
         }
-        //After moving over the junction, it drops the cone
-        if (conePlacementState == 7) {
-            if (!releasingBit) {
-                attachmentActions.openGripper();
-                releasingTime = System.currentTimeMillis();
-            }
-            if (System.currentTimeMillis() - releasingTime > 500){
-                conePlacementState = 8;
-            }
-        }
-        //After dropping the cone, it lowers the lift and finishes the program
-        if (conePlacementState == 8) {
-            if (usingExtender) {
-                attachmentActions.extendGripper(0);
-            }
-            attachmentActions.liftScissor(1000, 0, true);
-            encoderActions.resetEncoder();
-            encoderActions.runWithoutEncoder();
-            initConePlacement();
-        } else {
-            isPlacingCone = true;
-        }
+        return true;
     }
-
     private void initConePlacement() {
         conePlacementState = 0;
         inCone = false;

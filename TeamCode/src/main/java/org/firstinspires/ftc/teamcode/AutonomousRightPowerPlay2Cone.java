@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.teamcode.actions.HelperActions;
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
 
 @Autonomous(name = "Autonomous Right Powerplay 2 Cone")
+@Disabled
 public class AutonomousRightPowerPlay2Cone extends HelperActions{
     private DriveActions driveActions = null;
     private AttachmentActions attachmentActions = null;

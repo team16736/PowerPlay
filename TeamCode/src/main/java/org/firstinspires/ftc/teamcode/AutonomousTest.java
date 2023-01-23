@@ -11,16 +11,17 @@ import org.firstinspires.ftc.teamcode.actions.FindImageOnCone;
 import org.firstinspires.ftc.teamcode.actions.FindJunctionAction;
 import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
+import org.firstinspires.ftc.teamcode.actions.constants.MotorConstants;
 import org.firstinspires.ftc.teamcode.actions.distancecalcs.DistanceSensorActions;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
 
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
 
-@Autonomous(name = "Test")
+@Autonomous(name = "Test :)")
 public class AutonomousTest extends HelperActions{
 //    private DriveActions driveActions = null;
-//    private AttachmentActions attachmentActions = null;
-//    private EncoderActions encoderActions = null;
+    private AttachmentActions attachmentActions = null;
+    private EncoderActions encoderActions = null;
     private GyroActions gyroActions = null;
 //    private FindImageOnCone findImageOnCone = null;
     private DistanceSensorActions s1 = null;
@@ -32,17 +33,18 @@ public class AutonomousTest extends HelperActions{
     double ticksAtDistance;
     boolean distanceMemBit = false;
     int strafeSpeed;
+    double distance = 0;
 
     public void runOpMode() {
 
 //        driveActions = new DriveActions(telemetry, hardwareMap);
-//        attachmentActions = new AttachmentActions(telemetry, hardwareMap);
-//        encoderActions = new EncoderActions(this, telemetry, hardwareMap);
+        attachmentActions = new AttachmentActions(telemetry, hardwareMap);
+        encoderActions = new EncoderActions(this, telemetry, hardwareMap);
         gyroActions = new GyroActions(this, telemetry, hardwareMap);
 //        findImageOnCone = new FindImageOnCone(telemetry, hardwareMap);
         s1 = new DistanceSensorActions(hardwareMap, 0.5, 10, ConfigConstants.BASE_RANGE);
 //        driveActions.setMotorDirection_Forward();
-//        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        FindJunctionAction findJunctionAction = new FindJunctionAction(hardwareMap, telemetry, this, driveActions, attachmentActions, s1, encoderActions, gyroActions);
 
         boolean memBitOn = false;
@@ -50,12 +52,13 @@ public class AutonomousTest extends HelperActions{
         int ticks = 0;
         int ticksOff = 0;
 
+
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
         waitForStart();
 
-        while (opModeIsActive()) {
-//        if (opModeIsActive()) {
+//        while (opModeIsActive()) {
+        if (opModeIsActive()) {
 
             RobotLog.dd("FindJunction", "distance %f", s1.getSensorDistance());
 //            attachmentActions.turnTableEncoders(0, false);
@@ -65,6 +68,27 @@ public class AutonomousTest extends HelperActions{
 //                if (gyroActions.driveState != 0) {
 //                    gyroActions.encoderGyroDriveStateMachine(700, 32, 0);
 //                }
+//            }
+
+
+//            int i = 0;
+//            int offset = 10;
+//            s1.driveToObject(offset, 500, 100);
+//            RobotLog.dd("FindJunction", "state %d", s1.driveToObjectState);
+//            while (opModeIsActive() && s1.driveToObjectState != 0){
+//                setSpeed(s1.driveToObject(offset, 500, 100), 0);
+//                i++;
+//            }
+//            gyroActions.encoderGyroDrive(100, s1.getSensorDistance() - offset, 0);
+//            RobotLog.dd("FindJunction", "distance %f", s1.getSensorDistance());
+
+
+//            double total = 0;
+//            double avg;
+//            for (int i = 0; i < 200; i++) {
+//                avg = s1.getSensorDistance();
+//                total += avg;
+//                RobotLog.dd("FindJunction", "%f", avg);
 //            }
 
 //            James debug code
@@ -129,6 +153,24 @@ public class AutonomousTest extends HelperActions{
 //            telemetry.update();
 //            gyroActions.gyroSpin(0.2, 90.0);
         }
+    }
+    double headingError;
+    private void setSpeed(double speed, double heading) {
+        headingError = gyroActions.getSteeringCorrection(heading, speed * 0.05, speed);
+        if (distance < 0) {
+            headingError *= -1;
+        }
+        encoderActions.motorFrontL.setVelocity(speed - headingError);
+        encoderActions.motorFrontR.setVelocity(speed + headingError);
+        encoderActions.motorBackL.setVelocity(speed - headingError);
+        encoderActions.motorBackR.setVelocity(speed + headingError);
+    }
+    private void initDrive() {
+        int totalTicks = (int) (31 * distance);
+        encoderActions.motorFrontL.setTargetPosition(totalTicks);
+        encoderActions.motorFrontR.setTargetPosition(totalTicks);
+        encoderActions.motorBackL.setTargetPosition(totalTicks);
+        encoderActions.motorBackR.setTargetPosition(totalTicks);
     }
 //    private void goToCone() {
 //        while (state != 6) {

@@ -3,6 +3,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.teamcode.actions.HelperActions;
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
 
 @Autonomous(name = "Autonomous Power Play")
-
+@Disabled
 public class AutonomousPowerPlay extends HelperActions {
 
     private DriveActions driveActions = null;

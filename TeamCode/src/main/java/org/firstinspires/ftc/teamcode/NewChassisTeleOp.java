@@ -1,6 +1,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.actions.HelperActions;
 import org.firstinspires.ftc.teamcode.actions.NewDriveActions;
 
 @TeleOp(name = "New Chassis TeleOp", group = "Linear Opmode")
+@Disabled
 public class NewChassisTeleOp extends HelperActions {
 
     private NewDriveActions newDriveActions = null;

@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.actions.EncoderActions;
 import org.firstinspires.ftc.teamcode.actions.distancecalcs.DistanceSensorActions;
 import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
 
-@TeleOp(name = "Experiment Tele Op", group = "Linear Opmode")
+@TeleOp(name = "Test", group = "Linear Opmode")
 
 public class ExperimentTeleOp extends HelperActions {
 
@@ -68,6 +68,23 @@ public class ExperimentTeleOp extends HelperActions {
             y = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
             attachmentActions.scissorLift1.setPower(y);
             attachmentActions.scissorLift2.setPower(y);
+
+
+            if (gamepad2.dpad_down) {
+                attachmentActions.extendArm(0);
+            } else if (gamepad2.dpad_right) {
+                attachmentActions.extendArm(1.25);
+            } else if (gamepad2.dpad_left) {
+                attachmentActions.extendArm(2.5);
+            } else if (gamepad2.dpad_up) {
+                attachmentActions.extendArm(3.75);
+            } else if (gamepad2.a) {
+                attachmentActions.extendArm(5.25);
+            }
+
+            if (gamepad2.right_trigger > 0) {
+                attachmentActions.extendArm(gamepad2.right_trigger * 6.375);
+            }
 //
 //
 //            double armSpeed = changeSpeedArm(gamepad2.dpad_up, gamepad2.dpad_down);
@@ -76,7 +93,8 @@ public class ExperimentTeleOp extends HelperActions {
             telemetry.addData("Current Position ", attachmentActions.scissorLift1.getCurrentPosition());
             telemetry.addData("s2 raw", s2.getSensorDistance());
             telemetry.addData("s2 averaged", s2.getAverageDistanceLive());
-            telemetry.addData("s2 expo smoothed", s2.getExponentialSmoothedDistance());
+            telemetry.addData("s2 expo smoothed", s2.getExponentialSmoothedDistance(false));
+            telemetry.addData("arm position", attachmentActions.armExtender.getPosition());
             telemetry.update();
         }
         telemetry.addData("[ROBOTNAME] ", "Going");

@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -32,7 +33,8 @@ public class AttachmentActions {
 
     //    public Servo elbowServo;
     public Servo gripperServo;
-    public Servo extender;
+    public Servo armExtender;
+//    public Servo extender;
     public CRServo turnTable;
     public DistanceSensor junctionSensor;
     public DcMotorEx scissorLift1;
@@ -58,6 +60,9 @@ public class AttachmentActions {
     public boolean isDone = false;
     public double minVel = 10000;
     double startTime;
+    int totalTicks;
+    double ticksPerRevolution = 8192 * 96 / 100; // 7864
+    double ticksPerDegree = ticksPerRevolution / 360; // 21.9
 
     boolean setBit = false;
     boolean lowerSetBit = false;
@@ -83,14 +88,16 @@ public class AttachmentActions {
         // 1. Hardware config
 //        elbowServo = hardwareMap.get(Servo.class, ConfigConstants.ELBOW_SERVO);
         gripperServo = hardwareMap.get(Servo.class, ConfigConstants.GRIPPER_SERVO);
-        extender = hardwareMap.get(Servo.class, ConfigConstants.EXTENDER);
+        armExtender = hardwareMap.get(Servo.class, ConfigConstants.ARM_EXTENDER);
+//        extender = hardwareMap.get(Servo.class, ConfigConstants.EXTENDER);
         turnTable = hardwareMap.get(CRServo.class, ConfigConstants.TURN_TABLE);
         tableEncoder = hardwareMap.get(DcMotorEx.class, ConfigConstants.TURN_TABLE_ENCODER);
         scissorLift1 = hardwareMap.get(DcMotorEx.class, ConfigConstants.SCISSOR_ONE);
         scissorLift2 = hardwareMap.get(DcMotorEx.class, ConfigConstants.SCISSOR_TWO);
 //        elbowServo.setPosition(0.87);
-        extender.setPosition(1.0);
-        gripperServo.setPosition(0.8);
+        armExtender.setPosition(0.05);
+//        extender.setPosition(1.0);
+        gripperServo.setPosition(0.9);
         turnTable.setDirection(DcMotorSimple.Direction.REVERSE);
         turnTable.setPower(0.0);
         scissorLift1.setDirection(DcMotorEx.Direction.REVERSE);
@@ -104,17 +111,52 @@ public class AttachmentActions {
         return tableEncoder.getCurrentPosition();
     }
 
-    public void openGripper() {
-        gripperServo.setPosition(0.8);
+    public void openGripper() { gripperServo.setPosition(0.9); }
+
+    public void closeGripper() { gripperServo.setPosition(0.5); }
+
+//    public void extendGripper(double distance) {
+//        double maxDistance = 6.25;
+//        extender.setPosition(1 - (distance / maxDistance));
+//    }
+
+    public void extendArm(double distance) {
+        armExtender.setPosition(distance / 22.1 + 0.05);
     }
 
-    public void closeGripper() {
-        gripperServo.setPosition(0.3);
+    boolean preset;
+    public void armPresets(Gamepad gamepad2) {
+        if (gamepad2.dpad_down) {
+            extendArm(1.25);
+            preset = true;
+        } else if (gamepad2.dpad_left) {
+            extendArm(2.5);
+            preset = true;
+        } else if (gamepad2.dpad_right) {
+            extendArm(3.75);
+            preset = true;
+        } else if (gamepad2.dpad_up) {
+            extendArm(5.25);
+            preset = true;
+        } else if (gamepad2.right_trigger > 0.01) {
+            preset = false;
+        }
+        if (preset = false) {
+            extendArm(gamepad2.right_trigger * 6.375);
+        }
+        telemetry.addData("trigger position", gamepad2.right_trigger);
+        telemetry.addData("target servo position", armExtender.getPosition());
     }
 
-    public void extendGripper(double distance) {
-        double maxDistance = 6.25;
-        extender.setPosition(1 - (distance / maxDistance));
+    boolean selectMemBit;
+    int selection;
+    public void selectArmPreset(Gamepad gamepad) {
+        if (gamepad.right_bumper && selectMemBit == true) {
+            selection++;
+            selectMemBit = false;
+        } else if (!gamepad.right_bumper) {
+            selectMemBit = true;
+        }
     }
 
     public boolean detectElement() {
@@ -172,9 +214,7 @@ public class AttachmentActions {
     }
 
     public void turnTableEncoders(double degrees, double Kp, double Ki, double speedCap) {
-        double ticksPerRevolution = 8192 * 96 / 100; // 7864
-        double ticksPerDegree = ticksPerRevolution / 360; // 21.9
-        int totalTicks = (int) (ticksPerDegree * degrees);
+        totalTicks = (int) (ticksPerDegree * degrees);
         int velocityRange = 1;
         int acceptableError = (int) (ticksPerDegree * 2.1);
 
@@ -231,9 +271,11 @@ public class AttachmentActions {
     }
 
     public double getTurntablePosition() {
-        double ticksPerRevolution = 8192 * 96 / 100; // 7864
-        double ticksPerDegree = ticksPerRevolution / 360;
         return tableEncoder.getCurrentPosition() / ticksPerDegree;
+    }
+
+    public double getTurntableGoal() {
+        return totalTicks / ticksPerDegree;
     }
 
     public void setLiftLevel(boolean low, boolean mid, boolean high) {

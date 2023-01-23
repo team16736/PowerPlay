@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.actions.HelperActions;
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
 
 @Autonomous(name = "Wheel Test")
+@Disabled
 public class WheelTest extends HelperActions {
     private DriveActions driveActions = null;
     private AttachmentActions attachmentActions = null;

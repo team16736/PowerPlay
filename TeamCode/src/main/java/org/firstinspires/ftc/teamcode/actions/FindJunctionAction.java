@@ -22,7 +22,7 @@ public class FindJunctionAction {
     private GyroActions gyroActions;
     private static LinearOpMode opModeObj;
 
-    double sensorToJunction = 144.8; // distance from sensor to cone\
+    double sensorToJunction = 146.05; // distance from sensor to cone\
 
     public int state;
     public int placeState;
@@ -44,9 +44,11 @@ public class FindJunctionAction {
     int totalTicks;
     int overshoot;
     int driveSpeed = 350;
-    int errorState;
+    int idCounter;
     double prevDist;
     int prevDistTicks;
+    int keptGoingCounter;
+    int minDistance = 300;
 
     double strafe;
     double drive;
@@ -110,9 +112,11 @@ public class FindJunctionAction {
             int totalTicks = (int) -(0.1161 * Math.pow(scissorDistance, 3) - 2.2579 * Math.pow(scissorDistance, 2) + 56.226 * scissorDistance + 36.647);
 
             attachmentActions.liftScissor(3000, -totalTicks, true);
+            RobotLog.dd("FindJunction", "targetPos %f", targetPos);
             state = 1;
         }
 
+        int minCounter = 1;
         if (Math.abs(encoderActions.motorFrontL.getCurrentPosition()) < Math.abs(targetPos) && opModeObj.opModeIsActive() && state == 1) {
             if (steadyTable) {
                 attachmentActions.turnTableEncoders(tableDegrees, false);
@@ -149,25 +153,21 @@ public class FindJunctionAction {
             int currentPos = encoderActions.motorFrontL.getCurrentPosition();
             RobotLog.dd("FindJunction", "distance: %f currentPos: %d, counter: %d, time: %d, velocity: %f", distanceS1, currentPos, counter, System.currentTimeMillis(), encoderActions.motorFrontL.getVelocity());
             if (distanceS1 > 2000) {
-                if (errorState == 0) {
-                    errorState = 1;
-                } else if (errorState == 2) {
+                if (idCounter <= 2) {
                     dist = prevDist;
                     ticksAtLowestDist = prevDistTicks;
+                } else {
+                    counter = minCounter + 1;
                 }
-            } else if (errorState == 2) {
-                errorState = 0;
+                idCounter = 0;
             }
 
-            if (attachmentActions.scissorLift1.getCurrentPosition() < -490 && (Math.abs(targetPos) - Math.abs(currentPos)) < 400 && distanceS1 < 200) {
-                if (errorState == 2) {
-                    errorState = 0;
-                }
-                if (errorState == 1) {
-                    errorState = 2;
+            if (attachmentActions.scissorLift1.getCurrentPosition() < -490 && (Math.abs(targetPos) - Math.abs(currentPos)) < 400 && distanceS1 < minDistance) {
+                if (idCounter == 0) {
                     prevDist = dist;
                     prevDistTicks = ticksAtLowestDist;
                 }
+                idCounter++;
 
                 if (distanceS1 < dist) {
 
@@ -176,7 +176,7 @@ public class FindJunctionAction {
 
                 }
 
-                if (distanceS1 < 200) {
+                if (distanceS1 < minDistance) {
 
                     memBitOn = true;
 
@@ -190,7 +190,7 @@ public class FindJunctionAction {
                     counter = 0;
                 }
 
-                if (counter > 0) {
+                if (counter > minCounter) {
 
                     targetPos = ticksAtLowestDist;
 
@@ -204,12 +204,14 @@ public class FindJunctionAction {
             }
 
         } else if (state == 1) {
-            if (counter == 0) {
+            if (counter <= minCounter && keptGoingCounter < 12) {
                 targetPos += 30;
+                keptGoingCounter++;
                 RobotLog.dd("FindJunction", "Kept Going");
                 return;
+            } else {
+                state = 2;
             }
-            state = 2;
         }
 
         if (state == 2) {
@@ -224,20 +226,26 @@ public class FindJunctionAction {
             telemetry.addData("Distance past lowest dist", overshoot);
             telemetry.addData("time", dur);
             telemetry.addData("counter", counter);
+            RobotLog.dd("FindJunction", "state 2, placestate %d", placeState);
+            placeOnJunction(dist, ticksAtLowestDist, degrees, turnTableLeft, direction, offset);
 //            telemetry.update();
 //            opModeObj.sleep(1000000);
 
             state = 3;
         }
-        if (state == 3 && !placeOnJunction(dist, ticksAtLowestDist, degrees, turnTableLeft, direction, offset)) {
-            state = 0;
+        if (state == 3) {
+            if (placeState == 0) {
+                state = 0;
+            } else {
+                placeOnJunction(dist, ticksAtLowestDist, degrees, turnTableLeft, direction, offset);
+            }
         }
         telemetry.update();
     }
 
     public boolean placeOnJunction (double sensorDistance, int ticksAtLowestDist, double degrees, boolean turnTableLeft, int direction, double offset2) {
         if (placeState == 0) {
-            if (sensorDistance > 200) {
+            if (sensorDistance > minDistance) {
                 placeState = 4;
                 return true;
             }
@@ -248,7 +256,7 @@ public class FindJunctionAction {
             RobotLog.dd("FindJunction:", "overshoot %d", overshoot);
             if (direction == HelperActions.FORWARDS) {
                 strafe = (sensorDistance - sensorToJunction) * turnTableLefti / DistanceUnit.mmPerInch;
-                double offset = 0.0 + offset2;
+                double offset = 1.0 + offset2;
                 if (ticksAtLowestDist > 0) {
                     offset *= -1;
                 }
@@ -272,8 +280,7 @@ public class FindJunctionAction {
                     offset *= -1;
                 }
                 drive = ((sensorDistance - sensorToJunction) * turnTableLefti) / DistanceUnit.mmPerInch + offset;
-                strafe = (overshoot / 33.6) - 2;
-                RobotLog.dd("FindJunction", "Strafe %f, drive %f, sensordistance %f, distance at minimum %d, current distance %d", strafe, drive, sensorDistance, ticksAtLowestDist, encoderActions.motorFrontL.getCurrentPosition());
+                strafe = (overshoot / 33.6);
                 driveSpeed = 700;
                 strafeSpeed = 350;
             }
@@ -282,6 +289,7 @@ public class FindJunctionAction {
                 encoderMoveLeft = false;
                 strafe = Math.abs(strafe);
             }
+            RobotLog.dd("FindJunction", "Strafe %f, drive %f, sensordistance %f, distance at minimum %d, current distance %d", strafe, drive, sensorDistance, ticksAtLowestDist, encoderActions.motorFrontL.getCurrentPosition());
             encoderActions.encoderStrafeNoWhile(strafeSpeed, strafe, encoderMoveLeft);
             placeState = 1;
         }
@@ -322,6 +330,9 @@ public class FindJunctionAction {
         ticksAtLowestDist = 0;
         counter = 0;
         ramp = 0.0;
-        errorState = 0;
+        idCounter = 0;
+        prevDist = 8190;
+        prevDistTicks = 8190;
+        keptGoingCounter = 0;
     }
 }

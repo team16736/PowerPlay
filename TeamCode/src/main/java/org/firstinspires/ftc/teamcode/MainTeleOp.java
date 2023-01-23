@@ -3,15 +3,13 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
 import org.firstinspires.ftc.teamcode.actions.EncoderActions;
-import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
 
-@TeleOp(name = "Main Tele Op", group = "Linear Opmode")
+@TeleOp(name = "Tele Op", group = "Linear Opmode")
 public class MainTeleOp extends HelperActions {
 
     private DriveActions driveActions = null;
@@ -29,16 +27,11 @@ public class MainTeleOp extends HelperActions {
         //driveActions.setSpeed(1.0);
 
         int currentTicks = 0;
-        int speeding = 0;
-        double speed = 0.8;
         double y = 0;
         double turnTableRotation = 0;
         double encoderAdjustment;
-        double speedY; //Create new double for the speed.
-        int currentPos; //Create an integer for the current position (IMPORTANT THAT ITS AN INTEGER, WILL NOT WORK OTHERWISE)
         boolean memBitLift = true;
         int gravityThresholdLift = -350;
-        boolean memoryBit;
         boolean spinLeft;
         boolean placeBit;
         double extenderInput;
@@ -66,7 +59,8 @@ public class MainTeleOp extends HelperActions {
             telemetry.addData("right stick x", gamepad1.right_stick_x);
             telemetry.update();
 
-            attachmentActions.setConeLevel(gamepad2.dpad_down, gamepad2.dpad_left || gamepad2.dpad_right, gamepad2.dpad_up);
+//            attachmentActions.setConeLevel(gamepad2.dpad_down, gamepad2.dpad_left || gamepad2.dpad_right, gamepad2.dpad_up);
+            attachmentActions.armPresets(gamepad2);
 
             if(Math.abs(gamepad2.left_stick_y) > 0.01) {
                 attachmentActions.liftWithoutEncoders();
@@ -87,23 +81,12 @@ public class MainTeleOp extends HelperActions {
                 memBitLift = true;
             }
 
-            //gamepad 2 right joystick is giving wonky values when negative. Need to switch gamepads or joysticks to adjust
-            encoderAdjustment = ((Math.pow(gamepad2.right_stick_x, 2) * 0.93) + 0.07);
-            if (gamepad2.right_stick_x > 0.01 && attachmentActions.tableencodercount() < 3932) {
-                turnTableRotation = encoderAdjustment;
-            } else if (gamepad2.right_stick_x < -0.01 && attachmentActions.tableencodercount() > -5898) {
-                turnTableRotation = -1.0 * encoderAdjustment;
-            } else {
-                turnTableRotation = 0;
-            }
-            attachmentActions.turnTable.setPower(turnTableRotation);
-
             telemetry.addData("Joystick", gamepad2.right_stick_y);
 
-            extenderInput = gamepad2.right_trigger - gamepad2.left_trigger;
-            extendLength = Range.clip(extendLength - ((extenderInput * (System.currentTimeMillis() - prevTime) / extendTime)), 0.0, 1.0);
-            prevTime = System.currentTimeMillis();
-            attachmentActions.extender.setPosition(extendLength);
+//            extenderInput = gamepad2.right_trigger - gamepad2.left_trigger;
+//            extendLength = Range.clip(extendLength - ((extenderInput * (System.currentTimeMillis() - prevTime) / extendTime)), 0.0, 1.0);
+//            prevTime = System.currentTimeMillis();
+//            attachmentActions.extender.setPosition(extendLength);
 
             if (gamepad2.x) {
                 attachmentActions.closeGripper();
@@ -116,6 +99,7 @@ public class MainTeleOp extends HelperActions {
 
             changeSpeed(driveActions, gamepad1.dpad_up, gamepad1.dpad_down, false, false);
 
+            attachmentActions.turnTable.setPower(getAdjustedTurntablePower());
 
             //Need to add an interrupt
             /*if (!isPlacingCone) {
@@ -139,5 +123,17 @@ public class MainTeleOp extends HelperActions {
         telemetry.update();
 
         idle();
+    }
+    private double getAdjustedTurntablePower() {
+        double encoderAdjustment = ((Math.pow(gamepad2.right_stick_x, 2) * 0.93) + 0.07);
+        double turnTableRotation;
+        if (gamepad2.right_stick_x > 0.01 && attachmentActions.tableencodercount() < 3932) {
+            turnTableRotation = encoderAdjustment;
+        } else if (gamepad2.right_stick_x < -0.01 && attachmentActions.tableencodercount() > -5898) {
+            turnTableRotation = -1.0 * encoderAdjustment;
+        } else {
+            turnTableRotation = 0;
+        }
+        return turnTableRotation;
     }
 }

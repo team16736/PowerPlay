@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 @Autonomous(name="MoveIt", group="Iterative Opmode")
+@Disabled
 public class MoveIt extends LinearOpMode {
     private DcMotor bL;
     private DcMotor bR;

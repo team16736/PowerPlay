@@ -91,6 +91,7 @@ import org.firstinspires.ftc.teamcode.actions.constants.MotorConstants;
  */
 
 @Autonomous(name="Robot: Auto Drive By Gyro", group="Robot")
+@Disabled
 public class GyroTest extends LinearOpMode {
 
     /* Declare OpMode members. */

@@ -275,6 +275,12 @@ final public class EncoderActions{
         motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorBackR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
+    public void runToPosition() {
+        motorFrontL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorFrontR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBackL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
     public void runWithoutEncoder(){
         motorFrontL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorFrontR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

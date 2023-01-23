@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.unused;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -46,7 +47,7 @@ public class BasicDrive extends LinearOpMode {
         rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
 
 //        coneSensor = hardwareMap.get(ColorSensor.class, "coneSensor");
-        junctionSensor = hardwareMap.get(DistanceSensor.class, "junctionSensor");
+//        junctionSensor = hardwareMap.get(DistanceSensor.class, "junctionSensor");
 
         double prevTime = System.currentTimeMillis();
         double currentTime = 0;
@@ -60,16 +61,22 @@ public class BasicDrive extends LinearOpMode {
 
         double startTime = System.currentTimeMillis();
 
-        while (opModeIsActive()) {
-            drive(
-                    (gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x)),      //joystick controlling strafe
-                    (-gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y)),     //joystick controlling forward/backward
-                    (gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x)));    //joystick controlling rotation
+        if (opModeIsActive()) {
+//            drive(
+//                    (gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x)),      //joystick controlling strafe
+//                    (-gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y)),     //joystick controlling forward/backward
+//                    (gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x)));    //joystick controlling rotation
 //            telemetry.addData("Seeing Color", mostColor());
+            leftFront.setTargetPosition(500);
+            leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftFront.setVelocity(500);
+            while (leftFront.isBusy()){}
+            leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            sleep(10000);
             currentTime = System.currentTimeMillis();
             telemetry.addData("Interval", currentTime - prevTime);
             prevTime = currentTime;
-            telemetry.addData("Distance", junctionSensor.getDistance(DistanceUnit.INCH));
+//            telemetry.addData("Distance", junctionSensor.getDistance(DistanceUnit.INCH));
             telemetry.update();
         }
     }

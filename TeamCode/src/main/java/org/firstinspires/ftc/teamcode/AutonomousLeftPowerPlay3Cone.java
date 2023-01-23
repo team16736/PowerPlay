@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -17,6 +18,7 @@ import org.firstinspires.ftc.teamcode.actions.HelperActions;
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
 
 @Autonomous(name = "Autonomous Left Powerplay 3 Cone")
+@Disabled
 public class AutonomousLeftPowerPlay3Cone extends HelperActions{
     private DriveActions driveActions = null;
     private AttachmentActions attachmentActions = null;
@@ -72,6 +74,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             attachmentActions.closeGripper(); //Close gripper around preloaded cone
             String location = findImageOnCone.findObject(); //Detect parking spot
             sleep(350); //Allow gripper to close - Changed from 500ms to 350ms by Wyatt 12/31/2022
+            attachmentActions.extendArm(2);
             attachmentActions.liftScissor(3000, 10, false); //Lift scissor to 10 inches
 //            encoderActions.encoderStrafe(400, 6, false);
             findJunctionAction.findJunction(43, 24, false, FORWARDS); //Drive to and align with pole
@@ -182,18 +185,14 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
     private void getDistance(AttachmentActions attachmentActions, EncoderActions encoderActions) {
         if (attachmentActions.scissorLift1.getCurrentPosition() < -300 && Math.abs(attachmentActions.getTurntablePosition() - 180) < 5 && distanceMemBit == false && s1.getSensorDistance() < 10) {
 //        if (Math.abs(attachmentActions.getTurntablePosition() - 180) < 10) {
-            double raw = s1.getSensorDistance();
-            double expSmoothed = s1.getExponentialSmoothedDistance();
-            distanceFromCones = s1.getAverageDistanceAllInOne() - 5;
+            distanceFromCones = s1.getAverageDistanceAllInOne(true) - 5.5;
             telemetry.addData("avg distance", distanceFromCones);
-            telemetry.addData("raw", raw);
-            telemetry.addData("exp smoothed", expSmoothed);
             telemetry.update();
             gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, distanceFromCones, true);
             distanceMemBit = true;
         } else if (s1.getSensorDistance() > 10 && gyroActions.strafeState == 0) {
-            distanceFromCones = s1.getAverageDistanceAllInOne() - 7.5;
-            gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, 2, true);
+            distanceFromCones = s1.getAverageDistanceAllInOne(true) - 9;
+            gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, distanceFromCones, true);
             RobotLog.dd("FindJunction", ":/");
         }
     }

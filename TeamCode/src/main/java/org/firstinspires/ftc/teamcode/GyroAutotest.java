@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.actions.GyroActions;
 
 @Autonomous(name="Gyro Auto", group="Robot")
+@Disabled
 public class GyroAutotest extends LinearOpMode {
     @Override
     public void runOpMode() {
