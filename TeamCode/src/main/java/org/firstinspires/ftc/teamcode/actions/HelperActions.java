@@ -278,46 +278,51 @@ public abstract class HelperActions extends LinearOpMode {
     private int counter = 0;
     private boolean coneFinishState = false;
     private double coneDistanceFinal;
-    public boolean driveToCone(GyroActions gyroActions, DistanceSensorActions s1, EncoderActions encoderActions, double offset, int direction) {
-        if (!coneFinishState) {
-            double setSpeed = s1.driveToObject(offset, 700, 400);
-            if (setSpeed > minSpeed) {
-                counter++;
-            } else {
-                counter = 0;
-                minSpeed = setSpeed;
-                distAtMinSpeed = s1.latestDistance;
-                ticksAtMinSpeed = encoderActions.motorFrontL.getCurrentPosition();
+    public boolean driveToCone(GyroActions gyroActions, DistanceSensorActions s1, EncoderActions encoderActions, AttachmentActions attachmentActions, double offset, int direction) {
+        if (attachmentActions.scissorLift1.getCurrentPosition() < -300 && Math.abs(attachmentActions.getTurntablePosition() - attachmentActions.getTurntableGoal()) < 2) { //If it is possible to see the cone
+            if (!coneFinishState) {
+                double setSpeed = s1.driveToObject(offset, 700, 400); //Set speed between 700 and 400 as decided by the distance left; it ramps down speed until it gets there
+                if (setSpeed > minSpeed) {
+                    counter++; //If the speed is more than it was before, the distance has increased, which implies that the cone is leaving the range of the distance sensor
+                } else {
+                    counter = 0; //Record some measurements for in case it stops seeing the cone
+                    minSpeed = setSpeed;
+                    distAtMinSpeed = s1.latestDistance;
+                    ticksAtMinSpeed = encoderActions.motorFrontL.getCurrentPosition();
+                }
+                if (counter >= 3) { //If it stops seeing the cone, it goes the rest of the way until it gets to where it thought the cones were when it was seeing the cone
+                    coneDistanceFinal = distAtMinSpeed - Math.abs(encoderActions.motorFrontL.getCurrentPosition() - ticksAtMinSpeed);
+                    coneFinishState = true;
+                } else if (setSpeed == 0) { //If it gets too close to the cones, it uses its last reading to go to the cone
+                    coneDistanceFinal = s1.getSensorDistance() - offset;
+                    coneFinishState = true;
+                } else { //If it's still going to a cone that it can see, it goes at the speed set above by the ramp
+                    gyroActions.setVelocityStraight(setSpeed, 0, RIGHT);
+                }
+            } else { //When it's close to the cone or can't see it, it goes the rest of the way, using encoders and gyros
+                if (direction == FORWARDS) {
+                    if (!gyroActions.encoderGyroDriveStateMachine(400, coneDistanceFinal, 0)) {
+                        return false; //If it's done, it returns false
+                    }
+                } else if (direction == BACKWARDS) {
+                    if (!gyroActions.encoderGyroDriveStateMachine(400, -coneDistanceFinal, 0)) {
+                        return false;
+                    }
+                } else if (direction == RIGHT) {
+                    if (!gyroActions.encoderGyroStrafeStateMachine(400, coneDistanceFinal, 0, false)) {
+                        return false;
+                    }
+                } else if (direction == LEFT) {
+                    if (!gyroActions.encoderGyroStrafeStateMachine(400, coneDistanceFinal, 0, true)) {
+                        return false;
+                    }
+                }
             }
-            if (counter >= 3) {
-                coneDistanceFinal = distAtMinSpeed - Math.abs(encoderActions.motorFrontL.getCurrentPosition() - ticksAtMinSpeed);
-                coneFinishState = true;
-            } else if (setSpeed == 0) {
-                coneDistanceFinal = s1.getSensorDistance() - offset;
-                coneFinishState = true;
-            } else {
-                gyroActions.setVelocityStraight(setSpeed, 0, RIGHT);
-            }
-        } else {
-            if (direction == FORWARDS) {
-                if (!gyroActions.encoderGyroDriveStateMachine(400, coneDistanceFinal, 0)) {
-                    return false;
-                }
-            } else if (direction == BACKWARDS) {
-                if (!gyroActions.encoderGyroDriveStateMachine(400, -coneDistanceFinal, 0)) {
-                    return false;
-                }
-            } else if (direction == RIGHT) {
-                if (!gyroActions.encoderGyroStrafeStateMachine(400, coneDistanceFinal, 0, false)) {
-                    return false;
-                }
-            } else if (direction == LEFT) {
-                if (!gyroActions.encoderGyroStrafeStateMachine(400, coneDistanceFinal, 0, true)) {
-                    return false;
-                }
-            }
+        } else { //If it is too much off to be able to see the cones, it just keeps adjusting and going forward slowly.
+            //TODO: make it go by distance until it starts working, then do the above. ie gyroActions.encoderGyroDrive, but without having to mess around with resetting position
+            gyroActions.setVelocityStraight(100, 0, direction);
         }
-        return true;
+        return true; //If it's still going, it returns true
     }
     private void initConePlacement() {
         conePlacementState = 0;
