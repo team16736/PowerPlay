@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -67,6 +68,8 @@ public class AttachmentActions {
     boolean setBit = false;
     boolean lowerSetBit = false;
 
+    boolean preset;
+
 
     private Telemetry telemetry;
     private HardwareMap hardwareMap;
@@ -95,7 +98,7 @@ public class AttachmentActions {
         scissorLift1 = hardwareMap.get(DcMotorEx.class, ConfigConstants.SCISSOR_ONE);
         scissorLift2 = hardwareMap.get(DcMotorEx.class, ConfigConstants.SCISSOR_TWO);
 //        elbowServo.setPosition(0.87);
-        armExtender.setPosition(0.05);
+        armExtender.setPosition(0.95);
 //        extender.setPosition(1.0);
         gripperServo.setPosition(0.9);
         turnTable.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -121,29 +124,32 @@ public class AttachmentActions {
 //    }
 
     public void extendArm(double distance) {
-        armExtender.setPosition(distance / 22.1 + 0.05);
+        armExtender.setPosition(1-(distance / 22.1 + 0.05));
     }
 
-    boolean preset;
     public void armPresets(Gamepad gamepad2) {
         if (gamepad2.dpad_down) {
-            extendArm(1.25);
+            extendArm(1.3);
             preset = true;
         } else if (gamepad2.dpad_left) {
-            extendArm(2.5);
+            extendArm(2.58);
             preset = true;
         } else if (gamepad2.dpad_right) {
-            extendArm(3.75);
+            extendArm(3.8);
             preset = true;
         } else if (gamepad2.dpad_up) {
-            extendArm(5.25);
+            extendArm(5.3);
             preset = true;
-        } else if (gamepad2.right_trigger > 0.01) {
+        } else if (gamepad2.right_bumper) {
+            extendArm(0.05);
+            preset = true;
+        } else if (Math.abs(gamepad2.right_trigger) > 0.01) {
             preset = false;
         }
-        if (preset = false) {
+        if (preset == false) {
             extendArm(gamepad2.right_trigger * 6.375);
         }
+        telemetry.addData("preset", preset);
         telemetry.addData("trigger position", gamepad2.right_trigger);
         telemetry.addData("target servo position", armExtender.getPosition());
     }
