@@ -109,7 +109,7 @@ public class FindJunctionAction {
 
 
             telemetry.addData(">", "Press Play to start op mode");
-            int totalTicks = (int) -(0.1161 * Math.pow(scissorDistance, 3) - 2.2579 * Math.pow(scissorDistance, 2) + 56.226 * scissorDistance + 36.647);
+            int totalTicks = (int) -(0.1161 * Math.pow(scissorDistance, 3) - 2.2579 * Math.pow(scissorDistance, 2) + 56.226 * scissorDistance + 36.647); //turn inches into ticks
 
             attachmentActions.liftScissor(3000, -totalTicks, true); //Lift the lift to specified height
             RobotLog.dd("FindJunction", "targetPos %f", targetPos);
@@ -256,11 +256,16 @@ public class FindJunctionAction {
             int strafeSpeed = 700;
             if (!turnTableLeft) {turnTableLefti = -1;}
             overshoot = encoderActions.motorFrontL.getCurrentPosition() - ticksAtLowestDist;
+//            if (overshoot < 0) {
+//                overshoot += 1;
+//            } else {
+//                overshoot -= 1;
+//            }
             RobotLog.dd("FindJunction:", "overshoot %d", overshoot);
             //Math for getting the distance to strafe and drive
             if (direction == HelperActions.FORWARDS) {
                 strafe = (sensorDistance - sensorToJunction) * turnTableLefti / DistanceUnit.mmPerInch; //Take the distance we read minus the distance we want it to be away, convert to inches, and if the turntable is on the right, negate it
-                double offset = 1.0 + offset2;
+                double offset = 0.0 + offset2;
                 if (ticksAtLowestDist > 0) {
                     offset *= -1;
                 }

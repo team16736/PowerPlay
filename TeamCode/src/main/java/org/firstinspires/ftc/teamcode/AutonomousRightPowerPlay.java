@@ -41,53 +41,19 @@ public class AutonomousRightPowerPlay extends HelperActions {
         waitForStart();
 
         if (opModeIsActive()) {
-            findImageOnCone.tfod.setZoom(1.5, 16.0/9.0);
+            findImageOnCone.tfod.setZoom(1.5, 16.0/9.0); //init tfod
             attachmentActions.closeGripper(); //Close gripper around preloaded cone
             sleep(350); //Allow gripper to close - Changed from 500ms to 350ms by Wyatt 12/31/2022
-            gyroActions.encoderGyroStrafe(700, 2, 0, true);
+            gyroActions.encoderGyroStrafe(700, 2, 0, true); //strafe left 2 inches
             String location = findImageOnCone.findObject(); //Detect parking spot
-//            for (int i = 0; i < 2; i++) {
-//                if (location != "Cow" && location != "Bus" && location != "Racket") {
-//                    gyroActions.encoderGyroDrive(700, 5, 0);
-//                    encoderActions.encoderSpin(700, 180, false);
-//                    gyroActions.encoderGyroStrafe(700, 4, -180, true);
-//                    location = findImageOnCone.findObject(); //Detect parking spot
-//                }
-//            }
-            attachmentActions.extendArm(5.25);
-            gyroActions.encoderGyroStrafe(700, 2, 0, false);
+            attachmentActions.extendArm(5.25); //set minilift height to 5.25 inches
+            gyroActions.encoderGyroStrafe(700, 2, 0, false); //strafe right 2 inches
             attachmentActions.liftScissor(3000, 11, false); //Lift scissor to 11 inches
-//            encoderActions.encoderStrafe(400, 6, false);
-            findJunctionAction.findJunction(43, 20, true, FORWARDS);
-            attachmentActions.liftScissor(3000, 17, false);
-
-            encoderActions.encoderStrafe(400, 2, false);
-
-            encoderActions.encoderDrive(400, 11);
-
-//            encoderActions.encoderStrafe(400, 50, false);
-
-            /*attachmentActions.setLiftLevel(true, false, false);
-            while (attachmentActions.scissorLift1.isBusy()) {
-            }
-
-            double coneAngle = findCone(attachmentActions, baseSensor);
-            attachmentActions.turnTableEncoders(coneAngle, false);
-            while (!attachmentActions.isDone && opModeIsActive()) {
-                attachmentActions.turnTableEncoders(coneAngle, false);
-                telemetry.addData("found angle", coneAngle);
-            }
-            double distance = baseSensor.getAverageDistance();
-            GeometryActions geometry = new GeometryActions(distance + 8.5625, coneAngle);
-            encoderActions.encoderDrive(200, -geometry.getXFromDistanceAndAngle());
-            attachmentActions.turnTableEncoders(0, false);
-            while (!attachmentActions.isDone) {
-                attachmentActions.turnTableEncoders(0, false);
-            }
-            encoderActions.encoderStrafe(200, - (geometry.getYFromDistanceAndAngle() - 12.5625), false);*/
-
-
-            moveToLocation(encoderActions, location);
+            findJunctionAction.findJunction(43, 20, true, FORWARDS); //drive 43 inches forwards ramping down speed searching for junction
+            attachmentActions.liftScissor(3000, 17, false); //lift scissor to 17 inches
+            encoderActions.encoderStrafe(400, 2, false); //strafe right 2 inches
+            encoderActions.encoderDrive(400, 11); //drive forwards 11 inches
+            moveToLocation(encoderActions, location); //move to parking spot
         }
     }
 

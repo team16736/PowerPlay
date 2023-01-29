@@ -54,11 +54,11 @@ public class MainTeleOp extends HelperActions {
         while (opModeIsActive()) {
 
             /** Gamepad 1 **/
-            if(Math.abs(gamepad1.right_stick_x) > 0.01){
+//            if(Math.abs(gamepad1.right_stick_x) > 0.01){
                rotation = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
-            } /*else {
-                rotation = gyroActions.getSteeringCorrection(0, .02);
-            }*/
+//            } /*else {
+//                rotation = gyroActions.getSteeringCorrection(0, .02);
+//            }*/
 
             driveActions.drive(
                     (gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x)),      //joystick controlling strafe

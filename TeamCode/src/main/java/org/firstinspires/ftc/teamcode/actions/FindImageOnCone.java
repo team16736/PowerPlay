@@ -49,7 +49,7 @@ public class FindImageOnCone {
             // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
             // should be set to the value of the images used to create the TensorFlow Object Detection model
             // (typically 16/9).
-            tfod.setZoom(1.3, 16.0/9.0);
+            tfod.setZoom(1.6, 16.0/9.0);
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
         }
@@ -66,7 +66,7 @@ public class FindImageOnCone {
                     size = false;
                 } else {size = true;}
             }
-            int timeout = 10000;
+            int timeout = 5000;
             while(size == false && (System.currentTimeMillis() - startTime) < timeout){
                 updatedRecognitions = tfod.getUpdatedRecognitions();
                 if(updatedRecognitions != null){
@@ -97,7 +97,7 @@ public class FindImageOnCone {
                 telemetry.update();
             }
         }
-        return null;
+        return "bus";
     }
     
     /**
