@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
+import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
 import org.firstinspires.ftc.teamcode.actions.EncoderActions;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.teamcode.actions.HelperActions;
 @TeleOp(name = "Tele Op", group = "Linear Opmode")
 public class MainTeleOp extends HelperActions {
 
+    private GyroActions gyroActions = null;
     private DriveActions driveActions = null;
     private AttachmentActions attachmentActions = null;
     private EncoderActions encoderActions = null;
@@ -19,6 +21,7 @@ public class MainTeleOp extends HelperActions {
     @Override
     public void runOpMode() {
 
+        gyroActions = new GyroActions(this, telemetry, hardwareMap);
         driveActions = new DriveActions(telemetry, hardwareMap);
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
         encoderActions = new EncoderActions(this, telemetry, hardwareMap);
@@ -27,6 +30,7 @@ public class MainTeleOp extends HelperActions {
         //driveActions.setSpeed(1.0);
 
         int currentTicks = 0;
+        double rotation = 0;
         double y = 0;
         double turnTableRotation = 0;
         double encoderAdjustment;
@@ -50,10 +54,16 @@ public class MainTeleOp extends HelperActions {
         while (opModeIsActive()) {
 
             /** Gamepad 1 **/
+//            if(Math.abs(gamepad1.right_stick_x) > 0.01){
+               rotation = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
+//            } else {
+//                rotation = -gyroActions.getSteeringCorrection(0, .02);
+//            }
+
             driveActions.drive(
                     (gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x)),      //joystick controlling strafe
                     (-gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y)),     //joystick controlling forward/backward
-                    (gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x)));    //joystick controlling rotation
+                     rotation);    //joystick controlling rotation
             telemetry.addData("Left stick x", gamepad1.left_stick_x);
             telemetry.addData("left stick y", gamepad1.left_stick_y);
             telemetry.addData("right stick x", gamepad1.right_stick_x);
@@ -101,6 +111,8 @@ public class MainTeleOp extends HelperActions {
 
             attachmentActions.turnTable.setPower(getAdjustedTurntablePower());
 
+//            attachmentActions.turnTable90Degrees(gamepad2);
+
             //Need to add an interrupt
             /*if (!isPlacingCone) {
                 spinLeft = false;
@@ -134,6 +146,9 @@ public class MainTeleOp extends HelperActions {
         } else {
             turnTableRotation = 0;
         }
-        return turnTableRotation;
+        if(-attachmentActions.scissorLift1.getCurrentPosition() > 100){
+            turnTableRotation = turnTableRotation * 0.5;
+        }
+        return turnTableRotation * 0.8;
     }
 }

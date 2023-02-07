@@ -49,6 +49,8 @@ public class FindJunctionAction {
     int prevDistTicks;
     int keptGoingCounter;
     int minDistance = 300;
+    int currentPosition = 0;
+    double currentVelocity = 0.0;
 
     double strafe;
     double drive;
@@ -109,24 +111,34 @@ public class FindJunctionAction {
 
 
             telemetry.addData(">", "Press Play to start op mode");
-            int totalTicks = (int) -(0.1161 * Math.pow(scissorDistance, 3) - 2.2579 * Math.pow(scissorDistance, 2) + 56.226 * scissorDistance + 36.647);
+            int totalTicks = (int) -(0.1161 * Math.pow(scissorDistance, 3) - 2.2579 * Math.pow(scissorDistance, 2) + 56.226 * scissorDistance + 36.647); //turn inches into ticks
 
             attachmentActions.liftScissor(3000, -totalTicks, true); //Lift the lift to specified height
+
             RobotLog.dd("FindJunction", "targetPos %f", targetPos);
             state = 1;
         }
 
+        int localPos = encoderActions.motorFrontL.getCurrentPosition(); //Get the position only once per cycle
+        double localVel = encoderActions.motorFrontL.getVelocity();
+        if (localPos != 0) {
+            currentPosition = localPos;
+            currentVelocity = localVel;
+        } else {
+            RobotLog.dd("FindJunction", "Got Zero");
+        }
         int minCounter = 1;
-        if (Math.abs(encoderActions.motorFrontL.getCurrentPosition()) < Math.abs(targetPos) && opModeObj.opModeIsActive() && state == 1) {
+        if (Math.abs(currentPosition) < Math.abs(targetPos) && opModeObj.opModeIsActive() && state == 1) {
             //If we aren't at the target position and the program is running
             if (steadyTable) {
                 attachmentActions.turnTableEncoders(tableDegrees, false);
             }
-            if (Math.abs(encoderActions.motorFrontL.getCurrentPosition()) < Math.abs(targetPos - targetPos * adj)) {
+            RobotLog.dd("FindJunction", "Ramping");
+            if (Math.abs(currentPosition) < Math.abs(targetPos - targetPos * adj)) {
                 speed = topSpeed; //If less than 25% of the way, go to top speed
             } else {
                 //Otherwise, ramp down to 5% speed over the rest of the distance
-                drive = Math.abs(encoderActions.motorFrontL.getCurrentPosition()) - (targetPos * (1 - adj));
+                drive = Math.abs(currentPosition) - (targetPos * (1 - adj));
                 //ramp = topSpeed * 2 * ((targetPos-motorFrontL.getCurrentPosition())/targetPos);
 //                ramp = topSpeed * (targetPos - encoderActions.motorFrontL.getCurrentPosition()) / (targetPos - (targetPos * adj));
                 ramp = drive * -(topSpeed - minSpeed) / (adj * targetPos) + topSpeed;
@@ -138,7 +150,9 @@ public class FindJunctionAction {
                     ramp *= -1;
                 }
             }
+            RobotLog.dd("FindJunction", "get tilt error");
             tiltError = gyroActions.getSteeringCorrection(degrees, Math.abs(speed) * 0.05, Math.abs(speed)); //Adjustment to go straight
+            RobotLog.dd("FindJunction", "Set Motor Velocity");
             if (direction == HelperActions.FORWARDS) {
                 encoderActions.setVelocity(speed - tiltError, speed + tiltError, speed - tiltError, speed + tiltError);
             } else if (direction == HelperActions.BACKWARDS) {
@@ -151,20 +165,21 @@ public class FindJunctionAction {
 //            encoderActions.setVelocity(speed, speed, speed, speed);
 
 
+            RobotLog.dd("FindJunction", "getting sensor distance");
             double distanceS1 = s1.getSensorDistance(DistanceUnit.MM); //Get the distance only once per cycle
-            int currentPos = encoderActions.motorFrontL.getCurrentPosition(); //Get the position only once per cycle
-            RobotLog.dd("FindJunction", "distance: %f currentPos: %d, counter: %d, time: %d, velocity: %f", distanceS1, currentPos, counter, System.currentTimeMillis(), encoderActions.motorFrontL.getVelocity());
+            RobotLog.dd("FindJunction", "distance: %f currentPos: %d, counter: %d, time: %d, velocity: %f, heading error %f", distanceS1, currentPosition, counter, System.currentTimeMillis(), currentVelocity, tiltError / (speed * 0.05));
             if (distanceS1 > 2000) { //System for throwing out errors. If it goes from more than 2000 to less than 2000 to more again in less than three cycles, we know it's an error
                 if (idCounter <= 2) {
                     dist = prevDist;
                     ticksAtLowestDist = prevDistTicks;
-                } else {
-                    counter = minCounter + 1;
                 }
                 idCounter = 0;
             }
+            if (distanceS1 > minDistance && idCounter > minCounter) {
+                counter = minCounter + 1;
+            }
 
-            if (attachmentActions.scissorLift1.getCurrentPosition() < -490 && (Math.abs(targetPos) - Math.abs(currentPos)) < 400 && distanceS1 < minDistance) {
+            if (attachmentActions.scissorLift1.getCurrentPosition() < -490 && (Math.abs(targetPos) - Math.abs(currentPosition)) < 400 && distanceS1 < minDistance) {
                 //If our scissor lift is high enough to see and we're far enough that we wouldn't see the other poles and we're seeing a pole
                 if (idCounter == 0) { //Part of the error correction system.
                     prevDist = dist;
@@ -175,7 +190,7 @@ public class FindJunctionAction {
                 if (distanceS1 < dist) { //If the current distance is less than the past minimum, it's the new minimum and we record where we were when we got it
 
                     dist = distanceS1;
-                    ticksAtLowestDist = currentPos;
+                    ticksAtLowestDist = currentPosition;
 
                 }
 
@@ -207,8 +222,12 @@ public class FindJunctionAction {
             }
 
         } else if (state == 1) { //If we've seen the goal or reached our set position
-            if (counter <= minCounter && keptGoingCounter < 12) { //If we've reached the set position but haven't seen the pole, we try again but go a little further
-                targetPos += 30;
+            if (counter <= minCounter && keptGoingCounter < 6) { //If we've reached the set position but haven't seen the pole, we try again but go a little further
+                if (targetPos < 0) {
+                    targetPos -= 60;
+                } else {
+                    targetPos += 60;
+                }
                 keptGoingCounter++;
                 RobotLog.dd("FindJunction", "Kept Going");
                 return;
@@ -256,11 +275,16 @@ public class FindJunctionAction {
             int strafeSpeed = 700;
             if (!turnTableLeft) {turnTableLefti = -1;}
             overshoot = encoderActions.motorFrontL.getCurrentPosition() - ticksAtLowestDist;
+//            if (overshoot < 0) {
+//                overshoot += 1;
+//            } else {
+//                overshoot -= 1;
+//            }
             RobotLog.dd("FindJunction:", "overshoot %d", overshoot);
             //Math for getting the distance to strafe and drive
             if (direction == HelperActions.FORWARDS) {
                 strafe = (sensorDistance - sensorToJunction) * turnTableLefti / DistanceUnit.mmPerInch; //Take the distance we read minus the distance we want it to be away, convert to inches, and if the turntable is on the right, negate it
-                double offset = 1.0 + offset2;
+                double offset = 0.0 + offset2;
                 if (ticksAtLowestDist > 0) {
                     offset *= -1;
                 }
@@ -276,7 +300,7 @@ public class FindJunctionAction {
                     offset *= -1;
                 }
                 drive = (sensorDistance - sensorToJunction) * -turnTableLefti / DistanceUnit.mmPerInch + offset;
-                strafe = overshoot / 31.0 + 1;
+                strafe = overshoot / 31.0;
                 driveSpeed = 700;
                 strafeSpeed = 350;
             } else if (direction == HelperActions.LEFT) {

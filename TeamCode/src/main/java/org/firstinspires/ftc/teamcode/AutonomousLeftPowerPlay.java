@@ -40,24 +40,24 @@ public class AutonomousLeftPowerPlay extends HelperActions {
 
         if (opModeIsActive()) {
 //            attachmentActions.closeGripper();
-            findImageOnCone.tfod.setZoom(1.5, 16.0/9.0);
-            gyroActions.encoderGyroStrafe(700, 2, 0, false);
+            findImageOnCone.tfod.setZoom(1.5, 16.0/9.0); //set up tensorflow lite
+            gyroActions.encoderGyroStrafe(700, 2, 0, false); //strafe right 2 inches
             attachmentActions.closeGripper(); //Close gripper around preloaded cone
             String location = findImageOnCone.findObject(); //Detect parking spot
             sleep(350); //Allow gripper to close - Changed from 500ms to 350ms by Wyatt 12/31/2022
-            attachmentActions.extendArm(5.25);
+            attachmentActions.extendArm(5.25); //raise grabber on minilift to 5.25 inches
             gyroActions.encoderGyroStrafe(700, 2, 0, true);
             attachmentActions.liftScissor(3000, 11, false); //Lift scissor to 11 inches
 //            encoderActions.encoderStrafe(400, 6, false);
-            findJunctionAction.findJunctionStateMachine(43, 20, true, false, FORWARDS, -2, 0);
-            while (findJunctionAction.state != 0) {
-                findJunctionAction.findJunctionStateMachine(43, 20, true, false, FORWARDS, -2, 0);
+            findJunctionAction.findJunctionStateMachine(43, 20, true, false, FORWARDS, 0, 0); //drive 43 inches forwards while ramping down and searching for junction
+            while (findJunctionAction.state != 0) { //while it hasnt finished, continue searching
+                findJunctionAction.findJunctionStateMachine(43, 20, true, false, FORWARDS, 0, 0);
             }
 
-            encoderActions.encoderStrafe(400, 2, true);
+            encoderActions.encoderStrafe(400, 2, true); //drive 2 inches left
 
-            encoderActions.encoderDrive(400, 11);
-            moveToLocation(encoderActions, location);
+            encoderActions.encoderDrive(400, 11); //drive forwards 11 inches
+            moveToLocation(encoderActions, location); //park
 
 
              }

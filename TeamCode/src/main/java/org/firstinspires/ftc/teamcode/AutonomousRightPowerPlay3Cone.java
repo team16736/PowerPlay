@@ -243,7 +243,7 @@ public class AutonomousRightPowerPlay3Cone extends HelperActions{
     private void getDistance(AttachmentActions attachmentActions, EncoderActions encoderActions) {
         if (attachmentActions.scissorLift1.getCurrentPosition() < -300 && Math.abs(attachmentActions.getTurntablePosition() + 180) < 4 && distanceMemBit == false && s1.getSensorDistance() < 10) {
 //        if (Math.abs(attachmentActions.getTurntablePosition() - 180) < 10) {
-            distanceFromCones = s1.getAverageDistanceAllInOne(true) - 6.5;
+            distanceFromCones = s1.getAverageDistanceAllInOne(true) - 7.5;
             telemetry.update();
             gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, distanceFromCones, false);
             distanceMemBit = true;
@@ -276,8 +276,8 @@ public class AutonomousRightPowerPlay3Cone extends HelperActions{
             telemetry.update();
         } else {
             //              Location 1
-            gyroActions.initEncoderGyroStrafeStateMachine(2000, 18, true);
-            while (gyroActions.encoderGyroStrafeStateMachine(2000, 18, 0, true)) {}
+            gyroActions.initEncoderGyroStrafeStateMachine(1500, 18, true);
+            while (gyroActions.encoderGyroStrafeStateMachine(1500, 18, 0, true)) {}
             telemetry.addData(location, "<");
             telemetry.update();
         }

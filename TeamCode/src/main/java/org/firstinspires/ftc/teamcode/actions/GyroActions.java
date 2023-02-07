@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -228,6 +229,7 @@ public class GyroActions {
 
         if (motorFrontL.isBusy()) {
             headingError = getSteeringCorrection(heading, speed * 0.05, speed);
+            RobotLog.dd("FindJunction", "Heading Error %f", headingError / (speed * 0.05));
 //            motorFrontL.setVelocity(-speed + headingError);
 //            motorFrontR.setVelocity(-speed - headingError);
 //            motorBackL.setVelocity(-speed + headingError);

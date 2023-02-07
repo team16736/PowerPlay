@@ -44,7 +44,6 @@ public class AutonomousTest extends HelperActions{
 //        findImageOnCone = new FindImageOnCone(telemetry, hardwareMap);
         s1 = new DistanceSensorActions(hardwareMap, 0.5, 10, ConfigConstants.BASE_RANGE);
 //        driveActions.setMotorDirection_Forward();
-        attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        FindJunctionAction findJunctionAction = new FindJunctionAction(hardwareMap, telemetry, this, driveActions, attachmentActions, s1, encoderActions, gyroActions);
 
         boolean memBitOn = false;
@@ -60,7 +59,11 @@ public class AutonomousTest extends HelperActions{
 //        while (opModeIsActive()) {
         if (opModeIsActive()) {
 
-            RobotLog.dd("FindJunction", "distance %f", s1.getSensorDistance());
+            attachmentActions.liftScissor(3000, 20, false);
+            while (attachmentActions.scissorLift1.isBusy()) {}
+            attachmentActions.liftToZero();
+            while (attachmentActions.liftToZero()) {}
+            RobotLog.dd("FindJunction", "lol");
 //            attachmentActions.turnTableEncoders(0, false);
 //            gyroActions.encoderGyroDriveStateMachine(700, 32, 0);
 //            while (!attachmentActions.isDone || findJunctionAction.state != 0) {
@@ -69,19 +72,6 @@ public class AutonomousTest extends HelperActions{
 //                    gyroActions.encoderGyroDriveStateMachine(700, 32, 0);
 //                }
 //            }
-
-
-//            int i = 0;
-//            int offset = 10;
-//            s1.driveToObject(offset, 500, 100);
-//            RobotLog.dd("FindJunction", "state %d", s1.driveToObjectState);
-//            while (opModeIsActive() && s1.driveToObjectState != 0){
-//                setSpeed(s1.driveToObject(offset, 500, 100), 0);
-//                i++;
-//            }
-//            gyroActions.encoderGyroDrive(100, s1.getSensorDistance() - offset, 0);
-//            RobotLog.dd("FindJunction", "distance %f", s1.getSensorDistance());
-
 
 //            double total = 0;
 //            double avg;

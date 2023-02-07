@@ -66,7 +66,7 @@ public class DistanceSensorActions {
 
     public double getAverageDistanceAllInOne(boolean under70) {
         sumAllAvg = 0;
-        for (int i = 0; i < avgDistanceLength; i++) {
+        for (int i = 0; i < avgDistanceLength; i++) { //avgDistanceLength set to 10 during init as of 1/19/2023
             sumAllDistance = getSensorDistance();
             if (under70 && sumAllDistance > 80) {
                 for (int j = 0; j < 10; j++) {
