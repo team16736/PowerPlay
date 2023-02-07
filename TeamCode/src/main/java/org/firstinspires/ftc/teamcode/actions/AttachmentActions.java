@@ -146,10 +146,14 @@ public class AttachmentActions {
             extendArm(0.05);
             preset = true;
         } /*else if (Math.abs(gamepad2.right_trigger) > 0.01) {
+=======
+        } else if (Math.abs(gamepad2.right_trigger) > 0.01) {
+>>>>>>> ddd879cb53183cd50810a43ed8102d56e9a64778
             preset = false;
         }
         if (preset == false) {
             extendArm(gamepad2.right_trigger * 6.375);
+<<<<<<< HEAD
         }*/
         telemetry.addData("preset", preset);
         telemetry.addData("trigger position", gamepad2.right_trigger);

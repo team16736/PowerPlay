@@ -49,6 +49,7 @@ public class AutonomousLeftPowerPlay extends HelperActions {
             gyroActions.encoderGyroStrafe(700, 2, 0, true);
             attachmentActions.liftScissor(3000, 11, false); //Lift scissor to 11 inches
 //            encoderActions.encoderStrafe(400, 6, false);
+
             findJunctionAction.findJunctionStateMachine(43, 20, true, false, FORWARDS, 0, 0); //drive 43 inches forwards while ramping down and searching for junction
             while (findJunctionAction.state != 0) { //while it hasnt finished, continue searching
                 findJunctionAction.findJunctionStateMachine(43, 20, true, false, FORWARDS, 0, 0);
