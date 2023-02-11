@@ -199,7 +199,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, distanceFromCones, true);
             distanceMemBit = true;
         } else if (s1.getSensorDistance() > 10 && gyroActions.strafeState == 0) {
-            distanceFromCones = s1.getAverageDistanceAllInOne(true) - 11;
+            distanceFromCones = s1.getAverageDistanceAllInOne(true) - 9.5;
             gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, distanceFromCones, true);
             RobotLog.dd("FindJunction", ":/");
         }
