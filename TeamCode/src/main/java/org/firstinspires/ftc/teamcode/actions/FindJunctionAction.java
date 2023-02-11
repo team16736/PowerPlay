@@ -107,7 +107,7 @@ public class FindJunctionAction {
             if (distance < 0) {
                 topSpeed *= -1;
             }
-            minSpeed = 0.05 * topSpeed;
+            minSpeed = 0.1 * topSpeed;
 
 
             telemetry.addData(">", "Press Play to start op mode");
@@ -121,6 +121,9 @@ public class FindJunctionAction {
 
         int localPos = encoderActions.motorFrontL.getCurrentPosition(); //Get the position only once per cycle
         double localVel = encoderActions.motorFrontL.getVelocity();
+        if (steadyTable) {
+            attachmentActions.turnTableEncoders(tableDegrees, false);
+        }
         if (localPos != 0) {
             currentPosition = localPos;
             currentVelocity = localVel;
@@ -130,9 +133,6 @@ public class FindJunctionAction {
         int minCounter = 1;
         if (Math.abs(currentPosition) < Math.abs(targetPos) && opModeObj.opModeIsActive() && state == 1) {
             //If we aren't at the target position and the program is running
-            if (steadyTable) {
-                attachmentActions.turnTableEncoders(tableDegrees, false);
-            }
             RobotLog.dd("FindJunction", "Ramping");
             if (Math.abs(currentPosition) < Math.abs(targetPos - targetPos * adj)) {
                 speed = topSpeed; //If less than 25% of the way, go to top speed
@@ -286,7 +286,7 @@ public class FindJunctionAction {
                 strafe = (sensorDistance - sensorToJunction) * turnTableLefti / DistanceUnit.mmPerInch; //Take the distance we read minus the distance we want it to be away, convert to inches, and if the turntable is on the right, negate it
                 double offset = 0.0 + offset2;
                 if (ticksAtLowestDist > 0) {
-                    offset *= -1;
+                    offset *= -1.0;
                 }
                 drive = overshoot / 31.0 + offset; //Take the distance we went further than when we were looking at it, convert to inches, and add an offset
                 //Basically the same process with all the other directions, just in different directions
@@ -297,20 +297,20 @@ public class FindJunctionAction {
             } else if (direction == HelperActions.RIGHT) {
                 double offset = 0.5 + offset2;
                 if (ticksAtLowestDist < 0) {
-                    offset *= -1;
+                    offset *= -1.0;
                 }
                 drive = (sensorDistance - sensorToJunction) * -turnTableLefti / DistanceUnit.mmPerInch + offset;
                 strafe = overshoot / 31.0;
-                driveSpeed = 700;
+                driveSpeed = 350;
                 strafeSpeed = 350;
             } else if (direction == HelperActions.LEFT) {
                 double offset = 0.0 + offset2;
                 if (ticksAtLowestDist < 0) {
-                    offset *= -1;
+                    offset *= -1.0;
                 }
                 drive = ((sensorDistance - sensorToJunction) * turnTableLefti) / DistanceUnit.mmPerInch + offset;
-                strafe = (overshoot / 33.6);
-                driveSpeed = 700;
+                strafe = (overshoot / 33.6)-1.0;
+                driveSpeed = 350;
                 strafeSpeed = 350;
             }
             boolean encoderMoveLeft = true;
@@ -336,8 +336,9 @@ public class FindJunctionAction {
         }
         if (placeState == 4) {
             //Set the cone down
-            attachmentActions.openGripper();
             attachmentActions.liftScissor(3000, -1.5, false);
+            attachmentActions.openGripper();
+//            attachmentActions.liftScissor(3000, -1.5, false);
             placeState = 0;
             telemetry.addData("strafe", strafe);
             telemetry.addData("drive", drive);
@@ -350,7 +351,7 @@ public class FindJunctionAction {
     }
     public void reset() {
         placeState = 0;
-        topSpeed = 2400 * 0.5; // = 1200
+        topSpeed = 2400 * 0.25; // = 1200
         state = 0;
         speed = 0;
         memBitOn = false;

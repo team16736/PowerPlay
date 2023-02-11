@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.actions.HelperActions;
 
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
 
-@Autonomous(name = "PROGGERS Right Powerplay 3 Cone")
+@Autonomous(name = "Autonomous Right Powerplay 3 Cone")
 // james suggested "PROGGERS" not me, -wyatt
 public class Right3ConeInProg extends HelperActions{
     private DriveActions driveActions = null;
@@ -139,7 +139,7 @@ public class Right3ConeInProg extends HelperActions{
         //while doing the above, the scissor lift runs into the junction. possibly raise scissor from 1500 to 1550? 1600?
         attachmentActions.scissorLift1.setPower(0.0);   //idle lift
         attachmentActions.scissorLift2.setPower(0.0);   //idle lift
-        gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, false); //strafe left 30" if on cone 3 or 4, 32" if on top cone. strafe at 700tpr
+        gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, false); //strafe right 30" if on cone 3 or 4, 32" if on top cone. strafe at 700tpr
         //Run turntable first bc cannot run both(would hit junction) and turntable is slower than lowering the lift
         while (Math.abs(encoderActions.motorFrontL.getCurrentPosition()) < 235) { //where does 235 come from?
             attachmentActions.turnTableEncoders(-180, false); //allow completion of turn
