@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
 import org.firstinspires.ftc.teamcode.actions.distancecalcs.DistanceSensorActions;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
+import org.firstinspires.ftc.teamcode.actions.distancecalcs.GeometryActions;
 
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
 
@@ -25,6 +26,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
     private GyroActions gyroActions = null;
     private FindImageOnCone findImageOnCone = null;
     private DistanceSensorActions s1 = null;
+    private GeometryActions geometry = null;
 
     int state = 0;
     double startTime;
@@ -42,9 +44,10 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
         gyroActions = new GyroActions(this, telemetry, hardwareMap);
         findImageOnCone = new FindImageOnCone(telemetry, hardwareMap);
         s1 = new DistanceSensorActions(hardwareMap, 0.5, 10, ConfigConstants.BASE_RANGE);
+        geometry = new GeometryActions();
         driveActions.setMotorDirection_Forward();
         attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        FindJunctionAction findJunctionAction = new FindJunctionAction(hardwareMap, telemetry, this, driveActions, attachmentActions, s1, encoderActions, gyroActions);
+        FindJunctionAction findJunctionAction = new FindJunctionAction(hardwareMap, telemetry, this, driveActions, attachmentActions, s1, encoderActions, gyroActions, geometry);
 
         boolean memBitOn = false;
         boolean memBitOff = false;
@@ -105,7 +108,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
 //                getDistance(attachmentActions, encoderActions); //get the distance from the distance sensor, drives until <10mm detected
             }
             attachmentActions.closeGripper(); //Close around top cone on stack
-            sleep(350); //Allow gripper to close - Changed from 500ms to 350ms by Wyatt 12/31/2022
+            sleep(400); //Allow gripper to close - Changed from 500ms to 350ms by Wyatt 12/31/2022
             RobotLog.dd("FindJunction", "Drive to Cone 2");
             attachmentActions.liftScissor(3000, 10, false); //Lift scissor to 10 inches
             coneNum--; //Subtracts cone number by one
@@ -193,7 +196,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
     private void getDistance(AttachmentActions attachmentActions, EncoderActions encoderActions) {
         if (attachmentActions.scissorLift1.getCurrentPosition() < -300 && Math.abs(attachmentActions.getTurntablePosition() - 180) < 5 && distanceMemBit == false && s1.getSensorDistance() < 10) {
 //        if (Math.abs(attachmentActions.getTurntablePosition() - 180) < 10) {
-            distanceFromCones = s1.getAverageDistanceAllInOne(true) - 7.5;
+            distanceFromCones = s1.getAverageDistanceAllInOne(true) -6.5;
             telemetry.addData("avg distance", distanceFromCones);
             telemetry.update();
             gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, distanceFromCones, true);
@@ -214,8 +217,8 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
                 attachmentActions.turnTableEncoders(180, false);
             }
             sleep(100);
-            gyroActions.initEncoderGyroStrafeStateMachine(2000, 15, false);
-            while (gyroActions.encoderGyroStrafeStateMachine(2000, 15, 0, false)) {
+            gyroActions.initEncoderGyroStrafeStateMachine(2000, 13, false);
+            while (gyroActions.encoderGyroStrafeStateMachine(2000, 13, 0, false)) {
                 attachmentActions.liftToZero();
                 attachmentActions.turnTableEncoders(180, false);
             }
@@ -228,25 +231,20 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
                 attachmentActions.liftToZero();
             }
             sleep(100);
-            gyroActions.initEncoderGyroStrafeStateMachine(2000, 18, true);
-            while (gyroActions.encoderGyroStrafeStateMachine(2000, 18, 0, true)) {
+            gyroActions.initEncoderGyroStrafeStateMachine(2000, 15, true);
+            while (gyroActions.encoderGyroStrafeStateMachine(2000, 15, 0, true)) {
                 attachmentActions.liftToZero();
             }
             telemetry.addData(location, "<");
             telemetry.update();
         } else {
             //              Location 1
-            gyroActions.encoderGyroDriveStateMachine(2500, 0.5, 0);
-            while (gyroActions.encoderGyroDriveStateMachine(2500, 0.5, 0)) {
-                attachmentActions.liftToZero();
-            }
-            sleep(100);
-            gyroActions.initEncoderGyroStrafeStateMachine(2000, 43, true);
+            gyroActions.initEncoderGyroStrafeStateMachine(2000, 41, true);
             while (Math.abs(encoderActions.motorFrontL.getCurrentPosition() * 2) < Math.abs(encoderActions.motorFrontL.getTargetPosition())) {
-                gyroActions.encoderGyroStrafeStateMachine(2000, 43, 0, true);
+                gyroActions.encoderGyroStrafeStateMachine(2000, 41, 0, true);
                 attachmentActions.liftToZero();
             }
-            while (gyroActions.encoderGyroStrafeStateMachine(1200, 43, 0, true)) {
+            while (gyroActions.encoderGyroStrafeStateMachine(1200, 41, 0, true)) {
                 attachmentActions.liftToZero();
             }
             telemetry.addData(location, "<");

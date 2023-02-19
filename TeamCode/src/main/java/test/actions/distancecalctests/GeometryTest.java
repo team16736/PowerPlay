@@ -6,15 +6,37 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class GeometryTest {
+
     @Test
-    public void testX(){
-        GeometryActions geometry = new GeometryActions(10, 30);
-        Assert.assertEquals(5, geometry.getXFromDistanceAndAngle(), 0.0001);
+    public void testGetDist() {
+        GeometryActions geometry = new GeometryActions();
+        Assert.assertEquals(0, geometry.getDist(8190, 0, true)[1], 0.001);
+        Assert.assertEquals(0, geometry.getDist(8190, 10, true)[1], 0.001);
+        Assert.assertEquals(0, geometry.getDist(8190, 16, true)[1], 0.001);
+        Assert.assertEquals(0, geometry.getDist(0, 24, true)[1], 0.001);
+        Assert.assertEquals(0, geometry.getDist(8190, 37, true)[1], 0.001);
+        Assert.assertEquals(8190, geometry.dist, 0);
+        Assert.assertEquals(0, geometry.getDist(57, 43, true)[1], 0.001);
+        Assert.assertEquals(0, geometry.getDist(48, 51, true)[1], 0.001);
+        Assert.assertEquals(0, geometry.getDist(45, 57, true)[1], 0.001);
+        Assert.assertEquals(0, geometry.getDist(35, 65, true)[1], 0.001);
+        Assert.assertEquals(0, geometry.getDist(40, 71, true)[1], 0.001);
+        Assert.assertEquals(0, geometry.getDist(36, 81, true)[1], 0.001);
+        Assert.assertEquals(0, geometry.getDist(38, 94, true)[1], 0.001);
+        Assert.assertEquals(81, geometry.getDist(40, 103, true)[1], 0.001);
+        Assert.assertEquals(81, geometry.getDist(45, 110, true)[1], 0.001);
     }
+
     @Test
-    public void testY(){
-        GeometryActions geometry = new GeometryActions(10, 30);
-        Assert.assertEquals(Math.sqrt(75), geometry.getYFromDistanceAndAngle(), 0.0001);
+    public void testIsError() {
+        GeometryActions geometry = new GeometryActions();
+        int[] pleaseTicks = new int[2];
+        pleaseTicks[0] = 37;
+        pleaseTicks[1] = 45;
+        double[] pleaseDist = new double[2];
+        pleaseDist[0] = 3;
+        pleaseDist[1] = 2;
+        Assert.assertEquals(true, geometry.isError(1, 29, pleaseDist, pleaseTicks));
     }
     /*public void testTriangleArea(){
         GeometryActions geometry = new GeometryActions(4, 6, 3, 0);

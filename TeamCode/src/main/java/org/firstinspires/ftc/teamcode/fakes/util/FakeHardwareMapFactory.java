@@ -30,6 +30,7 @@ import org.firstinspires.ftc.teamcode.fakes.drive.FakeCRServo;
 import org.firstinspires.ftc.teamcode.fakes.drive.FakeDcMotorEx;
 import org.firstinspires.ftc.teamcode.fakes.drive.FakeRevBlinkinLedDriver;
 import org.firstinspires.ftc.teamcode.fakes.drive.FakeServo;
+import org.firstinspires.ftc.teamcode.fakes.sensors.FakeBNO055IMU;
 import org.firstinspires.ftc.teamcode.fakes.sensors.FakeDigitalChannel;
 import org.firstinspires.ftc.teamcode.fakes.sensors.FakeDistanceSensor;
 import org.firstinspires.ftc.teamcode.fakes.sensors.FakeRevTouchSensor;
@@ -42,7 +43,6 @@ import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
@@ -65,6 +65,7 @@ public class FakeHardwareMapFactory {
     public static final String REV_TOUCH_SENSOR_TAG_NAME = "RevTouchSensor";
     public static final String REV_BLINKINLED_DRIVER_TAG_NAME = "RevBlinkinLedDriver";
     public static final String CR_SERVO_TAG_NAME = "ContinuousRotationServo";
+    public static final String IMU_TAG_NAME = "imu";
 
     /**
      * Loads the hardware map with the name &quot;hardwareMapName&quot; from the location used by

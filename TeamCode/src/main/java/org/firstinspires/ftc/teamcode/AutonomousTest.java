@@ -56,14 +56,13 @@ public class AutonomousTest extends HelperActions{
         telemetry.update();
         waitForStart();
 
-//        while (opModeIsActive()) {
-        if (opModeIsActive()) {
+        while (opModeIsActive()) {
+//        if (opModeIsActive()) {
 
-            attachmentActions.liftScissor(3000, 20, false);
-            while (attachmentActions.scissorLift1.isBusy()) {}
-            attachmentActions.liftToZero();
-            while (attachmentActions.liftToZero()) {}
-            RobotLog.dd("FindJunction", "lol");
+
+            telemetry.addData("hee hee", "hoo hoo");
+            telemetry.update();
+            RobotLog.dd("FindJunction", "Hee Hee");
 //            attachmentActions.turnTableEncoders(0, false);
 //            gyroActions.encoderGyroDriveStateMachine(700, 32, 0);
 //            while (!attachmentActions.isDone || findJunctionAction.state != 0) {

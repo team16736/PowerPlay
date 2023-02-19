@@ -23,6 +23,7 @@ public class AutonomousRightPowerPlay extends HelperActions {
     private AttachmentActions attachmentActions = null;
     private EncoderActions encoderActions = null;
     private GyroActions gyroActions = null;
+    private GeometryActions geometry = null;
 
     private FindImageOnCone findImageOnCone = null;
     private double speed = 200;
@@ -34,7 +35,8 @@ public class AutonomousRightPowerPlay extends HelperActions {
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
         gyroActions = new GyroActions(this, telemetry, hardwareMap);
         DistanceSensorActions s1 = new DistanceSensorActions(hardwareMap, 0.2, 10, ConfigConstants.BASE_RANGE);
-        FindJunctionAction findJunctionAction = new FindJunctionAction(hardwareMap, telemetry, this, driveActions, attachmentActions, s1, encoderActions, gyroActions);
+        geometry = new GeometryActions();
+        FindJunctionAction findJunctionAction = new FindJunctionAction(hardwareMap, telemetry, this, driveActions, attachmentActions, s1, encoderActions, gyroActions, geometry);
         driveActions.setMotorDirection_Forward();
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();

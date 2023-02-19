@@ -66,7 +66,7 @@ public class FindImageOnCone {
                     size = false;
                 } else {size = true;}
             }
-            int timeout = 5000;
+            int timeout = 3000;
             while(size == false && (System.currentTimeMillis() - startTime) < timeout){
                 updatedRecognitions = tfod.getUpdatedRecognitions();
                 if(updatedRecognitions != null){

@@ -1,20 +1,142 @@
 package org.firstinspires.ftc.teamcode.actions.distancecalcs;
 
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.util.RobotLog;
+
 public class GeometryActions {
-    public double distance;
-    public double angle;
-    double verticalOffset = 8.5625; //Front/back distance from sensor to center of rotation
-    double radius = 13; //Distance from center of rotation to center of cone
-    public GeometryActions(double distance, double angle){
-        this.distance = distance;
-        this.angle = angle;
+    public double[] output;
+    public double minDistance = 300;
+    public int counter = 0;
+    public int minCounter = 1;
+    public int state = 0;
+    public int ticksAtDist = 0;
+    public double dist = 8190;
+    public int idCounter = 0;
+    public int prevTicksBefore = 0;
+    public double prevDistBefore = 8190;
+    public int prevTicksAfter = 0;
+    public double prevDistAfter = 8190;
+    public double[] distanceAtCount;
+    public int[] ticksAtCount;
+    public boolean checkForError = true;
+    public boolean done = false;
+    public double[] getDist(double distance, int ticks, boolean detect) {
+        if (state == 0) {
+            resetGetDist();
+            state = 1;
+        }
+        if (!done) {
+            if (distance > 2000) {
+                if (idCounter <= 2) {
+                    dist = prevDistBefore;
+                    ticksAtDist = prevTicksBefore;
+                }
+                idCounter = 0;
+            }
+            if (distance > minDistance && idCounter > 2) {
+                counter = minCounter + 1;
+                checkForError = false;
+            }
+
+            if (detect && distance < minDistance) {
+                if (idCounter == 0) {
+                    prevDistBefore = dist;
+                    prevTicksBefore = ticksAtDist;
+                }
+                idCounter++;
+
+                if (distance < dist) {
+                    prevDistAfter = dist;
+                    prevTicksAfter = ticksAtDist;
+                    dist = distance;
+                    ticksAtDist = ticks;
+                }
+
+                if (distance > dist) {
+                    distanceAtCount[counter] = distance;
+                    ticksAtCount[counter] = ticks;
+                    counter++;
+                } else {
+                    counter = 0;
+                }
+            }
+            if (counter > minCounter) {
+                if (checkForError && isError(dist, ticksAtDist, distanceAtCount, ticksAtCount)) {
+                    int lowest = getLowest(distanceAtCount, prevDistAfter);
+                    if (lowest < 0) {
+                        dist = prevDistAfter;
+                        ticksAtDist = prevTicksAfter;
+                    } else {
+                        dist = distanceAtCount[lowest];
+                        ticksAtDist = ticksAtCount[lowest];
+                    }
+                    counter = 0;
+                    checkForError = false;
+                } else {
+                    output[0] = dist;
+                    output[1] = (double) ticksAtDist;
+                    done = true;
+                    state = 0;
+                    RobotLog.dd("FindJunction", "Dist: %f, %f, %f", dist, distanceAtCount[0], distanceAtCount[1]);
+                    RobotLog.dd("FindJunction", "Ticks: %d, %d, %d", ticksAtDist, ticksAtCount[0], ticksAtCount[1]);
+                }
+            } else {
+                output[0] = 0;
+                output[1] = 0;
+            }
+        }
+        return output;
     }
-    public double getXFromDistanceAndAngle(){
-        return ((distance + verticalOffset) * Math.sin(Math.toRadians(angle)));
+
+    public boolean isError(double dist, double distTicks, double[] distanceAtCount, int[] ticksAtCount) {
+        boolean error = false;
+        if (distanceAtCount[0] > dist) {
+            for (int i = 1; i < minCounter + 1; i++) {
+                if (distanceAtCount[i] < distanceAtCount[i-1]) {
+                    error = true;
+                    RobotLog.dd("FindJunction", "error %d", 1);
+                }
+            }
+        } else {
+            error = true;
+        }
+        return error;
     }
-    public double getYFromDistanceAndAngle(){
-        double x = getXFromDistanceAndAngle();
-        return Math.sqrt(Math.pow(distance + verticalOffset, 2) - Math.pow(x, 2)) - radius;
+
+    public int getLowest(double[] distanceAtCount, double dist) {
+        double lowest = distanceAtCount[0];
+        int lowesti = 0;
+        for (int i = 1; i < minCounter + 1; i++) {
+            if (distanceAtCount[i] < lowest) {
+                lowest = distanceAtCount[i];
+                lowesti = i;
+            }
+        }
+        if (dist < lowest) {
+            lowest = dist;
+            lowesti = -1;
+            counter = minCounter + 1;
+        } else {
+            counter =  minCounter - lowesti;
+        }
+        return lowesti;
+    }
+
+    public void resetGetDist() {
+        output = new double[2];
+        distanceAtCount = new double[minCounter + 1];
+        ticksAtCount = new int[minCounter + 1];
+        checkForError = true;
+        counter = 0;
+        ticksAtDist = 0;
+        dist = 8190;
+        idCounter = 0;
+        prevTicksBefore = 0;
+        prevDistBefore = 8190;
+        prevTicksAfter = 0;
+        prevDistAfter = 8190;
+        done = false;
     }
     /*public float s1;
     public float s2;

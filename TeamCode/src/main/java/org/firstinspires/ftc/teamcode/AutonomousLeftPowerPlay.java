@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
 import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
 import org.firstinspires.ftc.teamcode.actions.distancecalcs.DistanceSensorActions;
+import org.firstinspires.ftc.teamcode.actions.distancecalcs.GeometryActions;
 
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
 
@@ -23,6 +24,7 @@ public class AutonomousLeftPowerPlay extends HelperActions {
     private EncoderActions encoderActions = null;
     private FindImageOnCone findImageOnCone = null;
     private GyroActions gyroActions = null;
+    private GeometryActions geometry = null;
     private double speed = 200;
 
     public void runOpMode() {
@@ -32,8 +34,10 @@ public class AutonomousLeftPowerPlay extends HelperActions {
         attachmentActions = new AttachmentActions(telemetry, hardwareMap);
         driveActions.setMotorDirection_Forward();
         gyroActions = new GyroActions(this, telemetry, hardwareMap);
+        geometry = new GeometryActions();
+
         DistanceSensorActions s1 = new DistanceSensorActions(hardwareMap, 0.2, 10, ConfigConstants.BASE_RANGE);
-        FindJunctionAction findJunctionAction = new FindJunctionAction(hardwareMap, telemetry, this, driveActions, attachmentActions, s1, encoderActions, gyroActions);
+        FindJunctionAction findJunctionAction = new FindJunctionAction(hardwareMap, telemetry, this, driveActions, attachmentActions, s1, encoderActions, gyroActions, geometry);
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
         waitForStart();

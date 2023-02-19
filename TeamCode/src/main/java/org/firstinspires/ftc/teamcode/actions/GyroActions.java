@@ -145,6 +145,9 @@ public class GyroActions {
             motorBackL.setVelocity(adjSpeed - headingError);
             motorBackR.setVelocity(adjSpeed + headingError);
 
+//            int avgPosition = (int) Math.floor((motorFrontL.getCurrentPosition() + motorFrontR.getCurrentPosition() + motorBackL.getCurrentPosition() + motorBackR.getCurrentPosition()) / 4);
+//            int avgTargetPos = (int) Math.floor((motorFrontL.getTargetPosition() + motorFrontR.getTargetPosition() + motorBackL.getTargetPosition() + motorBackR.getTargetPosition()) / 4);
+//            distanceError = avgTargetPos - avgPosition;
             distanceError = motorFrontL.getTargetPosition() - motorFrontL.getCurrentPosition();
             motorFrontL.setTargetPosition(motorFrontL.getCurrentPosition() + distanceError);
             motorFrontR.setTargetPosition(motorFrontR.getCurrentPosition() + distanceError);
@@ -242,6 +245,9 @@ public class GyroActions {
             motorBackL.setVelocity(-speed + headingError);
             motorBackR.setVelocity(-speed + headingError);
 
+//            int avgPosition = (int) Math.floor((Math.abs(motorFrontL.getCurrentPosition()) + Math.abs(motorFrontR.getCurrentPosition()) + Math.abs(motorBackL.getCurrentPosition()) + Math.abs(motorBackR.getCurrentPosition())) / 4);
+//            int avgTargetPos = (int) Math.floor((Math.abs(motorFrontL.getTargetPosition()) + Math.abs(motorFrontR.getTargetPosition()) + Math.abs(motorBackL.getTargetPosition()) + Math.abs(motorBackR.getTargetPosition())) / 4);
+//            distanceError = avgTargetPos - avgPosition;
             distanceError = Math.abs(motorFrontL.getTargetPosition() - motorFrontL.getCurrentPosition());
             if (strafeLeft){
                 motorFrontL.setTargetPosition(motorFrontL.getCurrentPosition() - distanceError);

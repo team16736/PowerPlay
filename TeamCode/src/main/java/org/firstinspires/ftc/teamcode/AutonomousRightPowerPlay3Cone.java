@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
 import org.firstinspires.ftc.teamcode.actions.distancecalcs.DistanceSensorActions;
 import org.firstinspires.ftc.teamcode.actions.HelperActions;
+import org.firstinspires.ftc.teamcode.actions.distancecalcs.GeometryActions;
 
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
 //@Disabled
@@ -25,6 +26,7 @@ public class AutonomousRightPowerPlay3Cone extends HelperActions{
     private GyroActions gyroActions = null;
     private FindImageOnCone findImageOnCone = null;
     private DistanceSensorActions s1 = null;
+    private GeometryActions geometry = null;
 
     int state = 0;
     double startTime;
@@ -42,9 +44,10 @@ public class AutonomousRightPowerPlay3Cone extends HelperActions{
         gyroActions = new GyroActions(this, telemetry, hardwareMap);
         findImageOnCone = new FindImageOnCone(telemetry, hardwareMap);
         s1 = new DistanceSensorActions(hardwareMap, 0.5, 10, ConfigConstants.BASE_RANGE);
+        geometry = new GeometryActions();
         driveActions.setMotorDirection_Forward();
         attachmentActions.scissorLift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        FindJunctionAction findJunctionAction = new FindJunctionAction(hardwareMap, telemetry, this, driveActions, attachmentActions, s1, encoderActions, gyroActions);
+        FindJunctionAction findJunctionAction = new FindJunctionAction(hardwareMap, telemetry, this, driveActions, attachmentActions, s1, encoderActions, gyroActions, geometry);
         findImageOnCone.tfod.setZoom(1.75, 16.0/9.0);
 
         boolean memBitOn = false;
