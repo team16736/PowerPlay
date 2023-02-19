@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
 
@@ -49,6 +50,8 @@ public class AttachmentActions {
     private boolean initBit = false;
     private double P_Gain = 0;
     private double I_Gain = 0;
+    private double D_Gain = 0;
+    private double Prev_TTError;
     private double power = 0;
 //  double intervalVelocity = 0;
 //  double prevTimeVelocity = System.currentTimeMillis();
@@ -222,41 +225,53 @@ public class AttachmentActions {
         else {
             kI = 0.0000002;
         }
-        turnTableEncoders(degrees, 0.00044, kI, 0.5);
+        turnTableEncoders(degrees, 0.00044, kI, 0, 0.5);
     }
 
-    public void turnTableEncoders(double degrees, double Kp, double Ki, double speedCap) {
+    public void turnTableEncoders(double degrees, double Kp, double Ki, double Kd, double speedCap) {
         totalTicks = (int) (ticksPerDegree * degrees);
         int velocityRange = 1;
         int acceptableError = (int) (ticksPerDegree * 2.1);
+
+        error = totalTicks - tableEncoder.getCurrentPosition();
 
         if (!initBit) {
             isDone = false;
             prevTimeI = System.currentTimeMillis();
             startTime = prevTimeI;
             initBit = true;
+            Prev_TTError = error;
         }
 
-        error = totalTicks - tableEncoder.getCurrentPosition();
-
-        velocity = tableEncoder.getVelocity();
+        intervalI = System.currentTimeMillis() - prevTimeI;
+        prevTimeI = System.currentTimeMillis();
+        if (intervalI != 0) {
+            velocity = (float) (error - Prev_TTError) / (float) (intervalI);
+        } else {
+            velocity = 0;
+            RobotLog.dd("FindJunction", "Error In Measuring Time");
+        }
+        Prev_TTError = error;
+        RobotLog.dd("FindJunction", "TT_Vel %f", velocity);
 
         if ((Math.abs(error) < acceptableError && Math.abs(velocity) < velocityRange) || System.currentTimeMillis() - startTime > 6000) {
             isDone = true;
         }
 
+
+
+        P_Gain = error * Kp;
         if (Math.abs(error) < (ticksPerDegree * 20)) {
-            intervalI = System.currentTimeMillis() - prevTimeI;
-            prevTimeI = System.currentTimeMillis();
+            I_Gain = sum * Ki;
             if (Math.abs(error) > acceptableError) {
                 sum += (error * intervalI);
             }
-        }
+        }else{I_Gain = 0;}
 
-        P_Gain = error * Kp;
-        I_Gain = sum * Ki;
+        D_Gain = velocity * Kd;
 
-        power = Range.clip(P_Gain + I_Gain, -1, 1);
+        power = Range.clip(P_Gain + I_Gain + D_Gain, -1, 1);
+        RobotLog.dd("FindJunction", "TT Power: %f", power);
         if (Math.abs(error) > acceptableError) {
             turnTable.setPower(power * speedCap);
         } else {
@@ -274,6 +289,7 @@ public class AttachmentActions {
         telemetry.addData("Sum", sum);
         telemetry.addData("P_Gain", P_Gain);
         telemetry.addData("I_Gain", I_Gain);
+        telemetry.addData("D_Gain", D_Gain);
         telemetry.addData("Is Done", isDone);
         telemetry.update();
         if (isDone) {

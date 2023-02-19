@@ -166,7 +166,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
         while (gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, true)) {
             attachmentActions.turnTableEncoders(180, false);
             while (distanceMemBit == false) {
-                attachmentActions.turnTableEncoders(180, 0.00044, 0.00000024, 0.5);
+                attachmentActions.turnTableEncoders(180, 0.00044, 0.00000024, 0, 0.5);
                 getDistance(attachmentActions, encoderActions);
                 gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, true);
             }

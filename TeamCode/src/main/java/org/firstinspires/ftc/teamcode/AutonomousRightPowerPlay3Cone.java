@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.actions.HelperActions;
 import org.firstinspires.ftc.teamcode.actions.distancecalcs.GeometryActions;
 
 //moves forward to the carousel, spins it, then turns and parks in the storage unit
-//@Disabled
+@Disabled
 @Autonomous(name = "DEPRECATED Right Powerplay 3 Cone")
 public class AutonomousRightPowerPlay3Cone extends HelperActions{
     private DriveActions driveActions = null;
