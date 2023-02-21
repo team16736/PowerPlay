@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
@@ -62,10 +61,10 @@ public class AutonomousRightPowerPlay extends HelperActions {
     private void placeCone(EncoderActions encoderActions, AttachmentActions attachmentActions) {
         encoderActions.encoderDrive(speed, -2);
         attachmentActions.setLiftLevel(true, false, false);
-        attachmentActions.turnTableEncoders(-120, true);
+        attachmentActions.turnTableEncoders(-120);
         while (attachmentActions.scissorLift1.isBusy()) {
         }
-        attachmentActions.turnTableEncoders(-10, true);
+        attachmentActions.turnTableEncoders(-10);
         attachmentActions.openGripper();
     }
 

@@ -62,10 +62,10 @@ public class AutonomousRightPowerPlay2Cone extends HelperActions{
             encoderActions.encoderStrafe(300, 3, true);
             gyroActions.encoderGyroDrive(300, 12, 0);
             goToCone();
-            attachmentActions.turnTableEncoders(0, false);
+            attachmentActions.turnTableEncoders(0);
             findJunctionAction.findJunctionStateMachine(35, 26, false, true, BACKWARDS);
             while (!attachmentActions.isDone || findJunctionAction.state != 0) {
-                attachmentActions.turnTableEncoders(0, false);
+                attachmentActions.turnTableEncoders(0);
                 if (findJunctionAction.state != 0) {
                     findJunctionAction.findJunctionStateMachine(35, 26, false, true, BACKWARDS);
                 }
@@ -125,7 +125,7 @@ public class AutonomousRightPowerPlay2Cone extends HelperActions{
             if (state == 5 && attachmentActions.getLiftHeight() > 10) {
                 state = 6;
             }
-            attachmentActions.turnTableEncoders(-90, false);
+            attachmentActions.turnTableEncoders(-90);
         }
     }
 }

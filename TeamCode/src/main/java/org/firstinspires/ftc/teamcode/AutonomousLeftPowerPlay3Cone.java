@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -86,12 +85,12 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             attachmentActions.openGripper(); //Release cone
             RobotLog.dd("FindJunction", "Drive to Junction 1");
             gyroActions.encoderGyroDriveStateMachine(500, 11, 0); //Drive forwards 11 inches
-            attachmentActions.turnTableEncoders(180, false); //Turn turntable 180 degrees clockwise to point at stack
+            attachmentActions.turnTableEncoders(180); //Turn turntable 180 degrees clockwise to point at stack
             while (gyroActions.encoderGyroDriveStateMachine(500, 11, 0)) {
-                attachmentActions.turnTableEncoders(180, false); //Allows it to complete drive forwards
+                attachmentActions.turnTableEncoders(180); //Allows it to complete drive forwards
             }
 //            gyroActions.encoderGyroDriveStateMachine(500, -1, 0); //Drive back an inch to ensure signal is out of the way
-            attachmentActions.turnTableEncoders(180, false);
+            attachmentActions.turnTableEncoders(180);
             /*
             while (gyroActions.encoderGyroDriveStateMachine(500, -1, 0)) {
                 attachmentActions.turnTableEncoders(180, false); //Allow previous to finish
@@ -104,7 +103,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             gyroActions.initEncoderGyroStrafeStateMachine(700, 17.5, true); //strafe left 20 inches to stack
             attachmentActions.extendArm(0); //added by Wyatt 1/18/2023
             while (gyroActions.encoderGyroStrafeStateMachine(700, 17.5, 0, true)) { //while still driving:
-                attachmentActions.turnTableEncoders(180, false); //keep turning to 180 degrees..?
+                attachmentActions.turnTableEncoders(180); //keep turning to 180 degrees..?
 //                getDistance(attachmentActions, encoderActions); //get the distance from the distance sensor, drives until <10mm detected
             }
             attachmentActions.closeGripper(); //Close around top cone on stack
@@ -114,9 +113,9 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             coneNum--; //Subtracts cone number by one
             while (attachmentActions.getLiftHeight() < 9){} //Pause until the lift is above 9 inches to not tip over stack (!!!)
             findJunctionAction.findJunctionStateMachine(37, 26, false, false, RIGHT); //Was at 40 in for dist, changed by Wyatt on 12/31/22 to 37 in
-            attachmentActions.turnTableEncoders(90, false); //turn turntable to the back
+            attachmentActions.turnTableEncoders(90); //turn turntable to the back
             while (findJunctionAction.state != 0) { //while we arent lined up with the junction,
-                attachmentActions.turnTableEncoders(90, false); //let turntable finish turning to the back
+                attachmentActions.turnTableEncoders(90); //let turntable finish turning to the back
                 findJunctionAction.findJunctionStateMachine(37, 26, false, false, RIGHT); //Was at 40 in for dist, changed by Wyatt on 12/31/22 to 36 in
             }
             RobotLog.dd("FindJunction", "Drive to Junction 2");
@@ -147,7 +146,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
         strafeSpeed = 650; //set strafe speed to 650 - normally 700. why 650? can we go a little faster?
         gyroActions.encoderGyroDriveStateMachine(700, -1, 0); //drive backwards an inch to align with stack
         while (gyroActions.encoderGyroDriveStateMachine(700, -1, 0)) {
-            attachmentActions.turnTableEncoders(180, false); //turn turntable
+            attachmentActions.turnTableEncoders(180); //turn turntable
         }
         //while doing the above, the scissor lift runs into the junction. possibly raise scissor from 1500 to 1550? 1600?
         attachmentActions.scissorLift1.setPower(0.0);   //idle lift
@@ -155,7 +154,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
         gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, true); //strafe left 30" if on cone 3 or 4, 32" if on top cone. strafe at 700tpr
         //Run turntable first bc cannot run both(would hit junction) and turntable is slower than lowering the lift
         while (Math.abs(encoderActions.motorFrontL.getCurrentPosition()) < 235) { //where does 235 come from?
-            attachmentActions.turnTableEncoders(180, false); //allow completion of turn
+            attachmentActions.turnTableEncoders(180); //allow completion of turn
             gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, true); //continue the strafe
             getDistance(attachmentActions, encoderActions);
         }
@@ -164,9 +163,9 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
         attachmentActions.liftScissor(3000, 400, true);
         attachmentActions.openGripper();
         while (gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, true)) {
-            attachmentActions.turnTableEncoders(180, false);
+            attachmentActions.turnTableEncoders(180);
             while (distanceMemBit == false) {
-                attachmentActions.turnTableEncoders(180, 0.00044, 0.00000024, 0, 0.5);
+                attachmentActions.turnTableEncoders(180);
                 getDistance(attachmentActions, encoderActions);
                 gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, true);
             }
@@ -175,7 +174,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             telemetry.update();
         }
         while (attachmentActions.scissorLift1.isBusy() || attachmentActions.scissorLift2.isBusy()) {
-            attachmentActions.turnTableEncoders(180, false);
+            attachmentActions.turnTableEncoders(180);
         }
         attachmentActions.closeGripper();
         sleep(500);
@@ -184,9 +183,9 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
         while (attachmentActions.getLiftHeight() < 9){}
         int offset = 0;
         findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT, offset, 0);
-        attachmentActions.turnTableEncoders(90, false);
+        attachmentActions.turnTableEncoders(90);
         while (findJunctionAction.state != 0) {
-            attachmentActions.turnTableEncoders(90, false);
+            attachmentActions.turnTableEncoders(90);
             findJunctionAction.findJunctionStateMachine(40, 26, false, false, RIGHT, offset, 0);
         }
         RobotLog.dd("FindJunction", "Drive to Junction 3");
@@ -214,13 +213,13 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             gyroActions.encoderGyroDriveStateMachine(2500, 1, 0);
             while (gyroActions.encoderGyroDriveStateMachine(2500, 1, 0)) {
                 attachmentActions.liftToZero();
-                attachmentActions.turnTableEncoders(180, false);
+                attachmentActions.turnTableEncoders(180);
             }
             sleep(100);
             gyroActions.initEncoderGyroStrafeStateMachine(2000, 13, false);
             while (gyroActions.encoderGyroStrafeStateMachine(2000, 13, 0, false)) {
                 attachmentActions.liftToZero();
-                attachmentActions.turnTableEncoders(180, false);
+                attachmentActions.turnTableEncoders(180);
             }
             telemetry.addData(location, "<");
             telemetry.update();
@@ -284,7 +283,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             if (state == 5 && attachmentActions.getLiftHeight() > 10) {
                 state = 6;
             }
-            attachmentActions.turnTableEncoders(-90, false);
+            attachmentActions.turnTableEncoders(-90);
         }
     }
 

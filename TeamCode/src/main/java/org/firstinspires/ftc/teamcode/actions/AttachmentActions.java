@@ -1,14 +1,9 @@
 package org.firstinspires.ftc.teamcode.actions;
 
-import android.graphics.Color;
-
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -17,8 +12,6 @@ import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.actions.constants.ConfigConstants;
 
 /**
@@ -210,7 +203,7 @@ public class AttachmentActions {
 //    }
 
     // need to tune encoder values
-    public void turnTableEncoders(double degrees, boolean hasCone) {
+    public void turnTableEncoders(double degrees) {
 //
 //        Speed cap 0.2:
 //        180:  ~0.0011,~0.0000000095 roughly
@@ -218,14 +211,15 @@ public class AttachmentActions {
 //        20-45: 0.0022, 0.000000055
 //        10:    0.0022, 0.0000005
 //        5:	 0.0035, 0.00000052
-        double kI;
-        if (hasCone) {
-            kI = 0.00000016;
-        }
-        else {
-            kI = 0.0000002;
-        }
-        turnTableEncoders(degrees, 0.00044, kI, 0, 0.5);
+//        double kI;
+//        if (hasCone) {
+//            kI = 0.00000016;
+//        }
+//        else {
+//            kI = 0.0000002;
+//        }
+//        turnTableEncoders(degrees, 0.00044, kI, 0, 0.5);
+        turnTableEncoders(degrees, 0.0015, 0.00000075, 0.3 , 0.5);
     }
 
     public void turnTableEncoders(double degrees, double Kp, double Ki, double Kd, double speedCap) {
@@ -266,7 +260,7 @@ public class AttachmentActions {
             if (Math.abs(error) > acceptableError) {
                 sum += (error * intervalI);
             }
-        }else{I_Gain = 0;}
+        } else {I_Gain = 0;}
 
         D_Gain = velocity * Kd;
 
@@ -320,7 +314,7 @@ public class AttachmentActions {
             if (left90Degrees) {
                 turnAmount = -turnAmount;
             }
-            turnTableEncoders(startPos90Deg + turnAmount, false);
+            turnTableEncoders(startPos90Deg + turnAmount);
             if (isDone) {
                 memBit90Degrees = true;
             }

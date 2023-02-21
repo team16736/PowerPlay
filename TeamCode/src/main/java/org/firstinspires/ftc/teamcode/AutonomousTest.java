@@ -56,10 +56,22 @@ public class AutonomousTest extends HelperActions{
         telemetry.update();
         waitForStart();
 
-        while (opModeIsActive()) {
-//        if (opModeIsActive()) {
+//        while (opModeIsActive()) {
+        if (opModeIsActive()) {
 
-            attachmentActions.turnTableEncoders(10, 0.0019, 0, 0.17, 0.5);
+            //No Cone: 0.0022, 0.000001, 0.4
+            //Cone:
+            attachmentActions.closeGripper();
+            sleep(350);
+            attachmentActions.liftScissor(3000, 30, false);
+            while (attachmentActions.scissorLift1.isBusy()) {}
+            double Kp = 0.0022;
+            double Ki = 0.000001;
+            double Kd = 0.4;
+            attachmentActions.turnTableEncoders(90, Kp, Ki, Kd, 0.5);
+            while (opModeIsActive()) {
+                attachmentActions.turnTableEncoders(90, Kp, Ki, Kd, 0.5);
+            }
 
 //            attachmentActions.turnTableEncoders(0, false);
 //            gyroActions.encoderGyroDriveStateMachine(700, 32, 0);

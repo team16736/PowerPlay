@@ -132,7 +132,7 @@ public class FindJunctionAction {
         int localPos = encoderActions.motorFrontL.getCurrentPosition(); //Get the position only once per cycle
         double localVel = encoderActions.motorFrontL.getVelocity();
         if (steadyTable) {
-            attachmentActions.turnTableEncoders(tableDegrees, false);
+            attachmentActions.turnTableEncoders(tableDegrees);
         }
         if (localPos != 0) {
             currentPosition = localPos;
