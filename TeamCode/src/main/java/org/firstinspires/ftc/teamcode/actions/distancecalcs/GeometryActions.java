@@ -27,16 +27,17 @@ public class GeometryActions {
             state = 1;
         }
         if (!done) {
+            if (distance > minDistance && idCounter > 2) {
+                counter = minCounter + 1;
+                checkForError = false;
+            }
+
             if (distance > 2000) {
                 if (idCounter <= 2) {
                     dist = prevDistBefore;
                     ticksAtDist = prevTicksBefore;
                 }
                 idCounter = 0;
-            }
-            if (distance > minDistance && idCounter > 2) {
-                counter = minCounter + 1;
-                checkForError = false;
             }
 
             if (detect && distance < minDistance) {

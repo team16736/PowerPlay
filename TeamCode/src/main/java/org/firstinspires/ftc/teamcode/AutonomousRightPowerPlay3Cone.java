@@ -212,8 +212,8 @@ public class AutonomousRightPowerPlay3Cone extends HelperActions{
             telemetry.update();
         } else {
             //              Location 1
-            gyroActions.initEncoderGyroStrafeStateMachine(1500, 16, true);
-            while (gyroActions.encoderGyroStrafeStateMachine(1500, 16, 0, true)) {}
+            gyroActions.initEncoderGyroStrafeStateMachine(1500, 14, true);
+            while (gyroActions.encoderGyroStrafeStateMachine(1500, 14, 0, true)) {}
             telemetry.addData(location, "<");
             telemetry.update();
         }
