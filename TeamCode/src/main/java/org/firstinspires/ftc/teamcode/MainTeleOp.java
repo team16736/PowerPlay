@@ -78,7 +78,7 @@ public class MainTeleOp extends HelperActions {
                 attachmentActions.scissorLift1.setPower(y);
                 attachmentActions.scissorLift2.setPower(y);
                 memBitLift = false;
-            } else if (!attachmentActions.scissorLift1.isBusy() && attachmentActions.scissorLift1.getCurrentPosition() < gravityThresholdLift) {
+            } else if ((!attachmentActions.scissorLift1.isBusy() && attachmentActions.scissorLift1.getCurrentPosition() < gravityThresholdLift ) || (attachmentActions.scissorLift1.getCurrentPosition() > -10) ){
                 attachmentActions.scissorLift1.setPower(0);
                 attachmentActions.scissorLift2.setPower(0);
             }
