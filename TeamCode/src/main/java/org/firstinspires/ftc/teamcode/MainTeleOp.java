@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
 import org.firstinspires.ftc.teamcode.actions.GyroActions;
 import org.firstinspires.ftc.teamcode.actions.DriveActions;
@@ -18,6 +19,10 @@ public class MainTeleOp extends HelperActions {
     private AttachmentActions attachmentActions = null;
     private EncoderActions encoderActions = null;
 
+    boolean correctRotation = false;
+    double rotationPosition = 0;
+    double rotation = 0;
+
     @Override
     public void runOpMode() {
 
@@ -30,13 +35,11 @@ public class MainTeleOp extends HelperActions {
         //driveActions.setSpeed(1.0);
 
         int currentTicks = 0;
-        double rotation = 0;
         double y = 0;
         double turnTableRotation = 0;
         double encoderAdjustment;
         boolean memBitLift = true;
         int gravityThresholdLift = -350;
-        boolean spinLeft;
         boolean placeBit;
         double extenderInput;
         double prevTime = 0;
@@ -54,20 +57,17 @@ public class MainTeleOp extends HelperActions {
         while (opModeIsActive()) {
 
             /** Gamepad 1 **/
-//            if(Math.abs(gamepad1.right_stick_x) > 0.01){
-               rotation = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
-//            } else {
-//                rotation = -gyroActions.getSteeringCorrection(0, .02);
-//            }
 
             driveActions.drive(
                     (gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x)),      //joystick controlling strafe
                     (-gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y)),     //joystick controlling forward/backward
-                     rotation);    //joystick controlling rotation
+                     driveStraight());    //joystick controlling rotation
             telemetry.addData("Left stick x", gamepad1.left_stick_x);
             telemetry.addData("left stick y", gamepad1.left_stick_y);
             telemetry.addData("right stick x", gamepad1.right_stick_x);
-            telemetry.update();
+            telemetry.addData("SL1 Power", attachmentActions.scissorLift1.getCurrent(CurrentUnit.AMPS));
+            telemetry.addData("SL2 Power", attachmentActions.scissorLift2.getCurrent(CurrentUnit.AMPS));
+//            telemetry.update();
 
 //            attachmentActions.setConeLevel(gamepad2.dpad_down, gamepad2.dpad_left || gamepad2.dpad_right, gamepad2.dpad_up);
             attachmentActions.armPresets(gamepad2);
@@ -78,7 +78,8 @@ public class MainTeleOp extends HelperActions {
                 attachmentActions.scissorLift1.setPower(y);
                 attachmentActions.scissorLift2.setPower(y);
                 memBitLift = false;
-            } else if ((!attachmentActions.scissorLift1.isBusy() && attachmentActions.scissorLift1.getCurrentPosition() < gravityThresholdLift ) || (attachmentActions.scissorLift1.getCurrentPosition() > -10) ){
+            } else if ((!attachmentActions.scissorLift1.isBusy() && attachmentActions.scissorLift1.getCurrentPosition() < gravityThresholdLift ) || (attachmentActions.scissorLift1.getCurrentPosition() > -100) ){
+                attachmentActions.liftWithoutEncoders();
                 attachmentActions.scissorLift1.setPower(0);
                 attachmentActions.scissorLift2.setPower(0);
             }
@@ -150,5 +151,21 @@ public class MainTeleOp extends HelperActions {
             turnTableRotation = turnTableRotation * 0.5;
         }
         return turnTableRotation * 0.8;
+    }
+
+    // Code to make it drive straight
+    private double driveStraight() {
+        if(Math.abs(gamepad1.right_stick_x) > 0.01){ // Only correct position when not rotating
+            rotation = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x); // Rotating voluntarily
+            correctRotation = false;
+        } else if (!correctRotation){ // If not rotating, get the position rotationally once when the turn is done
+            if (driveActions.leftFront.getVelocity() < 3) {
+                correctRotation = true;
+                rotationPosition = gyroActions.getRawHeading();
+            }
+        } else { // Correct rotation when not turning
+            rotation = -gyroActions.getSteeringCorrection(rotationPosition, .02);
+        }
+        return rotation;
     }
 }

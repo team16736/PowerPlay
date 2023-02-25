@@ -372,8 +372,8 @@ public class GyroActions {
 
         // Get the robot heading by applying an offset to the IMU heading
         robotHeading = getRawHeading() - headingOffset;
-        telemetry.addData("robotHeading", robotHeading);
-        telemetry.update();
+//        telemetry.addData("robotHeading", robotHeading);
+//        telemetry.update();
 //        opModeObj.sleep(3000);
 
         // Determine the heading current error
