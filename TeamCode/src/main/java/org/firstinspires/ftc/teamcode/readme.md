@@ -1,10 +1,51 @@
-## TeamCode Module
+## Joining the Coding Team
 
-Welcome!
+- download git
+- download android studio
+- sign into Atomic Narwahls Github
+- create SSH key
+    - ssh-keygen
+    - click enter twice
+    - type notepad .ssh/id_rsa.pub
+    - Copy the hashkey
+- New SSH key in Atomic Narwahls personal account (under settings)
+- go into most recent codebase
+- code->SSH->copy
+- in command line type:
+- git clone git@github.com:team16736/PowerPlay.git
+- open project in Android Studio
+- Download Revhub control software OR use ADB to connect
 
-This module, TeamCode, is the place where you will write/paste the code for your team's
-robot controller App. This module is currently empty (a clean slate) but the
-process for adding OpModes is straightforward.
+## Connecting to the Robot through ADB
+
+- open "Gradle Scripts" inside the project on your computer
+- open local.properties
+- copy the directory listed after "sdk.dir="
+- connect to wifi direct of robot
+- open git bash terminal
+- cd (the directory listed after "sdk.dir=")
+- adb connect 192.168.43.1:5555
+- OR if on windows
+- adb.exe/ connect 192.168.43.1:5555
+
+IF NONFUNCTIONAL:
+
+- adb.exe/ devices
+- if device listed as offline
+- adb.exe/ kill-server
+- adb.exe/ connect 192.168.43.1:5555
+
+Adding ADB to PATH (tested on mac)
+
+- Open terminal
+- vi .zprofile
+- add the following:
+
+PATH="/Users/(YOUR USERNAME)/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/3.11/bin:${PATH}"
+export PATH.
+
+To leave vim and save,
+Press the escape key, then type ":x" and hit enter.
 
 ## Commiting to Github
 
@@ -15,23 +56,7 @@ process for adding OpModes is straightforward.
 - git commit -m "description of commit"
 - git push
 
-## Joining the Coding Team
 
-- download git
-- download android studio
-- sign into Atomic Narwahls Github
-- create SSH key 
-  - ssh-keygen
-  - click enter twice
-  - type notepad .ssh/id_rsa.pub
-  - Copy the hashkey
-- New SSH key in Atomic Narwahls personal account (under settings)
-- go into most recent codebase
-- code->SSH->copy
-- in command line type:
-- git clone git@github.com:team16736/PowerPlay.git
-- open project in Android Studio
-- Download Revhub control software
 
 ## Creating your own OpModes
 
