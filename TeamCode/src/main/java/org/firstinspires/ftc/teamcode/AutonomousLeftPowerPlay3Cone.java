@@ -91,15 +91,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             }
 //            gyroActions.encoderGyroDriveStateMachine(500, -1, 0); //Drive back an inch to ensure signal is out of the way
             attachmentActions.turnTableEncoders(180);
-            /*
-            while (gyroActions.encoderGyroDriveStateMachine(500, -1, 0)) {
-                attachmentActions.turnTableEncoders(180, false); //Allow previous to finish
-            }
-            */
-//            double previousTime = System.currentTimeMillis(); //Is this really necessary? Commented out by Wyatt 12/31/2022
-//            while (System.currentTimeMillis()-previousTime < 100) { //still finishing turn, apparently 100ms
-//                attachmentActions.turnTableEncoders(180, false);
-//            }
+
             gyroActions.initEncoderGyroStrafeStateMachine(700, 17.5, true); //strafe left 20 inches to stack
             attachmentActions.extendArm(0); //added by Wyatt 1/18/2023
             while (gyroActions.encoderGyroStrafeStateMachine(700, 17.5, 0, true)) { //while still driving:
@@ -163,7 +155,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
         attachmentActions.liftScissor(3000, 400, true);
         attachmentActions.openGripper();
         while (gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, true)) {
-            attachmentActions.turnTableEncoders(180);
+//            attachmentActions.turnTableEncoders(180);
             while (distanceMemBit == false) {
                 attachmentActions.turnTableEncoders(180);
                 getDistance(attachmentActions, encoderActions);
@@ -174,7 +166,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             telemetry.update();
         }
         while (attachmentActions.scissorLift1.isBusy() || attachmentActions.scissorLift2.isBusy()) {
-            attachmentActions.turnTableEncoders(180);
+//            attachmentActions.turnTableEncoders(180);
         }
         attachmentActions.closeGripper();
         sleep(500);
@@ -197,24 +189,20 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
 //        if (Math.abs(attachmentActions.getTurntablePosition() - 180) < 10) {
             distanceFromCones = s1.getAverageDistanceAllInOne(true) -6.5;
             telemetry.addData("avg distance", distanceFromCones);
+            RobotLog.dd("FindJunction", "Distance sensed %f, Distance gone %d", distanceFromCones, encoderActions.motorFrontL.getCurrentPosition());
             telemetry.update();
             gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, distanceFromCones, true);
             distanceMemBit = true;
         } else if (s1.getSensorDistance() > 10 && gyroActions.strafeState == 0) {
             distanceFromCones = s1.getAverageDistanceAllInOne(true) - 9.5;
             gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, distanceFromCones, true);
-            RobotLog.dd("FindJunction", ":/");
+            RobotLog.dd("FindJunction", "Distance sensed %f, Distance gone %d, :/", distanceFromCones, encoderActions.motorFrontL.getCurrentPosition());
         }
     }
 
     private void moveToLocation(GyroActions gyroActions, String location) {
         if (location == "Racket") {
             //            location 3
-            gyroActions.encoderGyroDriveStateMachine(2500, 1, 0);
-            while (gyroActions.encoderGyroDriveStateMachine(2500, 1, 0)) {
-                attachmentActions.liftToZero();
-                attachmentActions.turnTableEncoders(180);
-            }
             sleep(100);
             gyroActions.initEncoderGyroStrafeStateMachine(2000, 13, false);
             while (gyroActions.encoderGyroStrafeStateMachine(2000, 13, 0, false)) {
@@ -225,10 +213,6 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             telemetry.update();
         } else if (location == "Bus") {
             //                 location 2
-            gyroActions.encoderGyroDriveStateMachine(2500, 1, 0);
-            while (gyroActions.encoderGyroDriveStateMachine(2500, 1, 0)) {
-                attachmentActions.liftToZero();
-            }
             sleep(100);
             gyroActions.initEncoderGyroStrafeStateMachine(2000, 15, true);
             while (gyroActions.encoderGyroStrafeStateMachine(2000, 15, 0, true)) {

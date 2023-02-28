@@ -153,7 +153,7 @@ public class AutonomousRightPowerPlay3Cone extends HelperActions{
         attachmentActions.liftScissor(3000, 400, true);
         attachmentActions.openGripper();
         while (gyroActions.encoderGyroStrafeStateMachine(strafeSpeed, strafeDistance, 0, false)) {
-            attachmentActions.turnTableEncoders(-180);
+//            attachmentActions.turnTableEncoders(-180);
             while (distanceMemBit == false) {
                 attachmentActions.turnTableEncoders(-180);
                 getDistance(attachmentActions, encoderActions);
@@ -164,7 +164,7 @@ public class AutonomousRightPowerPlay3Cone extends HelperActions{
             telemetry.update();
         }
         while (attachmentActions.scissorLift1.isBusy() || attachmentActions.scissorLift2.isBusy()) {
-            attachmentActions.turnTableEncoders(-180);
+//            attachmentActions.turnTableEncoders(-180);
         }
         attachmentActions.closeGripper();
         sleep(500);
@@ -187,13 +187,14 @@ public class AutonomousRightPowerPlay3Cone extends HelperActions{
 //        if (Math.abs(attachmentActions.getTurntablePosition() - 180) < 10) {
             distanceFromCones = s1.getAverageDistanceAllInOne(true) - 6.5;
             telemetry.addData("avg distance", distanceFromCones);
+            RobotLog.dd("FindJunction", "Distance sensed %f, Distance gone %d", distanceFromCones, encoderActions.motorFrontL.getCurrentPosition());
             telemetry.update();
             gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, distanceFromCones, false);
             distanceMemBit = true;
         } else if (s1.getSensorDistance() > 10 && gyroActions.strafeState == 0) {
             distanceFromCones = s1.getAverageDistanceAllInOne(true) - 9.5;
+            RobotLog.dd("FindJunction", "Distance sensed %f, Distance gone %d, :/", distanceFromCones, encoderActions.motorFrontL.getCurrentPosition());
             gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, distanceFromCones, false);
-            RobotLog.dd("FindJunction", ":/");
         }
     }
 
@@ -202,18 +203,21 @@ public class AutonomousRightPowerPlay3Cone extends HelperActions{
             //            location 3
             gyroActions.initEncoderGyroStrafeStateMachine(1500, 41, false);
             while (gyroActions.encoderGyroStrafeStateMachine(1500, 41, 0, false)) {}
+            gyroActions.encoderGyroDrive(1000, -5, 0);
             telemetry.addData(location, "<");
             telemetry.update();
         } else if (location == "Bus") {
             //                 location 2
             gyroActions.initEncoderGyroStrafeStateMachine(2000, 15, false);
             while (gyroActions.encoderGyroStrafeStateMachine(2000, 15, 0, false)) {}
+            gyroActions.encoderGyroDrive(1000, -5, 0);
             telemetry.addData(location, "<");
             telemetry.update();
         } else {
             //              Location 1
             gyroActions.initEncoderGyroStrafeStateMachine(1500, 14, true);
             while (gyroActions.encoderGyroStrafeStateMachine(1500, 14, 0, true)) {}
+            gyroActions.encoderGyroDrive(1000, -5, 0);
             telemetry.addData(location, "<");
             telemetry.update();
         }
