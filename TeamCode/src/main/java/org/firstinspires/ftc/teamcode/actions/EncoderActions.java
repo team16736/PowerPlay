@@ -34,7 +34,7 @@ final public class EncoderActions{
         motorBackL = hardwareMap.get(DcMotorEx.class, "leftRear");
         motorBackR = hardwareMap.get(DcMotorEx.class, "rightRear");
     }
-    public void encoderDrive(double encoderSpeed, double encoderDistance) {
+    public void encoderDrive(double encoderSpeed, double encoderDistance) { // Deprecated. Look to GyroActions for auto driving
         resetEncoder();
 
         double ticksPerInch = 32.2;
@@ -58,7 +58,7 @@ final public class EncoderActions{
         whileMotorBusy();
     }
 
-    public void encoderDriveNoTimer(double encoderSpeed, double encoderDistance) {
+    public void encoderDriveNoTimer(double encoderSpeed, double encoderDistance) { // Deprecated
         resetEncoder();
         // Set the motor's target position to 6.4 rotations
         double ticksPerInch = 32.2;
@@ -80,7 +80,7 @@ final public class EncoderActions{
     }
     public void encoderStrafe(double encoderSpeed,
                               double encoderDistance,
-                              boolean encoderMoveLeft) {
+                              boolean encoderMoveLeft) { // Deprecated
         encoderStrafeNoWhile(encoderSpeed, encoderDistance, encoderMoveLeft);
 
         //motorFrontL.isBusy()hile the Op Mode is running, show the motor's status via telemetry
@@ -94,7 +94,7 @@ final public class EncoderActions{
     }
     public void encoderStrafeNoWhile(double encoderSpeed,
                               double encoderDistance,
-                              boolean encoderMoveLeft) {
+                              boolean encoderMoveLeft) { // No longer used much
         motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -129,7 +129,7 @@ final public class EncoderActions{
     }
     public void encoderSpin(double encoderSpeed,
                               double encoderDegrees,
-                              boolean encoderSpinLeft) {
+                              boolean encoderSpinLeft) { // Deprecated
         motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -174,7 +174,7 @@ final public class EncoderActions{
 
     public void encoderSpinNoWhile(double encoderSpeed,
                             double encoderDegrees,
-                            boolean encoderSpinLeft) {
+                            boolean encoderSpinLeft) { // Deprecated
         motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

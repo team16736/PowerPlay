@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.actions.AttachmentActions;
@@ -22,6 +23,8 @@ public class MainTeleOp extends HelperActions {
     boolean correctRotation = false;
     double rotationPosition = 0;
     double rotation = 0;
+    int tablePosition;
+    int armPosition;
 
     @Override
     public void runOpMode() {
@@ -58,6 +61,9 @@ public class MainTeleOp extends HelperActions {
 
             /** Gamepad 1 **/
 
+            armPosition = attachmentActions.scissorLift1.getCurrentPosition();
+            tablePosition = attachmentActions.tableencodercount();
+
             driveActions.drive(
                     (gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x)),      //joystick controlling strafe
                     (-gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y)),     //joystick controlling forward/backward
@@ -65,8 +71,6 @@ public class MainTeleOp extends HelperActions {
             telemetry.addData("Left stick x", gamepad1.left_stick_x);
             telemetry.addData("left stick y", gamepad1.left_stick_y);
             telemetry.addData("right stick x", gamepad1.right_stick_x);
-            telemetry.addData("SL1 Power", attachmentActions.scissorLift1.getCurrent(CurrentUnit.AMPS));
-            telemetry.addData("SL2 Power", attachmentActions.scissorLift2.getCurrent(CurrentUnit.AMPS));
 //            telemetry.update();
 
 //            attachmentActions.setConeLevel(gamepad2.dpad_down, gamepad2.dpad_left || gamepad2.dpad_right, gamepad2.dpad_up);
@@ -78,17 +82,17 @@ public class MainTeleOp extends HelperActions {
                 attachmentActions.scissorLift1.setPower(y);
                 attachmentActions.scissorLift2.setPower(y);
                 memBitLift = false;
-            } else if ((!attachmentActions.scissorLift1.isBusy() && attachmentActions.scissorLift1.getCurrentPosition() < gravityThresholdLift ) || (attachmentActions.scissorLift1.getCurrentPosition() > -100) ){
+            } else if ((!attachmentActions.scissorLift1.isBusy() && armPosition < gravityThresholdLift ) || (armPosition > -100) ){
                 attachmentActions.liftWithoutEncoders();
                 attachmentActions.scissorLift1.setPower(0);
                 attachmentActions.scissorLift2.setPower(0);
             }
-//            if (attachmentActions.scissorLift1.getCurrentPosition() > gravityThresholdLift) {
+//            if (armPosition > gravityThresholdLift) {
 //                attachmentActions.stayWhereSet(gamepad2.left_stick_y);
 //            }
 
-            if((Math.abs(gamepad2.left_stick_y) < 0.01) && (attachmentActions.scissorLift1.getCurrentPosition() > gravityThresholdLift) && !memBitLift){
-                attachmentActions.liftScissor(3000, -attachmentActions.scissorLift1.getCurrentPosition(), true);
+            if((Math.abs(gamepad2.left_stick_y) < 0.01) && (armPosition > gravityThresholdLift) && !memBitLift){
+                attachmentActions.liftScissor(3000, -armPosition, true);
                 memBitLift = true;
             }
 
@@ -106,7 +110,7 @@ public class MainTeleOp extends HelperActions {
                 attachmentActions.openGripper();
             }
 
-            dudeYouShouldChill(driveActions, attachmentActions);
+            dudeYouShouldChill(driveActions, armPosition);
 
             changeSpeed(driveActions, gamepad1.dpad_up, gamepad1.dpad_down, false, false);
 
@@ -128,7 +132,7 @@ public class MainTeleOp extends HelperActions {
             }*/
 
 //
-            telemetry.addData("Current Position ", attachmentActions.scissorLift1.getCurrentPosition());
+            telemetry.addData("Current Position ", armPosition);
             telemetry.update();
         }
 
@@ -138,16 +142,17 @@ public class MainTeleOp extends HelperActions {
         idle();
     }
     private double getAdjustedTurntablePower() {
-        double encoderAdjustment = ((Math.pow(gamepad2.right_stick_x, 2) * 0.93) + 0.07);
+        double rightStickX = gamepad2.right_stick_x;
+        double encoderAdjustment = ((Math.pow(rightStickX, 2) * 0.93) + 0.07);
         double turnTableRotation;
-        if (gamepad2.right_stick_x > 0.01 && attachmentActions.tableencodercount() < 3932) {
+        if (rightStickX > 0.01 && tablePosition < 3932) {
             turnTableRotation = encoderAdjustment;
-        } else if (gamepad2.right_stick_x < -0.01 && attachmentActions.tableencodercount() > -5898) {
+        } else if (rightStickX < -0.01 && tablePosition > -5898) {
             turnTableRotation = -1.0 * encoderAdjustment;
         } else {
             turnTableRotation = 0;
         }
-        if(-attachmentActions.scissorLift1.getCurrentPosition() > 100){
+        if(-armPosition > 100){
             turnTableRotation = turnTableRotation * 0.5;
         }
         return turnTableRotation * 0.8;
@@ -155,16 +160,18 @@ public class MainTeleOp extends HelperActions {
 
     // Code to make it drive straight
     private double driveStraight() {
-        if(Math.abs(gamepad1.right_stick_x) > 0.01){ // Only correct position when not rotating
-            rotation = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x); // Rotating voluntarily
+        double rightStickX = gamepad1.right_stick_x;
+        if(Math.abs(rightStickX) > 0.01){ // Only correct position when not rotating
+            rotation = rightStickX * Math.abs(rightStickX); // Rotating voluntarily
             correctRotation = false;
         } else if (!correctRotation){ // If not rotating, get the position rotationally once when the turn is done
-            if (driveActions.leftFront.getVelocity() < 3) {
+            if (Math.abs(encoderActions.motorFrontL.getVelocity()) < 3) {
                 correctRotation = true;
-                rotationPosition = gyroActions.getRawHeading();
+                rotationPosition = gyroActions.getRawHeading() - gyroActions.headingOffset;
             }
+            rotation = 0;
         } else { // Correct rotation when not turning
-            rotation = -gyroActions.getSteeringCorrection(rotationPosition, .02);
+            rotation = -gyroActions.getSteeringCorrection(rotationPosition, 0.02);
         }
         return rotation;
     }

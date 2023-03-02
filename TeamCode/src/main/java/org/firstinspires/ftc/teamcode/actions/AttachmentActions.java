@@ -125,20 +125,20 @@ public class AttachmentActions {
         armExtender.setPosition(1-(distance / 22.1 + 0.05));
     }
 
-    public void armPresets(Gamepad gamepad2) {
-        if (gamepad2.dpad_down) {
+    public void armPresets(Gamepad gamepad2) { // Presets for picking up individual cones off the stack
+        if (gamepad2.dpad_down) { // cone 2
             extendArm(1.3);
             preset = true;
-        } else if (gamepad2.right_trigger > 0) {
+        } else if (gamepad2.right_trigger > 0) { // Cone 3
             extendArm(2.58);
             preset = true;
-        } else if (gamepad2.dpad_right || gamepad2.dpad_left) {
+        } else if (gamepad2.dpad_right || gamepad2.dpad_left) { // Cone 4
             extendArm(3.8);
             preset = true;
-        } else if (gamepad2.dpad_up) {
+        } else if (gamepad2.dpad_up) { // Cone 5 / Top cone
             extendArm(5.3);
             preset = true;
-        } else if (gamepad2.right_bumper) {
+        } else if (gamepad2.right_bumper) { // Cone 1 / Ground cone
             extendArm(0.05);
             preset = true;
         } /*else if (Math.abs(gamepad2.right_trigger) > 0.01) {
@@ -175,7 +175,7 @@ public class AttachmentActions {
 //        }
 //    }
 
-    public double getJunctionDistance() {
+    public double getJunctionDistance() { // Deprecated
         return 1/*junctionSensor.getDistance(DistanceUnit.INCH)*/;
     }
 
@@ -203,7 +203,7 @@ public class AttachmentActions {
 //    }
 
     // need to tune encoder values
-    public void turnTableEncoders(double degrees) {
+    public void turnTableEncoders(double degrees) { // Preset for turnTableEncoders, generally works
 //
 //        Speed cap 0.2:
 //        180:  ~0.0011,~0.0000000095 roughly
@@ -223,6 +223,7 @@ public class AttachmentActions {
     }
 
     public void turnTableEncoders(double degrees, double Kp, double Ki, double Kd, double speedCap) {
+        // PID system for the turntable
         totalTicks = (int) (ticksPerDegree * degrees);
         int velocityRange = 1;
         int acceptableError = (int) (ticksPerDegree * 2.1);
@@ -296,7 +297,7 @@ public class AttachmentActions {
     double startPos90Deg;
     boolean left90Degrees;
     double turnAmount = 90.0;
-    public void turnTable90Degrees(Gamepad gamepad) {
+    public void turnTable90Degrees(Gamepad gamepad) { // Unused
         if (gamepad.x) {
             left90Degrees = true;
             if (memBit90Degrees) {
@@ -332,7 +333,7 @@ public class AttachmentActions {
         return totalTicks / ticksPerDegree;
     }
 
-    public void setLiftLevel(boolean low, boolean mid, boolean high) {
+    public void setLiftLevel(boolean low, boolean mid, boolean high) { // Presets for placing on Junctions, no longer used in teleOp
         if (!scissorLift1.isBusy()) {
             if (low) {
                 liftScissor(6000, 700, true);
@@ -346,7 +347,7 @@ public class AttachmentActions {
             }
         }
     }
-    public void setConeLevel(boolean low, boolean mid, boolean high) {
+    public void setConeLevel(boolean low, boolean mid, boolean high) { // Deprecated
         if (!scissorLift1.isBusy()) {
             if (low) {
                 liftScissor(6000, 220, true);
@@ -361,7 +362,7 @@ public class AttachmentActions {
         }
     }
 
-    public void liftScissor(double speed, double verticalDistance, boolean hardCode) {
+    public void liftScissor(double speed, double verticalDistance, boolean hardCode) { // Lifting the lift/grabber
         int totalTicks = (int) -(0.1161 * Math.pow(verticalDistance, 3) - 2.2579 * Math.pow(verticalDistance, 2) + 56.226 * verticalDistance + 36.647);
         if (Math.abs(totalTicks) < 500) {
             scissorLift1.setTargetPositionTolerance(1);
@@ -387,7 +388,7 @@ public class AttachmentActions {
     public double posf;
     public double startposf;
     public boolean startf;
-    public boolean liftToZero() {
+    public boolean liftToZero() { // InProg, for setting the lift down more softly
         int currentPos = scissorLift1.getCurrentPosition();
 //        RobotLog.dd("FindJunction", "Current Position %d, Current Velocity %f, start bit %b, starting position %d", currentPos, scissorLift1.getVelocity(), zeroStartBit, zeroStartPos);
         if (zeroStartBit) {
@@ -409,7 +410,7 @@ public class AttachmentActions {
         return true;
     }
 
-    public double getLiftHeight() {
+    public double getLiftHeight() { // Not working
         double horizontalDistance = -((scissorLift1.getCurrentPosition() + 68) / 145.1 * 0.314961);
         return 6 * Math.sqrt(39.69 - Math.pow(((12.6 - horizontalDistance) / 2), 2));
     }
@@ -419,7 +420,7 @@ public class AttachmentActions {
         scissorLift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    public void stayWhereSet(double joystickPosition) {
+    public void stayWhereSet(double joystickPosition) { // Deprecated
         if (Math.abs(joystickPosition) < 0.01) {
             if (!setBit) {
                 liftScissor(3000, -scissorLift1.getCurrentPosition(), true);

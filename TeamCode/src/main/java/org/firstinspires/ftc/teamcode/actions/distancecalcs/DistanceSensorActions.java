@@ -51,7 +51,7 @@ public class DistanceSensorActions {
         return distanceSensor.getDistance(distanceUnit);
     }
 
-    public double getAverageDistanceLive(){
+    public double getAverageDistanceLive(){ //Takes a single measurement and adds it into a running average of all past times it has been called
         sumAvg = 0;
         for (int i = 1; i < avgDistanceLength; i++) {
             distancesAvg[(avgDistanceLength) - i] = distancesAvg[(avgDistanceLength - 1) - i];
@@ -64,7 +64,7 @@ public class DistanceSensorActions {
         return sumAvg / (avgDistanceLength + mostRecentAdjusterAvg - 1);
     }
 
-    public double getAverageDistanceAllInOne(boolean under70) {
+    public double getAverageDistanceAllInOne(boolean under70) { //Gets a bunch of readings at once and then averages them
         sumAllAvg = 0;
         for (int i = 0; i < avgDistanceLength; i++) { //avgDistanceLength set to 10 during init as of 1/19/2023
             sumAllDistance = getSensorDistance();
@@ -84,7 +84,7 @@ public class DistanceSensorActions {
         return sumAllAvg / avgDistanceLength;
     }
 
-    public double getExponentialSmoothedDistance(boolean under70){
+    public double getExponentialSmoothedDistance(boolean under70){ //Takes a single measurement, multiplies it by alpha, then adds it to the previous result times 1-alpha
         exponentialSmoothedDistance = getSensorDistance();
         if (under70 && exponentialSmoothedDistance > 80) {
             if (exponentialSmoothedAverage == 0) {
@@ -106,7 +106,7 @@ public class DistanceSensorActions {
         return exponentialSmoothedAverage;
     }
 
-    public double driveToObject(double offset, double maxSpeed, double minSpeed) {
+    public double driveToObject(double offset, double maxSpeed, double minSpeed) { //Deprecated
         speed = maxSpeed;
         if (driveToObjectState == 0) {
             startingDistance = getAverageDistanceAllInOne(true) - offset;
@@ -128,7 +128,7 @@ public class DistanceSensorActions {
         return Range.clip(speed, minSpeed, maxSpeed);
     }
 
-    public void resetSmoothers(){
+    public void resetSmoothers(){ //Resets all the averaging/exponential smoothing
         exponentialSmoothedAverage = 0;
         for (int i = 0; i < avgDistanceLength; i++) {
             distancesAvg[i] = getSensorDistance();

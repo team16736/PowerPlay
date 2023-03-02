@@ -188,9 +188,9 @@ public class FindJunctionAction {
 //                counter = minCounter + 1;
 //            }
 
-            if (attachmentActions.scissorLift1.getCurrentPosition() < -490 && (Math.abs(targetPos) - Math.abs(currentPosition)) < 400) {
-                double output[] = geometry.getDist(currentDistance, currentPosition, true);
-                if (output[0] > 0) {
+            if (attachmentActions.scissorLift1.getCurrentPosition() < -490 && (Math.abs(targetPos) - Math.abs(currentPosition)) < 400) { // If everything is out of the way, we look for the junction
+                double output[] = geometry.getDist(currentDistance, currentPosition, true); // geometry.getDist is a method for taking in the distance and position and outputting where the junction is
+                if (output[0] > 0) { // If we get an output, it's detected the pole, so we get ready to stop.
                     dist = output[0];
                     ticksAtLowestDist = (int) Math.floor(output[1]);
                     targetPos = ticksAtLowestDist;

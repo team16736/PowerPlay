@@ -52,7 +52,7 @@ public abstract class HelperActions extends LinearOpMode {
     boolean downBit = true;
 
 
-    public double driveAndDetect(EncoderActions encoderActions, AttachmentActions attachmentActions, double speed, double distance) {
+    public double driveAndDetect(EncoderActions encoderActions, AttachmentActions attachmentActions, double speed, double distance) { // Unused
         encoderActions.resetEncoder();
         // Set the motor's target position to 6.4 rotations
         double ticksPerInch = 32.2;
@@ -88,6 +88,7 @@ public abstract class HelperActions extends LinearOpMode {
 //        encoderActions.fancySpin(speed, distance, true);
 //    }
 
+    public double getSpeed() { return speed; }
     public void setSpeed(double speed) {
         this.speed = speed;
     }
@@ -278,7 +279,7 @@ public abstract class HelperActions extends LinearOpMode {
     private int counter = 0;
     private boolean coneFinishState = false;
     private double coneDistanceFinal;
-    public boolean driveToCone(GyroActions gyroActions, DistanceSensorActions s1, EncoderActions encoderActions, AttachmentActions attachmentActions, double offset, int direction) {
+    public boolean driveToCone(GyroActions gyroActions, DistanceSensorActions s1, EncoderActions encoderActions, AttachmentActions attachmentActions, double offset, int direction) { // Unused
         if (attachmentActions.scissorLift1.getCurrentPosition() < -300 && Math.abs(attachmentActions.getTurntablePosition() - attachmentActions.getTurntableGoal()) < 2) { //If it is possible to see the cone
             if (!coneFinishState) {
                 double setSpeed = s1.driveToObject(offset, 700, 400); //Set speed between 700 and 400 as decided by the distance left; it ramps down speed until it gets there
@@ -341,12 +342,12 @@ public abstract class HelperActions extends LinearOpMode {
         releasingTime = 0;
         isPlacingCone = false;
     }
-    public void dudeYouShouldChill (DriveActions driveActions, AttachmentActions attachmentActions) {
-        if (Math.abs(attachmentActions.scissorLift1.getCurrentPosition()) > chillThreshold && upBit == false) {
+    public void dudeYouShouldChill (DriveActions driveActions, int armPosition) { // When the lift is up, it slows the robot
+        if (Math.abs(armPosition) > chillThreshold && upBit == false) {
             changeSpeed(driveActions, false, false, false, true);
             upBit = true;
             downBit = false;
-        } else if (Math.abs(attachmentActions.scissorLift1.getCurrentPosition()) < chillThreshold && downBit == false) {
+        } else if (Math.abs(armPosition) < chillThreshold && downBit == false) {
             changeSpeed(driveActions, false, false, true, false);
             downBit = true;
             upBit = false;

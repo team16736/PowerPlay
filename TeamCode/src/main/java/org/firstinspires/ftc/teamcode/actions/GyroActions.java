@@ -97,22 +97,27 @@ public class GyroActions {
         resetHeading();
     }
 
-    public void encoderGyroDrive(double speed, double distance, double heading) {
+    public void encoderGyroDrive(double speed, double distance, double heading) { // For using the encoderGyroDrive to completion
         while (encoderGyroDriveStateMachine(speed, distance, heading)) {}
     }
-    public boolean encoderGyroDriveStateMachine(double speed, double distance, double heading) {
-        if (driveState == 0) {
+    public boolean encoderGyroDriveStateMachine(double speed, double distance, double heading) { // For driving straight forwards/backwards
+        if (driveState == 0) { // Only does this the first time
+            // Set the direction to forwards/backwards
             motorFrontL.setDirection(MotorConstants.REVERSE);
             motorBackL.setDirection(MotorConstants.FORWARD);
 
             motorFrontR.setDirection(MotorConstants.REVERSE);
             motorBackR.setDirection(MotorConstants.FORWARD);
+
             adjSpeed = speed;
+
+            // Reset the encoders
             motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motorBackR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+            // Set the distance we need to go
             totalTicks = (int) (ticksPerInch * distance);
             motorFrontL.setTargetPosition(totalTicks);
             motorFrontR.setTargetPosition(totalTicks);
@@ -125,6 +130,7 @@ public class GyroActions {
             motorBackL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motorBackR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+            // Set the velocity to what we want it to be
             motorFrontL.setVelocity(speed);
             motorFrontR.setVelocity(speed);
             motorBackL.setVelocity(speed);
@@ -132,14 +138,17 @@ public class GyroActions {
             driveState = 1;
         }
 
-        if (motorFrontL.isBusy()) {
-            if (Math.abs(motorFrontL.getCurrentPosition()) > Math.abs(totalTicks * 0.9)) {
+        if (motorFrontL.isBusy()) { // If it's running
+            if (Math.abs(motorFrontL.getCurrentPosition()) > Math.abs(totalTicks * 0.9)) { // For the last 10%, slow it down
                 adjSpeed = speed * 0.5;
             }
+
+            // Heading error is how far off we are from where we want to be, rotationally
             headingError = getSteeringCorrection(heading, adjSpeed * 0.05, adjSpeed);
             if (distance < 0) {
                 headingError *= -1;
             }
+            // Adjust the speed of the motors to correct the heading
             motorFrontL.setVelocity(adjSpeed - headingError);
             motorFrontR.setVelocity(adjSpeed + headingError);
             motorBackL.setVelocity(adjSpeed - headingError);
@@ -148,13 +157,14 @@ public class GyroActions {
 //            int avgPosition = (int) Math.floor((motorFrontL.getCurrentPosition() + motorFrontR.getCurrentPosition() + motorBackL.getCurrentPosition() + motorBackR.getCurrentPosition()) / 4);
 //            int avgTargetPos = (int) Math.floor((motorFrontL.getTargetPosition() + motorFrontR.getTargetPosition() + motorBackL.getTargetPosition() + motorBackR.getTargetPosition()) / 4);
 //            distanceError = avgTargetPos - avgPosition;
+            // To make sure all of the motors finish at the same time, we make sure all of the errors for all of the motors are the same
             distanceError = motorFrontL.getTargetPosition() - motorFrontL.getCurrentPosition();
             motorFrontL.setTargetPosition(motorFrontL.getCurrentPosition() + distanceError);
             motorFrontR.setTargetPosition(motorFrontR.getCurrentPosition() + distanceError);
             motorBackL.setTargetPosition(motorBackL.getCurrentPosition() + distanceError);
             motorBackR.setTargetPosition(motorBackR.getCurrentPosition() + distanceError);
             return true;
-        } else {
+        } else { // If it's done, reset it
             driveState = 0;
             return false;
         }
@@ -164,7 +174,7 @@ public class GyroActions {
         initEncoderGyroStrafeStateMachine(speed, distance, strafeLeft);
         while (encoderGyroStrafeStateMachine(speed, distance, heading, strafeLeft)) {}
     }
-    public void initEncoderGyroStrafeStateMachine (double speed, double distance, boolean strafeLeft) {
+    public void initEncoderGyroStrafeStateMachine (double speed, double distance, boolean strafeLeft) { // Inits the encoderGyroStrafe method
         motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorBackL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -172,6 +182,7 @@ public class GyroActions {
 
         double ticksPerInch = 33.6;
         int totalTicks = (int) (ticksPerInch * distance);
+        // When going left, the target position needs to be inverted from when we go right
         if (strafeLeft) {
             motorFrontL.setTargetPosition(-totalTicks);
             motorFrontR.setTargetPosition(totalTicks);
@@ -196,7 +207,7 @@ public class GyroActions {
         motorBackR.setVelocity(-speed);
         strafeState = 1;
     }
-    public boolean encoderGyroStrafeStateMachine (double speed, double distance, double heading, boolean strafeLeft) {
+    public boolean encoderGyroStrafeStateMachine (double speed, double distance, double heading, boolean strafeLeft) { // Method for going right or left
 //        if (strafeState == 0) {
 //            motorFrontL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //            motorFrontR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -269,7 +280,7 @@ public class GyroActions {
         }
     }
 
-    public void setVelocityStraight (double speed, double heading, int direction) {
+    public void setVelocityStraight (double speed, double heading, int direction) { // Sets the velocity, and corrects the heading when used repeatedly
         headingError = getSteeringCorrection(heading, speed * 0.05, speed);
         if (speed < 0) {
             headingError *= -1;
@@ -278,6 +289,7 @@ public class GyroActions {
         double fR;
         double bL;
         double bR;
+        // Changes the values depending on which direction it goes
         if (direction == HelperActions.BACKWARDS) {
             fL = -1;
             fR = -1;
@@ -306,7 +318,7 @@ public class GyroActions {
         motorBackR.setVelocity((speed + headingError) * bR);
     }
     public void gyroSpin(double speed,
-                         double heading) {
+                         double heading) { // Unused
         motorFrontL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorBackL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorFrontR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -343,7 +355,7 @@ public class GyroActions {
 
 
 
-    public boolean maintainHeading(double speed, double heading){
+    public boolean maintainHeading(double speed, double heading){ // Unused
         turnSpeed = getSteeringCorrection(heading, P_TURN_GAIN);
         telemetry.addData("robotHeading Error 1", robotHeading);
 
@@ -449,7 +461,7 @@ public class GyroActions {
 
     public void driveStraight(double maxDriveSpeed,
                               double distance,
-                              double heading) {
+                              double heading) { // Deprecated. See encoderGyroDrive
 
         // Ensure that the opmode is still active
         if (opModeObj.opModeIsActive()) {
@@ -512,7 +524,7 @@ public class GyroActions {
     public void strafeStraight(double maxDriveSpeed,
                               double distance,
                               double heading,
-                              boolean moveLeft) {
+                              boolean moveLeft) { // Deprecated. See encoderGyroStrafe and initEncoderGyroStrafe
 
         // Ensure that the opmode is still active
         if (opModeObj.opModeIsActive()) {

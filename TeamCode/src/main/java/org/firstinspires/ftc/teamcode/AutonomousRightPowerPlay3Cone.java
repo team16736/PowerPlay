@@ -97,7 +97,7 @@ public class AutonomousRightPowerPlay3Cone extends HelperActions{
                 attachmentActions.turnTableEncoders(-180); //keep turning to 180 degrees..?
             }
             attachmentActions.closeGripper(); //Close around top cone on stack
-            sleep(350); //Allow gripper to close - Changed from 500ms to 350ms by Wyatt 12/31/2022
+            sleep(450); //Allow gripper to close - Changed from 500ms to 350ms by Wyatt 12/31/2022
             RobotLog.dd("FindJunction", "Drive to Cone 2");
             attachmentActions.liftScissor(3000, 10, false); //Lift scissor to 10 inches
             coneNum--; //Subtracts cone number by one
