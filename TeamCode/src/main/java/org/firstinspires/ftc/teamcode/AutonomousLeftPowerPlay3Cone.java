@@ -98,6 +98,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
                 attachmentActions.turnTableEncoders(180); //keep turning to 180 degrees..?
 //                getDistance(attachmentActions, encoderActions); //get the distance from the distance sensor, drives until <10mm detected
             }
+            attachmentActions.turnTable.setPower(0.0);
             attachmentActions.closeGripper(); //Close around top cone on stack
             sleep(400); //Allow gripper to close - Changed from 500ms to 350ms by Wyatt 12/31/2022
             RobotLog.dd("FindJunction", "Drive to Cone 2");
@@ -165,6 +166,7 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             telemetry.addData("is Done", true);
             telemetry.update();
         }
+        attachmentActions.turnTable.setPower(0.0);
         while (attachmentActions.scissorLift1.isBusy() || attachmentActions.scissorLift2.isBusy()) {
 //            attachmentActions.turnTableEncoders(180);
         }
@@ -187,14 +189,22 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
     private void getDistance(AttachmentActions attachmentActions, EncoderActions encoderActions) {
         if (attachmentActions.scissorLift1.getCurrentPosition() < -300 && Math.abs(attachmentActions.getTurntablePosition() - 180) < 5 && distanceMemBit == false && s1.getSensorDistance() < 10) {
 //        if (Math.abs(attachmentActions.getTurntablePosition() - 180) < 10) {
-            distanceFromCones = s1.getAverageDistanceAllInOne(true) -6.5;
+            for (int i = 0; i < 9; i++) {
+                s1.getAverageDistanceLive();
+                attachmentActions.turnTableEncoders(180);
+            }
+            distanceFromCones = s1.getAverageDistanceLive() - 6.5;
             telemetry.addData("avg distance", distanceFromCones);
             RobotLog.dd("FindJunction", "Distance sensed %f, Distance gone %d", distanceFromCones, encoderActions.motorFrontL.getCurrentPosition());
             telemetry.update();
             gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, distanceFromCones, true);
             distanceMemBit = true;
         } else if (s1.getSensorDistance() > 10 && gyroActions.strafeState == 0) {
-            distanceFromCones = s1.getAverageDistanceAllInOne(true) - 9.5;
+            for (int i = 0; i < 9; i++) {
+                s1.getAverageDistanceLive();
+                attachmentActions.turnTableEncoders(180);
+            }
+            distanceFromCones = s1.getAverageDistanceLive() - 9.5;
             gyroActions.initEncoderGyroStrafeStateMachine(strafeSpeed, distanceFromCones, true);
             RobotLog.dd("FindJunction", "Distance sensed %f, Distance gone %d, :/", distanceFromCones, encoderActions.motorFrontL.getCurrentPosition());
         }
@@ -205,9 +215,11 @@ public class AutonomousLeftPowerPlay3Cone extends HelperActions{
             //            location 3
             sleep(100);
             gyroActions.initEncoderGyroStrafeStateMachine(2000, 13, false);
+            while (Math.abs(encoderActions.motorFrontL.getCurrentPosition()) < 100){
+                gyroActions.encoderGyroStrafeStateMachine(2000, 13, 0, false);
+            }
             while (gyroActions.encoderGyroStrafeStateMachine(2000, 13, 0, false)) {
                 attachmentActions.liftToZero();
-                attachmentActions.turnTableEncoders(180);
             }
             telemetry.addData(location, "<");
             telemetry.update();
